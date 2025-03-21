@@ -1,17 +1,16 @@
 ---
-const apiUrl = "https://navigatingadolescenceonline.wordpress.com/wp-json/wp/v2/posts?per_page=3";
-
 let posts = [];
 
 try {
-  const response = await fetch(apiUrl);
-  if (response.ok) {
-    posts = await response.json();
-  } else {
-    console.error("Failed to fetch posts:", response.statusText);
+  const response = await fetch("https://navigatingadolescenceonline.wordpress.com/wp-json/wp/v2/posts?per_page=5");
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch posts: ${response.status}`);
   }
+  
+  posts = await response.json();
 } catch (error) {
-  console.error("Error fetching WordPress posts:", error);
+  console.error("Error fetching posts:", error);
 }
 ---
 
