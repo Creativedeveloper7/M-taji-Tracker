@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer utilities {
+  .shadow-mtaji {
+    box-shadow: 0 10px 25px -5px rgba(27, 67, 50, 0.1), 0 10px 10px -5px rgba(27, 67, 50, 0.04);
+  }
+}
+
+/* Initiative Description Typography */
+.initiative-description {
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 65ch;
+  color: #1f2937; /* text-gray-800 for good contrast */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.initiative-description p {
+  margin-bottom: 1rem;
+}
+
+.initiative-description p:last-child {
+  margin-bottom: 0;
+}
+
+/* Mobile responsiveness for description */
+@media (max-width: 640px) {
+  .initiative-description {
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 100%;
+  }
+}
+
+
+
