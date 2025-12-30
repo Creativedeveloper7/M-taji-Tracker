@@ -166,11 +166,14 @@ Return ONLY valid JSON, no additional text.`;
       return analysis;
 
     } catch (error) {
-      console.error('Manifesto analysis error:', error);
-      if (error instanceof Error && error.message.includes('API key')) {
-        throw new Error('OpenAI API key is invalid or missing');
+      console.error('❌ Manifesto analysis error:', error);
+      if (error instanceof Error) {
+        if (error.message.includes('API key') || error.message.includes('OPENAI_API_KEY')) {
+          throw new Error('OpenAI API key is invalid or missing. Please add OPENAI_API_KEY to your .env file.');
+        }
+        throw new Error(`Failed to analyze manifesto: ${error.message}`);
       }
-      throw new Error(`Failed to analyze manifesto: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(`Failed to analyze manifesto: Unknown error occurred`);
     }
   }
 

@@ -88,12 +88,11 @@ export const PoliticalFigureRegistration: React.FC<Props> = ({ onComplete, onCan
     } catch (error: any) {
       console.error('Manifesto analysis error:', error);
       const errorMessage = error.message || 'Failed to analyze manifesto. Please try again.';
-      setAnalysisError(errorMessage);
       
-      // If it's a connection error, provide helpful guidance
+      // Only show "server not running" message for actual connection failures
+      // Not for 500 errors (which mean server is running but has an internal error)
       if (errorMessage.includes('Cannot connect to server') || 
-          errorMessage.includes('fetch') || 
-          errorMessage.includes('Failed to fetch')) {
+          (errorMessage.includes('fetch') && errorMessage.includes('connect'))) {
         setAnalysisError(
           `❌ Cannot connect to backend server.\n\n` +
           `The backend server is not running. To fix this:\n\n` +
@@ -103,6 +102,9 @@ export const PoliticalFigureRegistration: React.FC<Props> = ({ onComplete, onCan
           `4. Try analyzing again\n\n` +
           `Make sure both frontend (npm run dev) and backend (npm run server:dev) are running.`
         );
+      } else {
+        // Show the actual error message from the server (which may include helpful details)
+        setAnalysisError(errorMessage);
       }
     } finally {
       setAnalyzing(false);

@@ -30,9 +30,11 @@ const Header = ({ onCreateInitiative }: HeaderProps) => {
         <div className="flex items-center justify-between h-16">
           {/* Logo - Left */}
           <Link to="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-yellow-400 dark:bg-yellow-500 rounded-lg flex items-center justify-center shadow-md transition-all duration-300">
-              <span className="text-xl font-heading font-bold text-black">M</span>
-            </div>
+            <img 
+              src="/Mtaji logo.png" 
+              alt="Mtaji Tracker Logo" 
+              className="h-10 w-auto object-contain"
+            />
             <div className="hidden sm:block">
               <h1 className="text-xl font-heading font-bold text-gray-900 dark:text-white transition-colors duration-300">M-taji Tracker</h1>
             </div>

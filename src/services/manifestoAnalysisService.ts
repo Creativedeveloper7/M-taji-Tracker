@@ -72,14 +72,17 @@ export async function analyzeManifesto(
         errorMessage = `Server error: ${response.status} ${response.statusText}`;
       }
       
-      // Provide helpful error messages
-      if (response.status === 0 || response.status === 500) {
+      // Provide helpful error messages based on status code
+      // Status 0 means connection failed (server not running)
+      if (response.status === 0) {
         errorMessage = 'Server is not responding. Please ensure the backend server is running on port 3001.';
       } else if (response.status === 404) {
         errorMessage = 'API endpoint not found. Please check server configuration.';
       } else if (response.status === 400) {
         errorMessage = errorMessage || 'Invalid request. Please check your input.';
       }
+      // For 500 errors, use the error message from the server (already extracted above)
+      // Don't override it with a generic "server not responding" message
       
       throw new Error(errorMessage);
     }

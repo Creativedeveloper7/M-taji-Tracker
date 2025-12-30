@@ -71,6 +71,40 @@ app.post('/api/jobs/satellite-monitoring/run', async (req, res) => {
   }
 });
 
+// Check for required environment variables and warn if missing
+const requiredEnvVars = [
+  { key: 'OPENAI_API_KEY', name: 'OpenAI API Key', required: false, feature: 'manifesto analysis' }
+];
+
+const missingVars = requiredEnvVars.filter(env => {
+  if (env.required) {
+    return !process.env[env.key];
+  }
+  return false;
+});
+
+const optionalMissingVars = requiredEnvVars.filter(env => {
+  if (!env.required) {
+    return !process.env[env.key];
+  }
+  return false;
+});
+
+if (optionalMissingVars.length > 0) {
+  console.log('\n⚠️  Optional environment variables not set (some features may not work):');
+  optionalMissingVars.forEach(env => {
+    console.log(`   - ${env.key} (for ${env.feature})`);
+  });
+  console.log('');
+} else {
+  // Verify optional vars are set
+  requiredEnvVars.filter(env => !env.required).forEach(env => {
+    if (process.env[env.key]) {
+      console.log(`✅ ${env.key} is configured (${env.feature} enabled)`);
+    }
+  });
+}
+
 // Start server
 // For ES modules, we always start the server when this file is executed
 // This works with tsx and other ESM runners
@@ -78,6 +112,10 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📡 Health check: http://localhost:${PORT}/health`);
   console.log(`🔧 Manual trigger: POST http://localhost:${PORT}/api/jobs/satellite-monitoring/run`);
+  
+  if (optionalMissingVars.length > 0) {
+    console.log(`\n💡 Tip: Add missing environment variables to your .env file to enable all features.`);
+  }
   
   // Start background jobs (don't crash server if this fails)
   try {

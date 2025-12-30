@@ -72,10 +72,24 @@ router.post('/analyze-manifesto', (req, res, next) => {
 
     res.json(analysis);
   } catch (error: any) {
-    console.error('Manifesto analysis error:', error);
-    res.status(500).json({ 
+    console.error('❌ Manifesto analysis error:', error);
+    console.error('Error stack:', error.stack);
+    
+    // Provide more specific error messages
+    let errorMessage = error.message || 'Unknown error occurred';
+    let statusCode = 500;
+    
+    if (error.message?.includes('OPENAI_API_KEY')) {
+      statusCode = 500;
+      errorMessage = 'OpenAI API key is missing. Please add OPENAI_API_KEY to your .env file.';
+    } else if (error.message?.includes('API key')) {
+      statusCode = 500;
+      errorMessage = 'OpenAI API key is invalid. Please check your OPENAI_API_KEY in .env file.';
+    }
+    
+    res.status(statusCode).json({ 
       error: 'Failed to analyze manifesto',
-      message: error.message || 'Unknown error occurred'
+      message: errorMessage
     });
   }
 });
