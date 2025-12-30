@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { Initiative } from '../types'
+import { createStatusMarker } from '../utils/markerStyles'
 
 // Fix for default marker icon in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -17,36 +18,6 @@ interface MapViewProps {
 }
 
 const MapView = ({ onInitiativeSelect, customInitiatives = [] }: MapViewProps) => {
-  const categoryColors: Record<string, string> = {
-    agriculture: '#52B788',
-    water: '#4ECDC4',
-    health: '#FF6B6B',
-    education: '#4DABF7',
-    infrastructure: '#FFD93D',
-    economic: '#FFA94D',
-  }
-
-  const createCustomIcon = (category: string, status: string) => {
-    const color = categoryColors[category]
-    const isActive = status === 'active' || status === 'published'
-    
-    return L.divIcon({
-      className: 'custom-marker',
-      html: `
-        <div style="
-          width: 24px;
-          height: 24px;
-          background-color: ${color};
-          border: 3px solid white;
-          border-radius: 50%;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-          ${isActive ? 'animation: pulse 2s infinite;' : ''}
-        "></div>
-      `,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-    })
-  }
 
   // Use only Supabase initiatives (no sample data)
   const allInitiatives: Initiative[] = customInitiatives || []
@@ -74,24 +45,93 @@ const MapView = ({ onInitiativeSelect, customInitiatives = [] }: MapViewProps) =
     return [avgLat, avgLng] as [number, number]
   }, [allInitiatives])
 
-  // Filter out initiatives with invalid coordinates
-  const validInitiatives = allInitiatives.filter(initiative => {
-    const coords = initiative.location?.coordinates
-    if (!coords) return false
-    
-    const lat = coords.lat
-    const lng = coords.lng
-    
-    return typeof lat === 'number' && 
-           typeof lng === 'number' &&
-           !isNaN(lat) && 
-           !isNaN(lng) &&
-           lat >= -90 && lat <= 90 &&
-           lng >= -180 && lng <= 180
-  })
+  // Filter out initiatives with invalid coordinates and ensure they're numbers
+  const validInitiatives = useMemo(() => {
+    return allInitiatives.filter(initiative => {
+      const coords = initiative.location?.coordinates
+      if (!coords) {
+        console.warn(`Initiative ${initiative.id} (${initiative.title}) has no coordinates`)
+        return false
+      }
+      
+      // Convert to numbers if they're strings
+      let lat = coords.lat
+      let lng = coords.lng
+      
+      if (typeof lat === 'string') {
+        lat = parseFloat(lat)
+      }
+      if (typeof lng === 'string') {
+        lng = parseFloat(lng)
+      }
+      
+      const isValid = typeof lat === 'number' && 
+             typeof lng === 'number' &&
+             !isNaN(lat) && 
+             !isNaN(lng) &&
+             lat >= -90 && lat <= 90 &&
+             lng >= -180 && lng <= 180
+      
+      if (!isValid) {
+        console.warn(`Initiative ${initiative.id} (${initiative.title}) has invalid coordinates:`, { 
+          lat, 
+          lng, 
+          latType: typeof lat, 
+          lngType: typeof lng,
+          originalCoords: coords
+        })
+      }
+      
+      return isValid
+    }).map(initiative => {
+      // Ensure coordinates are numbers in the returned object
+      const coords = initiative.location.coordinates
+      return {
+        ...initiative,
+        location: {
+          ...initiative.location,
+          coordinates: {
+            lat: typeof coords.lat === 'string' ? parseFloat(coords.lat) : coords.lat,
+            lng: typeof coords.lng === 'string' ? parseFloat(coords.lng) : coords.lng,
+          }
+        }
+      }
+    })
+  }, [allInitiatives])
+  
+  // Debug: Log how many valid initiatives we have
+  useEffect(() => {
+    console.log(`=== MapView Debug ===`)
+    console.log(`Total initiatives received: ${allInitiatives.length}`)
+    console.log(`Valid initiatives with coordinates: ${validInitiatives.length}`)
+    console.log(`All initiatives:`, allInitiatives.map(i => ({
+      id: i.id,
+      title: i.title,
+      status: i.status,
+      hasLocation: !!i.location,
+      hasCoordinates: !!i.location?.coordinates,
+      coordinates: i.location?.coordinates
+    })))
+    console.log(`Valid initiatives:`, validInitiatives.map(init => ({
+      id: init.id,
+      title: init.title,
+      coordinates: [init.location.coordinates.lat, init.location.coordinates.lng]
+    })))
+    console.log(`=== End MapView Debug ===`)
+  }, [allInitiatives, validInitiatives])
+
+  // Force map to update when initiatives change
+  const mapKey = useMemo(() => {
+    const ids = validInitiatives.map(i => i.id).sort().join(',')
+    const coordsHash = validInitiatives.map(i => 
+      `${i.location.coordinates.lat.toFixed(4)},${i.location.coordinates.lng.toFixed(4)}`
+    ).join('|')
+    return `map-${validInitiatives.length}-${ids.substring(0, 50)}-${coordsHash.substring(0, 100)}`
+  }, [validInitiatives])
 
   return (
     <MapContainer
+      key={mapKey}
       center={mapCenter}
       zoom={allInitiatives.length > 0 ? 7 : 6}
       style={{ height: '100%', width: '100%' }}
@@ -103,11 +143,37 @@ const MapView = ({ onInitiativeSelect, customInitiatives = [] }: MapViewProps) =
       />
       {validInitiatives.map((initiative) => {
         const coords = initiative.location.coordinates
+        // Ensure coordinates are in correct order: [lat, lng] for Leaflet
+        // Coordinates should already be numbers from the useMemo filter above
+        const lat = typeof coords.lat === 'number' ? coords.lat : parseFloat(String(coords.lat))
+        const lng = typeof coords.lng === 'number' ? coords.lng : parseFloat(String(coords.lng))
+        
+        // Final validation before rendering
+        if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+          console.error(`Invalid coordinates for initiative ${initiative.id} (${initiative.title}):`, {
+            lat,
+            lng,
+            latType: typeof lat,
+            lngType: typeof lng,
+            originalCoords: coords
+          })
+          return null
+        }
+        
+        // Log each marker being rendered for debugging
+        console.log(`Rendering marker for ${initiative.title} at [${lat}, ${lng}]`)
+        
+        // Get status from satellite analysis
+        const snapshots = initiative.satellite_snapshots || []
+        const latestSnapshot = snapshots.length > 0 ? snapshots[snapshots.length - 1] : null
+        const statusInfo = latestSnapshot?.ai_analysis?.status || 'baseline'
+        const statusNote = latestSnapshot?.ai_analysis?.notes || ''
+
         return (
           <Marker
             key={initiative.id}
-            position={[coords.lat, coords.lng]}
-            icon={createCustomIcon(initiative.category, initiative.status)}
+            position={[lat, lng]}
+            icon={createStatusMarker(initiative)}
             eventHandlers={{
               click: () => {
                 onInitiativeSelect(initiative)
@@ -125,6 +191,28 @@ const MapView = ({ onInitiativeSelect, customInitiatives = [] }: MapViewProps) =
                 </p>
                 {initiative.location.specific_area && (
                   <p className="text-xs text-gray-500">{initiative.location.specific_area}</p>
+                )}
+                {latestSnapshot && (
+                  <div className="mt-2 pt-2 border-t border-gray-200">
+                    <p className="text-xs font-semibold text-gray-700">
+                      Status: <span className={`${
+                        statusInfo === 'progress' ? 'text-green-600' :
+                        statusInfo === 'stalled' ? 'text-red-600' :
+                        statusInfo === 'completed' ? 'text-green-800' :
+                        'text-yellow-600'
+                      }`}>
+                        {statusInfo.charAt(0).toUpperCase() + statusInfo.slice(1)}
+                      </span>
+                    </p>
+                    {statusNote && (
+                      <p className="text-xs text-gray-500 mt-1">{statusNote}</p>
+                    )}
+                    {latestSnapshot.ai_analysis?.changePercentage !== undefined && (
+                      <p className="text-xs text-gray-500">
+                        Change: {latestSnapshot.ai_analysis.changePercentage.toFixed(1)}%
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             </Popup>
@@ -156,6 +244,20 @@ const MapStyle = () => {
           transform: scale(1.2);
           opacity: 0.8;
         }
+      }
+      @keyframes statusPulse {
+        0%, 100% {
+          transform: scale(1);
+          opacity: 0.4;
+        }
+        50% {
+          transform: scale(1.3);
+          opacity: 0.2;
+        }
+      }
+      .custom-status-marker {
+        background: transparent !important;
+        border: none !important;
       }
       .leaflet-popup-content-wrapper {
         border-radius: 0.75rem;

@@ -33,6 +33,23 @@ export interface Initiative {
     bank_name?: string;
     bank_branch?: string;
   };
+  satellite_snapshots?: Array<{
+    date: string;
+    imageUrl: string;
+    cloudCoverage: number;
+    bounds: {
+      north: number;
+      south: number;
+      east: number;
+      west: number;
+    };
+    captured_at: string;
+    ai_analysis?: {
+      status: 'baseline' | 'progress' | 'stalled' | 'completed';
+      changePercentage?: number;
+      notes: string;
+    };
+  }>;
 }
 
 // Legacy interface for backward compatibility with existing data
@@ -47,4 +64,7 @@ export interface LegacyInitiative {
   status: 'active' | 'completed' | 'stalled';
   description?: string;
 }
+
+// Export political figure types
+export * from './politicalFigure';
 

@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { Initiative } from '../types'
+import { SatelliteMonitor } from './SatelliteMonitor'
 
 interface InitiativeModalProps {
   initiative: Initiative
@@ -76,6 +78,8 @@ const formatDescription = (description: string): string[] => {
 }
 
 const InitiativeModal = ({ initiative, onClose }: InitiativeModalProps) => {
+  const [showSatelliteMonitor, setShowSatelliteMonitor] = useState(false)
+  
   const progressPercentage = initiative.target_amount > 0 
     ? (initiative.raised_amount / initiative.target_amount) * 100 
     : 0
@@ -189,9 +193,30 @@ const InitiativeModal = ({ initiative, onClose }: InitiativeModalProps) => {
           </div>
         </div>
 
-        <button className="w-full bg-mtaji-accent text-white font-heading font-semibold py-3 rounded-xl hover:bg-mtaji-primary-light transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-          View Details
-        </button>
+        <div className="flex flex-col gap-3">
+          <button 
+            onClick={() => setShowSatelliteMonitor(true)}
+            className="w-full bg-mtaji-primary text-white font-heading font-semibold py-3 rounded-xl hover:bg-mtaji-primary-light transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            View Satellite Data
+          </button>
+          <button className="w-full bg-mtaji-accent text-white font-heading font-semibold py-3 rounded-xl hover:bg-mtaji-primary-light transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+            View Details
+          </button>
+        </div>
+
+        {showSatelliteMonitor && (
+          <SatelliteMonitor
+            initiativeId={initiative.id}
+            location={initiative.location.coordinates}
+            startDate={initiative.created_at}
+            isOpen={showSatelliteMonitor}
+            onClose={() => setShowSatelliteMonitor(false)}
+          />
+        )}
       </div>
     </div>
   )

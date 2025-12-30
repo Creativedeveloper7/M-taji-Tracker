@@ -63,3 +63,4 @@ The timeout is probably because RLS is blocking anonymous requests. The quickest
 
 After disabling RLS, the app should load immediately. Once it's working, you can re-enable RLS and adjust the policies properly.
 
+

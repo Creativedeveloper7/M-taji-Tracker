@@ -99,7 +99,7 @@ const Initiatives = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen pt-16 bg-white dark:bg-gray-900">
       <Header onCreateInitiative={handleCreateInitiative} />
       
       <div className="container mx-auto px-6 py-8">

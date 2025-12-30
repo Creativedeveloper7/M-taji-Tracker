@@ -7,6 +7,7 @@ import InitiativeForm from '../components/InitiativeForm'
 import { Initiative } from '../types'
 import { fetchInitiatives, createInitiative } from '../services/initiatives'
 import { testSupabaseConnection } from '../utils/testSupabase'
+import { testMapboxConnection } from '../utils/testMapbox'
 
 function Home() {
   const [selectedInitiative, setSelectedInitiative] = useState<Initiative | null>(null)
@@ -17,7 +18,7 @@ function Home() {
 
   // Load initiatives from Supabase on mount
   useEffect(() => {
-    // Test connection on first load (only in development)
+    // Test connections on first load (only in development)
     if (import.meta.env.DEV) {
       testSupabaseConnection().then(success => {
         if (success) {
@@ -26,6 +27,9 @@ function Home() {
           console.warn('⚠️ Supabase connection test failed. Check your .env file and database setup.')
         }
       })
+      
+      // Test Mapbox connection
+      testMapboxConnection()
     }
     
     loadInitiatives()
@@ -36,6 +40,14 @@ function Home() {
       setLoading(true)
       setError(null)
       const data = await fetchInitiatives()
+      console.log('Loaded initiatives:', data.length)
+      console.log('Initiative details:', data.map(i => ({
+        id: i.id,
+        title: i.title,
+        status: i.status,
+        coordinates: i.location?.coordinates,
+        hasCoords: !!i.location?.coordinates?.lat && !!i.location?.coordinates?.lng
+      })))
       setInitiatives(data)
     } catch (err) {
       console.error('Failed to load initiatives:', err)
@@ -49,9 +61,16 @@ function Home() {
     try {
       setError(null)
       console.log('Creating initiative:', newInitiative)
+      console.log('Location data:', newInitiative.location)
+      console.log('Coordinates:', newInitiative.location.coordinates)
+      
       const created = await createInitiative(newInitiative)
       
       if (created) {
+        console.log('Created initiative:', created)
+        console.log('Created initiative location:', created.location)
+        console.log('Created initiative coordinates:', created.location.coordinates)
+        
         // Reload initiatives to get the latest data
         await loadInitiatives()
         setShowForm(false)
@@ -69,7 +88,7 @@ function Home() {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-gray-50">
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-white dark:bg-gray-900">
       <Header onCreateInitiative={() => setShowForm(true)} />
       <div className="flex-1 relative">
         {loading && (

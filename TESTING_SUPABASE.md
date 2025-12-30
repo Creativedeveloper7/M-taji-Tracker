@@ -171,3 +171,4 @@ createInitiative(testInitiative).then(result => console.log('Created:', result))
 
 Once all tests pass, you're ready to use Supabase with your application! 🎉
 
+

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { Initiative } from '../types'
+import { satelliteService } from '../services/satelliteService'
 import StepIndicator from './InitiativeForm/StepIndicator'
 import Step1BasicInfo from './InitiativeForm/Step1BasicInfo'
 import Step2Financial from './InitiativeForm/Step2Financial'
@@ -119,6 +120,36 @@ const InitiativeForm = ({ onClose, onSubmit }: InitiativeFormProps) => {
   }
 
   const handleSubmit = async (data: Partial<Initiative>) => {
+    // Validate location and coordinates before submitting
+    const location = data.location
+    const coordinates = location?.coordinates
+    
+    // Check if coordinates are set and not default
+    const hasValidCoordinates = coordinates && 
+      typeof coordinates.lat === 'number' && 
+      typeof coordinates.lng === 'number' &&
+      !isNaN(coordinates.lat) && 
+      !isNaN(coordinates.lng) &&
+      !(coordinates.lat === -0.0236 && coordinates.lng === 37.9062) // Not default Kenya center
+    
+    if (!hasValidCoordinates) {
+      console.error('❌ Cannot submit: Invalid or missing coordinates!', {
+        location,
+        coordinates,
+        hasLocation: !!location,
+        hasCoordinates: !!coordinates
+      })
+      alert('Please set a location on the map by clicking on it. The default location cannot be used.')
+      return
+    }
+    
+    console.log('✅ Submitting initiative with coordinates:', {
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+      county: location.county,
+      constituency: location.constituency
+    })
+    
     const initiative: Initiative = {
       id: `init-${Date.now()}`,
       changemaker_id: 'user-1', // TODO: Get from auth context
@@ -127,11 +158,15 @@ const InitiativeForm = ({ onClose, onSubmit }: InitiativeFormProps) => {
       category: data.category || 'agriculture',
       target_amount: data.target_amount || 0,
       raised_amount: 0,
-      location: data.location || {
-        county: '',
-        constituency: '',
-        specific_area: '',
-        coordinates: { lat: -0.0236, lng: 37.9062 },
+      location: {
+        county: location.county || '',
+        constituency: location.constituency || '',
+        specific_area: location.specific_area || '',
+        coordinates: {
+          lat: coordinates.lat,
+          lng: coordinates.lng
+        },
+        ...(location.geofence && { geofence: location.geofence })
       },
       project_duration: data.project_duration || '',
       expected_completion: data.expected_completion || '',
@@ -143,6 +178,35 @@ const InitiativeForm = ({ onClose, onSubmit }: InitiativeFormProps) => {
       payment_details: data.payment_details || {
         method: 'mpesa',
       },
+      satellite_snapshots: [], // Initialize empty array
+    }
+
+    // Capture initial satellite snapshot if status is 'published'
+    if (initiative.status === 'published') {
+      try {
+        console.log('📸 Capturing initial satellite snapshot...')
+        const snapshot = await satelliteService.captureSnapshot(
+          coordinates.lat,
+          coordinates.lng,
+          500 // radius in meters
+        )
+        
+        // Add snapshot with metadata
+        initiative.satellite_snapshots = [{
+          ...snapshot,
+          captured_at: new Date().toISOString(),
+          ai_analysis: {
+            status: 'baseline',
+            notes: 'Initial project state captured'
+          }
+        }]
+        
+        console.log('✅ Satellite snapshot captured successfully:', snapshot)
+      } catch (error) {
+        console.error('⚠️ Failed to capture satellite snapshot:', error)
+        // Continue with initiative creation even if snapshot fails
+        // Don't block the form submission
+      }
     }
 
     localStorage.removeItem('initiative-draft')

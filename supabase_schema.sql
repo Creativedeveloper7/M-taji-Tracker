@@ -70,6 +70,26 @@ CREATE TABLE IF NOT EXISTS initiatives (
   --   "bank_branch": "string"
   -- }
   
+  -- Satellite Snapshots (stored as JSONB array)
+  satellite_snapshots JSONB DEFAULT '[]'::jsonb,
+  -- Structure: Array of {
+  --   "date": "string (ISO date)",
+  --   "imageUrl": "string",
+  --   "cloudCoverage": number,
+  --   "bounds": {
+  --     "north": number,
+  --     "south": number,
+  --     "east": number,
+  --     "west": number
+  --   },
+  --   "captured_at": "string (ISO timestamp)",
+  --   "ai_analysis": {
+  --     "status": "baseline" | "progress" | "stalled" | "completed",
+  --     "changePercentage": number (optional),
+  --     "notes": "string"
+  --   } (optional)
+  -- }
+  
   -- Status
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'active', 'completed', 'stalled')),
   

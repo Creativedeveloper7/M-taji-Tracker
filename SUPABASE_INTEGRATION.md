@@ -133,3 +133,4 @@ For issues or questions:
 - Review the service layer code in `src/services/initiatives.ts`
 - Check browser console for detailed error messages
 
+

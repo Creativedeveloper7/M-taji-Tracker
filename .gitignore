@@ -17,6 +17,13 @@ pnpm-debug.log*
 .env
 .env.production
 
+# Google Earth Engine credentials
+server/config/gee-credentials.json
+
+# Server build output
+server/dist/
+server/build/
+
 # macOS-specific files
 .DS_Store
 

@@ -139,3 +139,4 @@ supabase.from('initiatives').insert({
 4. Make sure you've run the `supabase_schema.sql` file
 5. Check that your Supabase project is active
 
+
