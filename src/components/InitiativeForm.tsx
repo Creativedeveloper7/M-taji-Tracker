@@ -156,6 +156,7 @@ const InitiativeForm = ({ onClose, onSubmit }: InitiativeFormProps) => {
       title: data.title || '',
       description: data.description || '',
       category: data.category || 'agriculture',
+      organization_type: data.organization_type,
       target_amount: data.target_amount || 0,
       raised_amount: 0,
       location: {
@@ -222,6 +223,7 @@ const InitiativeForm = ({ onClose, onSubmit }: InitiativeFormProps) => {
       title: formData.title || '',
       description: formData.description || '',
       category: formData.category || 'agriculture',
+      organization_type: formData.organization_type,
       target_amount: formData.target_amount || 0,
       raised_amount: 0,
       location: formData.location || {

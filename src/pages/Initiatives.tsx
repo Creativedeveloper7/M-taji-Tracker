@@ -12,6 +12,10 @@ const Initiatives = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // Get organization type from URL params
+  const urlParams = new URLSearchParams(location.search)
+  const orgTypeFilter = urlParams.get('org_type') || 'all'
 
   const loadAllInitiatives = async () => {
     try {
@@ -55,7 +59,7 @@ const Initiatives = () => {
     }
   }, [])
 
-  // Filter initiatives based on status and search query
+  // Filter initiatives based on status, search query, and organization type
   const filteredInitiatives = initiatives.filter(initiative => {
     const matchesStatus = filter === 'all' || initiative.status === filter
     const matchesSearch = searchQuery === '' || 
@@ -63,10 +67,13 @@ const Initiatives = () => {
       initiative.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       initiative.location.county.toLowerCase().includes(searchQuery.toLowerCase())
     
+    // Filter by organization type
+    const matchesOrgType = orgTypeFilter === 'all' || initiative.organization_type === orgTypeFilter
+    
     // Only show published or active initiatives (not drafts)
     const isPublished = initiative.status !== 'draft'
     
-    return matchesStatus && matchesSearch && isPublished
+    return matchesStatus && matchesSearch && matchesOrgType && isPublished
   })
 
   const categoryColors: Record<string, string> = {
@@ -105,10 +112,12 @@ const Initiatives = () => {
       <div className="container mx-auto px-6 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-heading font-bold text-mtaji-primary mb-2">
-            All Initiatives
+            {orgTypeFilter !== 'all' ? `${orgTypeFilter} Initiatives` : 'All Initiatives'}
           </h1>
           <p className="text-gray-600">
-            Discover and explore all published initiatives across Kenya
+            {orgTypeFilter !== 'all' 
+              ? `Discover and explore ${orgTypeFilter} initiatives across Kenya`
+              : 'Discover and explore all published initiatives across Kenya'}
           </p>
         </div>
 

@@ -9,6 +9,7 @@ interface SupabaseInitiative {
   short_description?: string
   description: string
   category: 'agriculture' | 'water' | 'health' | 'education' | 'infrastructure' | 'economic'
+  organization_type?: 'NGO' | 'CBO' | 'Govt'
   target_amount: number
   raised_amount: number
   location: {
@@ -180,6 +181,7 @@ const convertToInitiative = (supabaseInitiative: SupabaseInitiative, milestones:
     short_description: supabaseInitiative.short_description,
     description: supabaseInitiative.description,
     category: supabaseInitiative.category,
+    organization_type: supabaseInitiative.organization_type,
     target_amount: Number(supabaseInitiative.target_amount),
     raised_amount: Number(supabaseInitiative.raised_amount),
     location: finalLocation,
@@ -467,6 +469,7 @@ export const createInitiative = async (initiative: Initiative): Promise<Initiati
       short_description: initiative.short_description,
       description: initiative.description,
       category: initiative.category,
+      organization_type: initiative.organization_type || null,
       target_amount: initiative.target_amount,
       raised_amount: initiative.raised_amount,
       location: locationData,

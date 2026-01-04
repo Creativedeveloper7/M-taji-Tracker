@@ -9,6 +9,7 @@ const Step1BasicInfo = () => {
   } = useFormContext<Partial<Initiative>>()
 
   const category = watch('category')
+  const organizationType = watch('organization_type')
   const shortDescription = watch('short_description') || ''
 
   const categories = [
@@ -18,6 +19,12 @@ const Step1BasicInfo = () => {
     { value: 'education', label: '🎓 Education', icon: '🎓' },
     { value: 'infrastructure', label: '🏗️ Infrastructure', icon: '🏗️' },
     { value: 'economic', label: '💼 Economic', icon: '💼' },
+  ]
+
+  const organizationTypes = [
+    { value: 'NGO', label: 'NGO', description: 'Non-Governmental Organization' },
+    { value: 'CBO', label: 'CBO', description: 'Community-Based Organization' },
+    { value: 'Govt', label: 'Government', description: 'Government Organization' },
   ]
 
   return (
@@ -75,6 +82,36 @@ const Step1BasicInfo = () => {
         </div>
         {errors.category && (
           <p className="mt-1 text-sm text-red-500">{errors.category.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Organization Type <span className="text-red-500">*</span>
+        </label>
+        <div className="grid grid-cols-3 gap-3">
+          {organizationTypes.map((org) => (
+            <label
+              key={org.value}
+              className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${
+                organizationType === org.value
+                  ? 'border-mtaji-accent bg-mtaji-secondary bg-opacity-20'
+                  : 'border-gray-200 hover:border-mtaji-primary-light'
+              }`}
+            >
+              <input
+                type="radio"
+                value={org.value}
+                {...register('organization_type', { required: 'Organization type is required' })}
+                className="hidden"
+              />
+              <span className="font-semibold text-gray-700 mb-1">{org.label}</span>
+              <span className="text-xs text-gray-500 text-center">{org.description}</span>
+            </label>
+          ))}
+        </div>
+        {errors.organization_type && (
+          <p className="mt-1 text-sm text-red-500">{errors.organization_type.message}</p>
         )}
       </div>
 

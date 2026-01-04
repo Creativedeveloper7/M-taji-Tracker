@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
+import LandingPage from './pages/LandingPage'
 import Home from './pages/Home'
 import Initiatives from './pages/Initiatives'
 import PoliticalFigures from './pages/PoliticalFigures'
@@ -12,7 +13,8 @@ function App() {
       <div className="min-h-screen bg-white dark:bg-gray-900" style={{ opacity: 1 }}>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/map" element={<Home />} />
             <Route path="/initiatives" element={<Initiatives />} />
             <Route path="/political-figures" element={<PoliticalFigures />} />
             <Route path="/political-figures/register" element={<PoliticalFigureRegister />} />

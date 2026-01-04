@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContext'
 
 interface HeaderProps {
@@ -8,18 +8,49 @@ interface HeaderProps {
 
 const Header = ({ onCreateInitiative }: HeaderProps) => {
   const location = useLocation()
+  const navigate = useNavigate()
   const { isDark, toggleTheme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [initiativesDropdownOpen, setInitiativesDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const navLinks = [
     { label: 'Home', href: '/' },
-    { label: 'Initiatives', href: '/initiatives' },
-    { label: 'Political Figures', href: '/political-figures' },
+    { label: 'Initiatives', href: '/initiatives', hasDropdown: true },
   ]
+
+  const dropdownOptions = [
+    { type: 'initiative', value: 'all', label: 'All Initiatives', href: '/initiatives' },
+    { type: 'initiative', value: 'NGO', label: 'NGO', href: '/initiatives?org_type=NGO' },
+    { type: 'initiative', value: 'CBO', label: 'CBO', href: '/initiatives?org_type=CBO' },
+    { type: 'initiative', value: 'Govt', label: 'Government', href: '/initiatives?org_type=Govt' },
+    { type: 'link', value: 'political-figures', label: 'Political Figures', href: '/political-figures' },
+  ]
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setInitiativesDropdownOpen(false)
+      }
+    }
+
+    if (initiativesDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [initiativesDropdownOpen])
 
   const isActive = (href: string) => {
     if (href === '/') {
       return location.pathname === '/'
+    }
+    // Check if Initiatives dropdown should be active (for initiatives or political-figures)
+    if (href === '/initiatives') {
+      return location.pathname.startsWith('/initiatives') || location.pathname.startsWith('/political-figures')
     }
     return location.pathname.startsWith(href)
   }
@@ -42,19 +73,76 @@ const Header = ({ onCreateInitiative }: HeaderProps) => {
 
           {/* Center Links - Desktop */}
           <nav className="hidden lg:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={`text-sm font-medium transition-colors duration-300 ${
-                  isActive(link.href)
-                    ? 'text-gray-900 dark:text-white font-semibold'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              if (link.hasDropdown) {
+                return (
+                  <div key={link.href} className="relative" ref={dropdownRef}>
+                    <button
+                      onClick={() => setInitiativesDropdownOpen(!initiativesDropdownOpen)}
+                      className={`text-sm font-medium transition-colors duration-300 flex items-center space-x-1 ${
+                        isActive(link.href)
+                          ? 'text-gray-900 dark:text-white font-semibold'
+                          : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <span>{link.label}</span>
+                      <svg
+                        className={`w-4 h-4 transition-transform duration-300 ${
+                          initiativesDropdownOpen ? 'rotate-180' : ''
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+                    {initiativesDropdownOpen && (
+                      <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                        {dropdownOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => {
+                              navigate(option.href)
+                              setInitiativesDropdownOpen(false)
+                            }}
+                            className={`w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
+                              option.type === 'link' ? 'border-t border-gray-200 dark:border-gray-700 mt-1 pt-3' : ''
+                            } ${
+                              location.pathname === option.href || 
+                              (option.type === 'initiative' && location.pathname.startsWith('/initiatives') && 
+                               (option.value === 'all' ? !location.search.includes('org_type') : location.search.includes(`org_type=${option.value}`)))
+                              ? 'bg-gray-50 dark:bg-gray-700 font-medium' 
+                              : ''
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+              return (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={`text-sm font-medium transition-colors duration-300 ${
+                    isActive(link.href)
+                      ? 'text-gray-900 dark:text-white font-semibold'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              )
+            })}
           </nav>
 
           {/* Right Side - Desktop */}
@@ -227,20 +315,53 @@ const Header = ({ onCreateInitiative }: HeaderProps) => {
         {mobileMenuOpen && (
           <div className="lg:hidden py-4 border-t border-gray-200 dark:border-gray-800 transition-all duration-300">
             <nav className="flex flex-col space-y-3">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`px-4 py-2 text-base font-medium rounded-lg transition-colors duration-300 ${
-                    isActive(link.href)
-                      ? 'text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 font-semibold'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                if (link.hasDropdown) {
+                  return (
+                    <div key={link.href} className="px-4">
+                      <div className="text-base font-medium text-gray-600 dark:text-gray-300 mb-2">
+                        {link.label}
+                      </div>
+                      <div className="flex flex-col space-y-1 ml-4">
+                        {dropdownOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => {
+                              navigate(option.href)
+                              setMobileMenuOpen(false)
+                            }}
+                            className={`px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-300 text-left ${
+                              option.type === 'link' ? 'border-t border-gray-200 dark:border-gray-700 mt-2 pt-3' : ''
+                            } ${
+                              location.pathname === option.href || 
+                              (option.type === 'initiative' && location.pathname.startsWith('/initiatives') && 
+                               (option.value === 'all' ? !location.search.includes('org_type') : location.search.includes(`org_type=${option.value}`)))
+                              ? 'bg-gray-100 dark:bg-gray-700 font-medium' 
+                              : ''
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+                return (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`px-4 py-2 text-base font-medium rounded-lg transition-colors duration-300 ${
+                      isActive(link.href)
+                        ? 'text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 font-semibold'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                )
+              })}
               <button
                 onClick={() => {
                   onCreateInitiative()

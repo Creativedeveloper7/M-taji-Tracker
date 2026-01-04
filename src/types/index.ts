@@ -5,6 +5,7 @@ export interface Initiative {
   short_description?: string;
   description: string;
   category: 'agriculture' | 'water' | 'health' | 'education' | 'infrastructure' | 'economic';
+  organization_type?: 'NGO' | 'CBO' | 'Govt';
   target_amount: number;
   raised_amount: number;
   location: {

@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Primary Colors */
+  --color-primary: #00A859;
+  --color-primary-dark: #008C4A;
+  --color-primary-light: #E6F9F0;
+  
+  /* Secondary Colors */
+  --color-accent: #FF6B2C;
+  --color-purple: #1A0B2E;
+  --color-navy: #0A1F44;
+  
+  /* Neutral Colors */
+  --color-off-white: #F8F9FA;
+  --color-light-gray: #E5E7EB;
+  --color-medium-gray: #6B7280;
+  --color-dark-gray: #1F2937;
+  
+  /* Shadows */
+  --shadow-green: 0 10px 30px rgba(0, 168, 89, 0.2);
+  --shadow-green-lg: 0 10px 40px rgba(0, 168, 89, 0.3);
+  
+  /* Timing Functions */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
 @layer base {
   body {
     @apply font-sans antialiased bg-white dark:bg-gray-900;
@@ -12,9 +39,43 @@
   }
 }
 
+@layer components {
+  .btn-primary {
+    @apply bg-mtaji-primary text-white px-8 py-3 rounded-lg font-heading font-semibold transition-all duration-300;
+    box-shadow: 0 4px 14px rgba(0, 168, 89, 0.3);
+  }
+  
+  .btn-primary:hover {
+    @apply bg-mtaji-primary-dark;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 168, 89, 0.4);
+  }
+  
+  .card {
+    @apply bg-white rounded-2xl p-8 shadow-md transition-all duration-300;
+  }
+  
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
 @layer utilities {
   .shadow-mtaji {
     box-shadow: 0 10px 25px -5px rgba(27, 67, 50, 0.1), 0 10px 10px -5px rgba(27, 67, 50, 0.04);
+  }
+  
+  .gradient-primary {
+    background: linear-gradient(135deg, #00A859 0%, #008C4A 100%);
+  }
+  
+  .gradient-dark {
+    background: linear-gradient(135deg, #1A0B2E 0%, #0A1F44 100%);
+  }
+  
+  .gradient-light {
+    background: linear-gradient(135deg, #E6F9F0 0%, #FFFFFF 100%);
   }
 }
 
