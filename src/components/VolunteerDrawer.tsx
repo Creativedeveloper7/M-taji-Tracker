@@ -14,11 +14,11 @@ export default function VolunteerDrawer({ isOpen, onClose }: VolunteerDrawerProp
     age: '',
     email: '',
   });
-  const [matches, setMatches] = useState([
+  const matches = [
     { id: 1, title: 'Community Cleanup', location: 'Nairobi', match: 92 },
     { id: 2, title: 'Education Outreach', location: 'Mombasa', match: 85 },
     { id: 3, title: 'Tree Planting', location: 'Nakuru', match: 78 },
-  ]);
+  ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -33,17 +33,8 @@ export default function VolunteerDrawer({ isOpen, onClose }: VolunteerDrawerProp
     setStep(2); // Move to matches page
   };
 
-  const handleJoinInitiative = (id: number) => {
-    // Handle joining initiative
+  const handleJoinInitiative = () => {
     setStep(3); // Move to success state
-  };
-
-  const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    } else {
-      onClose();
-    }
   };
 
   const getMatchColor = (percentage: number) => {
@@ -315,7 +306,7 @@ export default function VolunteerDrawer({ isOpen, onClose }: VolunteerDrawerProp
                           </span>
                         </div>
                         <button
-                          onClick={() => handleJoinInitiative(match.id)}
+                          onClick={handleJoinInitiative}
                           className="mt-3 w-full bg-mtaji-primary hover:bg-mtaji-primary-dark text-white text-sm font-medium py-2 px-4 rounded-md transition-colors"
                         >
                           Join Initiative

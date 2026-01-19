@@ -4,7 +4,7 @@ import { useTheme } from '../contexts/ThemeContext'
 
 interface HeaderProps {
   onCreateInitiative: () => void
-  onVolunteerClick: () => void
+  onVolunteerClick?: () => void
 }
 
 const Header = ({ onCreateInitiative, onVolunteerClick }: HeaderProps) => {

@@ -58,7 +58,10 @@ export default function PoliticalFigureProfile() {
   if (loading) {
     return (
       <div className="min-h-screen pt-16 bg-white dark:bg-gray-900">
-        <Header onCreateInitiative={() => navigate('/')} />
+        <Header 
+          onCreateInitiative={() => navigate('/')}
+          onVolunteerClick={() => {}}
+        />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mtaji-accent mx-auto mb-4"></div>
@@ -72,7 +75,10 @@ export default function PoliticalFigureProfile() {
   if (error || !figure) {
     return (
       <div className="min-h-screen pt-16 bg-white dark:bg-gray-900">
-        <Header onCreateInitiative={() => navigate('/')} />
+        <Header 
+          onCreateInitiative={() => navigate('/')}
+          onVolunteerClick={() => {}}
+        />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
             <p>{error || 'Political figure not found'}</p>

@@ -89,7 +89,10 @@ function Home() {
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-white dark:bg-gray-900">
-      <Header onCreateInitiative={() => setShowForm(true)} />
+      <Header 
+        onCreateInitiative={() => setShowForm(true)} 
+        onVolunteerClick={() => {}} 
+      />
       <div className="flex-1 relative">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
