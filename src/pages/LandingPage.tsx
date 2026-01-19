@@ -3,7 +3,11 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 
-export default function LandingPage() {
+interface LandingPageProps {
+  onVolunteerClick: () => void;
+}
+
+export default function LandingPage({ onVolunteerClick }: LandingPageProps) {
   const navigate = useNavigate();
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -17,7 +21,10 @@ export default function LandingPage() {
   return (
     <div className="bg-gradient-to-br from-mtaji-purple via-mtaji-navy to-black text-white min-h-screen">
       {/* Navigation */}
-      <Header onCreateInitiative={handleCreateInitiative} />
+      <Header 
+        onCreateInitiative={handleCreateInitiative} 
+        onVolunteerClick={onVolunteerClick} 
+      />
 
       {/* Hero Section with 3D Effect */}
       <section ref={heroRef} className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 bg-gray-900">

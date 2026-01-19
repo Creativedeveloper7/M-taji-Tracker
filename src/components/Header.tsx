@@ -4,9 +4,10 @@ import { useTheme } from '../contexts/ThemeContext'
 
 interface HeaderProps {
   onCreateInitiative: () => void
+  onVolunteerClick: () => void
 }
 
-const Header = ({ onCreateInitiative }: HeaderProps) => {
+const Header = ({ onCreateInitiative, onVolunteerClick }: HeaderProps) => {
   const location = useLocation()
   const navigate = useNavigate()
   const { isDark, toggleTheme } = useTheme()
@@ -204,6 +205,28 @@ const Header = ({ onCreateInitiative }: HeaderProps) => {
               )}
             </button>
 
+            {/* Volunteer Button */}
+            <button
+              onClick={onVolunteerClick}
+              className="flex items-center space-x-2 px-4 py-2 bg-transparent border border-teal-400 text-teal-400 font-medium rounded-full transition-all duration-300 hover:bg-teal-400/10 hover:shadow-[0_0_12px_rgba(43,199,181,0.3)] hover:shadow-teal-400/30"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              <span>Volunteer</span>
+            </button>
+
+            {/* Volunteer Button - Mobile */}
+            <button
+              onClick={onVolunteerClick}
+              className="lg:hidden w-full flex items-center justify-center space-x-2 px-4 py-3 bg-transparent border border-teal-400 text-teal-400 font-medium rounded-full transition-all duration-300 hover:bg-teal-400/10 hover:shadow-[0_0_12px_rgba(43,199,181,0.3)] hover:shadow-teal-400/30 mb-3"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              <span>Volunteer</span>
+            </button>
+
             {/* Create Initiative Button */}
             <button
               onClick={onCreateInitiative}
@@ -211,6 +234,15 @@ const Header = ({ onCreateInitiative }: HeaderProps) => {
             >
               Create Initiative
             </button>
+
+            {/* Create Initiative Button - Mobile */}
+            <button
+              onClick={onCreateInitiative}
+              className="lg:hidden w-full px-4 py-3 bg-yellow-400 hover:bg-yellow-500 text-black font-bold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg text-center"
+            >
+              Create Initiative
+            </button>
+
           </div>
 
           {/* Mobile Menu Button */}
