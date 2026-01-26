@@ -1,19 +1,65 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContext'
+import { useAuth } from '../contexts/AuthContext'
 
 interface HeaderProps {
   onCreateInitiative: () => void
-  onVolunteerClick?: () => void
 }
 
-const Header = ({ onCreateInitiative, onVolunteerClick }: HeaderProps) => {
+const Header = ({ onCreateInitiative }: HeaderProps) => {
   const location = useLocation()
   const navigate = useNavigate()
   const { isDark, toggleTheme } = useTheme()
+  const { user, userProfile, completeProfile, signOut, refreshProfile } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [initiativesDropdownOpen, setInitiativesDropdownOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+
+  // Refresh profile when user is available but completeProfile might be missing
+  useEffect(() => {
+    if (user && userProfile && !completeProfile) {
+      refreshProfile()
+    }
+  }, [user, userProfile, completeProfile, refreshProfile])
+
+  // Get display name based on user type
+  const getDisplayName = () => {
+    if (!userProfile) return user?.email || 'User'
+    
+    // First check completeProfile for type-specific data
+    if (completeProfile?.organization?.organization_name) {
+      return completeProfile.organization.organization_name
+    }
+    if (completeProfile?.government_entity?.entity_name) {
+      return completeProfile.government_entity.entity_name
+    }
+    if (completeProfile?.political_figure?.name) {
+      return completeProfile.political_figure.name
+    }
+    
+    // Fallback to changemaker name (most reliable since it's created for all users)
+    if (completeProfile?.changemaker?.name) {
+      return completeProfile.changemaker.name
+    }
+    
+    // Final fallback to email
+    return userProfile.email || user?.email || 'User'
+  }
+
+  // Get initials for avatar
+  const getInitials = () => {
+    const name = getDisplayName()
+    if (name === 'User' || !name) return 'U'
+    // If it's an email, use first letter
+    if (name.includes('@')) {
+      return name.charAt(0).toUpperCase()
+    }
+    // Otherwise, use first letter of first word
+    return name.charAt(0).toUpperCase()
+  }
 
   const navLinks = [
     { label: 'Home', href: '/' },
@@ -34,16 +80,31 @@ const Header = ({ onCreateInitiative, onVolunteerClick }: HeaderProps) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setInitiativesDropdownOpen(false)
       }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false)
+      }
     }
 
-    if (initiativesDropdownOpen) {
+    if (initiativesDropdownOpen || userMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [initiativesDropdownOpen])
+  }, [initiativesDropdownOpen, userMenuOpen])
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      setUserMenuOpen(false)
+      navigate('/')
+    } catch (error) {
+      console.error('Error signing out:', error)
+      // Still navigate even if there's an error
+      navigate('/')
+    }
+  }
 
   const isActive = (href: string) => {
     if (href === '/') {
@@ -205,44 +266,81 @@ const Header = ({ onCreateInitiative, onVolunteerClick }: HeaderProps) => {
               )}
             </button>
 
-            {/* Volunteer Button */}
-            <button
-              onClick={onVolunteerClick}
-              className="flex items-center space-x-2 px-4 py-2 bg-transparent border border-teal-400 text-teal-400 font-medium rounded-full transition-all duration-300 hover:bg-teal-400/10 hover:shadow-[0_0_12px_rgba(43,199,181,0.3)] hover:shadow-teal-400/30"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-              <span>Volunteer</span>
-            </button>
-
-            {/* Volunteer Button - Mobile */}
-            <button
-              onClick={onVolunteerClick}
-              className="lg:hidden w-full flex items-center justify-center space-x-2 px-4 py-3 bg-transparent border border-teal-400 text-teal-400 font-medium rounded-full transition-all duration-300 hover:bg-teal-400/10 hover:shadow-[0_0_12px_rgba(43,199,181,0.3)] hover:shadow-teal-400/30 mb-3"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-              <span>Volunteer</span>
-            </button>
-
-            {/* Create Initiative Button */}
-            <button
-              onClick={onCreateInitiative}
-              className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
-            >
-              Create Initiative
-            </button>
-
-            {/* Create Initiative Button - Mobile */}
-            <button
-              onClick={onCreateInitiative}
-              className="lg:hidden w-full px-4 py-3 bg-yellow-400 hover:bg-yellow-500 text-black font-bold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg text-center"
-            >
-              Create Initiative
-            </button>
-
+            {/* Auth Buttons or User Menu */}
+            {user ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-300"
+                >
+                  <div className="w-8 h-8 rounded-full bg-mtaji-primary flex items-center justify-center text-white font-semibold">
+                    {userProfile?.email?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <span className="text-sm font-medium hidden xl:block">
+                    {userProfile?.email || user.email}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-300 ${
+                      userMenuOpen ? 'rotate-180' : ''
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {getDisplayName()}
+                      </p>
+                      {userProfile && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 capitalize mt-1">
+                          {userProfile.user_type?.replace('_', ' ')}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigate('/dashboard')
+                        setUserMenuOpen(false)
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                    >
+                      Dashboard
+                    </button>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full text-left px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-4 py-2 bg-mtaji-primary hover:bg-mtaji-primary-dark text-white font-semibold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -394,15 +492,63 @@ const Header = ({ onCreateInitiative, onVolunteerClick }: HeaderProps) => {
                   </Link>
                 )
               })}
-              <button
-                onClick={() => {
-                  onCreateInitiative()
-                  setMobileMenuOpen(false)
-                }}
-                className="mx-4 mt-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg text-center"
-              >
-                Create Initiative
-              </button>
+              {/* Auth Buttons - Mobile */}
+              {user ? (
+                <>
+                  <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-10 h-10 rounded-full bg-mtaji-primary flex items-center justify-center text-white font-semibold">
+                        {getInitials()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {getDisplayName()}
+                        </p>
+                        {userProfile && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                            {userProfile.user_type?.replace('_', ' ')}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigate('/dashboard')
+                        setMobileMenuOpen(false)
+                      }}
+                      className="w-full px-4 py-2 bg-mtaji-primary hover:bg-mtaji-primary-dark text-white font-semibold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg text-center mb-2"
+                    >
+                      Dashboard
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleSignOut()
+                        setMobileMenuOpen(false)
+                      }}
+                      className="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-300 text-center"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors duration-300"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full px-4 py-2 text-center bg-mtaji-primary hover:bg-mtaji-primary-dark text-white font-semibold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </nav>
           </div>
         )}

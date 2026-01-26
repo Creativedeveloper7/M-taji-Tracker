@@ -35,22 +35,62 @@ function Home() {
     loadInitiatives()
   }, [])
 
+  // Listen for refresh events and visibility changes
+  useEffect(() => {
+    // Reload when page becomes visible (user navigates back)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('🔄 Page visible, reloading initiatives...')
+        loadInitiatives()
+      }
+    }
+    
+    // Listen for custom refresh event (triggered after creating new initiatives)
+    const handleRefresh = () => {
+      console.log('🔄 Refresh event received, reloading initiatives...')
+      loadInitiatives()
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('initiatives-refresh', handleRefresh)
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('initiatives-refresh', handleRefresh)
+    }
+  }, [])
+
   const loadInitiatives = async () => {
     try {
       setLoading(true)
       setError(null)
+      console.log('🔍 Loading initiatives for map view...')
       const data = await fetchInitiatives()
-      console.log('Loaded initiatives:', data.length)
-      console.log('Initiative details:', data.map(i => ({
+      console.log(`✅ Loaded ${data.length} initiatives for map`)
+      console.log('📋 Initiative details:', data.map(i => ({
         id: i.id,
         title: i.title,
         status: i.status,
         coordinates: i.location?.coordinates,
-        hasCoords: !!i.location?.coordinates?.lat && !!i.location?.coordinates?.lng
+        hasCoords: !!i.location?.coordinates?.lat && !!i.location?.coordinates?.lng,
+        county: i.location?.county
       })))
-      setInitiatives(data)
+      
+      // Filter out initiatives without valid coordinates for map display
+      const validInitiatives = data.filter(i => 
+        i.location?.coordinates?.lat && 
+        i.location?.coordinates?.lng &&
+        !isNaN(i.location.coordinates.lat) &&
+        !isNaN(i.location.coordinates.lng)
+      )
+      
+      if (validInitiatives.length < data.length) {
+        console.warn(`⚠️ Filtered out ${data.length - validInitiatives.length} initiatives without valid coordinates`)
+      }
+      
+      setInitiatives(validInitiatives)
     } catch (err) {
-      console.error('Failed to load initiatives:', err)
+      console.error('❌ Failed to load initiatives:', err)
       setError('Failed to load initiatives. Please try again.')
     } finally {
       setLoading(false)
@@ -89,10 +129,7 @@ function Home() {
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-white dark:bg-gray-900">
-      <Header 
-        onCreateInitiative={() => setShowForm(true)} 
-        onVolunteerClick={() => {}} 
-      />
+      <Header onCreateInitiative={() => setShowForm(true)} />
       <div className="flex-1 relative">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">

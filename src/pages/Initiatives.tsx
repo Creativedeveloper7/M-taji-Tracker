@@ -25,12 +25,22 @@ const Initiatives = () => {
       // Fetch from Supabase only
       const supabaseInitiatives = await fetchInitiatives()
       
+      // Log detailed information about fetched initiatives
+      console.log(`✅ Successfully loaded ${supabaseInitiatives.length} initiatives from Supabase`)
+      if (supabaseInitiatives.length > 0) {
+        console.log('📋 Initiative statuses:', supabaseInitiatives.map(i => ({
+          id: i.id,
+          title: i.title,
+          status: i.status,
+          created_at: i.created_at
+        })))
+      }
+      
       if (supabaseInitiatives.length === 0) {
         setError('No initiatives found. Create your first initiative to get started!')
       }
       
       setInitiatives(supabaseInitiatives)
-      console.log(`✅ Successfully loaded ${supabaseInitiatives.length} initiatives from Supabase`)
     } catch (err: any) {
       console.error('Failed to load initiatives:', err)
       setError('Failed to load initiatives. Please check your connection and try again.')
@@ -42,7 +52,7 @@ const Initiatives = () => {
 
   useEffect(() => {
     loadAllInitiatives()
-  }, [location.pathname])
+  }, [location.pathname, location.search])
 
   useEffect(() => {
     // Reload when page becomes visible (user navigates back)
@@ -52,10 +62,18 @@ const Initiatives = () => {
       }
     }
     
+    // Listen for custom refresh event (triggered after creating new initiatives)
+    const handleRefresh = () => {
+      console.log('🔄 Refresh event received, reloading initiatives...')
+      loadAllInitiatives()
+    }
+    
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('initiatives-refresh', handleRefresh)
     
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('initiatives-refresh', handleRefresh)
     }
   }, [])
 
@@ -107,21 +125,29 @@ const Initiatives = () => {
 
   return (
     <div className="min-h-screen pt-16 bg-white dark:bg-gray-900">
-      <Header 
-        onCreateInitiative={handleCreateInitiative} 
-        onVolunteerClick={() => {}} 
-      />
+      <Header onCreateInitiative={handleCreateInitiative} />
       
       <div className="container mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-heading font-bold text-mtaji-primary mb-2">
-            {orgTypeFilter !== 'all' ? `${orgTypeFilter} Initiatives` : 'All Initiatives'}
-          </h1>
-          <p className="text-gray-600">
-            {orgTypeFilter !== 'all' 
-              ? `Discover and explore ${orgTypeFilter} initiatives across Kenya`
-              : 'Discover and explore all published initiatives across Kenya'}
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-heading font-bold text-mtaji-primary mb-2">
+              {orgTypeFilter !== 'all' ? `${orgTypeFilter} Initiatives` : 'All Initiatives'}
+            </h1>
+            <p className="text-gray-600">
+              {orgTypeFilter !== 'all' 
+                ? `Discover and explore ${orgTypeFilter} initiatives across Kenya`
+                : 'Discover and explore all published initiatives across Kenya'}
+            </p>
+          </div>
+          <button
+            onClick={loadAllInitiatives}
+            disabled={loading}
+            className="px-4 py-2 bg-mtaji-accent hover:bg-mtaji-primary-light text-white rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            title="Refresh initiatives"
+          >
+            <span>🔄</span>
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
         </div>
 
         {loading && (
@@ -285,7 +311,7 @@ const Initiatives = () => {
                     </div>
 
                     <Link
-                      to="/"
+                      to={`/initiatives/${initiative.id}`}
                       className="block w-full bg-mtaji-accent text-white font-heading font-semibold py-2 rounded-xl hover:bg-mtaji-primary-light transition-all duration-300 text-center"
                     >
                       View Details

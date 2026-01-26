@@ -4,8 +4,8 @@
 
 :root {
   /* Primary Colors */
-  --color-primary: #00A859;
-  --color-primary-dark: #008C4A;
+  --color-primary: #ffd500;
+  --color-primary-dark: #ffd900;
   --color-primary-light: #E6F9F0;
   
   /* Secondary Colors */
@@ -104,6 +104,23 @@
     line-height: 1.6;
     max-width: 100%;
   }
+}
+
+/* Dark theme for select dropdowns */
+select {
+  color: white;
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+select option {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  color: white !important;
+}
+
+/* Ensure select dropdowns are visible on dark backgrounds */
+select:focus {
+  background-color: rgb(31, 41, 55) !important;
+  color: white !important;
 }
 
 

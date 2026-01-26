@@ -204,31 +204,25 @@ const convertToInitiative = (supabaseInitiative: SupabaseInitiative, milestones:
 // Fetch all published/active initiatives
 export const fetchInitiatives = async (): Promise<Initiative[]> => {
   try {
-    console.log('Fetching initiatives from Supabase...')
+    console.log('🔍 Fetching initiatives from Supabase...')
     
     // Start with a simpler query - only fetch published initiatives first
     // This reduces complexity and improves performance
     let { data: initiatives, error: initiativesError } = await supabase
       .from('initiatives')
       .select('*')
-      .eq('status', 'published')
+      .in('status', ['published', 'active', 'completed']) // Fetch all public statuses at once
       .order('created_at', { ascending: false })
-      .limit(50)
+      .limit(100) // Increased limit to get more initiatives
 
-    // If no published initiatives, try active and completed
-    if (!initiativesError && (!initiatives || initiatives.length === 0)) {
-      console.log('No published initiatives found, checking active/completed...')
-      const { data: activeData, error: activeError } = await supabase
-        .from('initiatives')
-        .select('*')
-        .in('status', ['active', 'completed'])
-        .order('created_at', { ascending: false })
-        .limit(50)
-      
-      if (!activeError && activeData) {
-        initiatives = activeData
-      }
-      initiativesError = activeError
+    // Log what we found
+    if (!initiativesError && initiatives) {
+      console.log(`📊 Found ${initiatives.length} initiatives with status: published/active/completed`)
+      const statusCounts = initiatives.reduce((acc: Record<string, number>, init: any) => {
+        acc[init.status] = (acc[init.status] || 0) + 1
+        return acc
+      }, {})
+      console.log('📈 Status breakdown:', statusCounts)
     }
 
     if (initiativesError) {
@@ -248,8 +242,8 @@ export const fetchInitiatives = async (): Promise<Initiative[]> => {
       const { data: simpleData, error: simpleError } = await supabase
         .from('initiatives')
         .select('id, title, status, location, created_at, description, category, target_amount, raised_amount, changemaker_id')
-        .eq('status', 'published')
-        .limit(50)
+        .in('status', ['published', 'active', 'completed'])
+        .limit(100)
         .order('created_at', { ascending: false })
       
       if (simpleError) {
@@ -266,7 +260,25 @@ export const fetchInitiatives = async (): Promise<Initiative[]> => {
     }
 
     if (!initiatives || initiatives.length === 0) {
-      console.log('No initiatives found in Supabase')
+      console.log('⚠️ No published/active/completed initiatives found in Supabase')
+      console.log('💡 Checking if there are any draft initiatives...')
+      
+      // Check if there are any initiatives at all (including drafts) for debugging
+      const { data: allInitiatives, error: allError } = await supabase
+        .from('initiatives')
+        .select('id, title, status, created_at')
+        .limit(10)
+      
+      if (!allError && allInitiatives && allInitiatives.length > 0) {
+        console.log(`📋 Found ${allInitiatives.length} initiatives in database, but none are published:`)
+        allInitiatives.forEach(init => {
+          console.log(`   - ${init.title} (status: ${init.status})`)
+        })
+        console.log('💡 Tip: Update draft initiatives to "published" status to make them visible')
+      } else if (!allError && (!allInitiatives || allInitiatives.length === 0)) {
+        console.log('📭 No initiatives found in database at all')
+      }
+      
       return []
     }
 
@@ -341,6 +353,71 @@ export const fetchInitiatives = async (): Promise<Initiative[]> => {
     return []
   }
 }
+
+// Fetch initiatives for a specific changemaker (user's own initiatives)
+export const fetchUserInitiatives = async (changemakerId: string): Promise<Initiative[]> => {
+  try {
+    console.log('Fetching user initiatives for changemaker:', changemakerId);
+    
+    // Fetch all initiatives for this changemaker (including drafts)
+    const { data: initiatives, error: initiativesError } = await supabase
+      .from('initiatives')
+      .select('*')
+      .eq('changemaker_id', changemakerId)
+      .order('created_at', { ascending: false });
+
+    if (initiativesError) {
+      console.error('Error fetching user initiatives:', initiativesError);
+      return [];
+    }
+
+    if (!initiatives || initiatives.length === 0) {
+      console.log('No initiatives found for this user');
+      return [];
+    }
+
+    console.log(`Found ${initiatives.length} initiatives for user, fetching milestones...`);
+
+    // Fetch milestones for all initiatives
+    const initiativeIds = initiatives.map((i: any) => i.id);
+    let milestones: SupabaseMilestone[] | null = null;
+
+    if (initiativeIds.length > 0) {
+      const { data: milestonesData, error: milestonesError } = await supabase
+        .from('milestones')
+        .select('*')
+        .in('initiative_id', initiativeIds)
+        .order('target_date', { ascending: true });
+
+      if (milestonesError) {
+        console.warn('Error fetching milestones:', milestonesError);
+        milestones = [];
+      } else {
+        milestones = milestonesData;
+      }
+    }
+
+    // Group milestones by initiative_id
+    const milestonesByInitiative = new Map<string, SupabaseMilestone[]>();
+    if (milestones) {
+      milestones.forEach(milestone => {
+        const existing = milestonesByInitiative.get(milestone.initiative_id) || [];
+        milestonesByInitiative.set(milestone.initiative_id, [...existing, milestone]);
+      });
+    }
+
+    // Convert and combine
+    const result = initiatives.map(initiative =>
+      convertToInitiative(initiative as SupabaseInitiative, milestonesByInitiative.get(initiative.id) || [])
+    );
+
+    console.log(`Successfully loaded ${result.length} user initiatives`);
+    return result;
+  } catch (error) {
+    console.error('Error in fetchUserInitiatives:', error);
+    return [];
+  }
+};
 
 // Fetch a single initiative by ID
 export const fetchInitiativeById = async (id: string): Promise<Initiative | null> => {
@@ -463,13 +540,23 @@ export const createInitiative = async (initiative: Initiative): Promise<Initiati
       originalCoords: initiative.location.coordinates
     })
     
+    // Map category to valid database values
+    const validCategories = ['agriculture', 'water', 'health', 'education', 'infrastructure', 'economic'];
+    const categoryMapping: Record<string, string> = {
+      'social_welfare': 'health',
+      'environment': 'infrastructure',
+      'governance': 'infrastructure',
+      'other': 'infrastructure',
+    };
+    const mappedCategory = categoryMapping[initiative.category] || initiative.category;
+    const finalCategory = validCategories.includes(mappedCategory) ? mappedCategory : 'infrastructure';
+
     const initiativeData = {
       changemaker_id: changemakerId,
       title: initiative.title,
       short_description: initiative.short_description,
       description: initiative.description,
-      category: initiative.category,
-      organization_type: initiative.organization_type || null,
+      category: finalCategory,
       target_amount: initiative.target_amount,
       raised_amount: initiative.raised_amount,
       location: locationData,
