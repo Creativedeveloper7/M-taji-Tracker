@@ -277,7 +277,6 @@ export default function CreateInitiative() {
           try {
             // Sanitize filename - remove special characters
             const sanitizedName = image.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-            const fileExt = sanitizedName.split('.').pop();
             const fileName = `${changemakerId}/${Date.now()}_${sanitizedName}`;
             
             const { data: uploadData, error: uploadError } = await supabase.storage
@@ -682,7 +681,7 @@ export default function CreateInitiative() {
 
                   <div>
                     <label className="block text-sm text-mtaji-light-gray mb-2">Milestones</label>
-                    {watch('timeline.milestones')?.map((milestone, index) => (
+                    {watch('timeline.milestones')?.map((_milestone, index) => (
                       <div key={index} className="flex gap-2 mb-2">
                         <input
                           {...register(`timeline.milestones.${index}.name`)}
@@ -755,7 +754,7 @@ export default function CreateInitiative() {
 
                   <div>
                     <label className="block text-sm text-mtaji-light-gray mb-2">Budget Breakdown</label>
-                    {watch('budget.breakdown')?.map((item, index) => (
+                    {watch('budget.breakdown')?.map((_item, index) => (
                       <div key={index} className="flex gap-2 mb-2">
                         <input
                           {...register(`budget.breakdown.${index}.category`)}
@@ -857,7 +856,7 @@ export default function CreateInitiative() {
 
                   <div>
                     <label className="block text-sm text-mtaji-light-gray mb-2">Team Members</label>
-                    {watch('teamMembers')?.map((member, index) => (
+                    {watch('teamMembers')?.map((_member, index) => (
                       <div key={index} className="grid grid-cols-3 gap-2 mb-2">
                         <input
                           {...register(`teamMembers.${index}.name`)}

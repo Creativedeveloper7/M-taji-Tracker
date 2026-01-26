@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
-import { OrganizationRegistrationData, OrganizationType, AreaOfFocus } from '../types/auth';
+import { OrganizationRegistrationData, AreaOfFocus } from '../types/auth';
 import { registerOrganization } from '../services/authService';
 import { kenyanCounties } from '../data/kenyanCounties';
 

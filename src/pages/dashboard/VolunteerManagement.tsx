@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { getAllVolunteerApplications, VolunteerApplication, updateVolunteerApplicationStatus } from '../../services/volunteerService';
 import { fetchInitiatives } from '../../services/initiatives';
 

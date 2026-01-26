@@ -5,7 +5,7 @@ import { UserType } from '../types/auth';
 
 export default function Register() {
   const navigate = useNavigate();
-  const [selectedUserType, setSelectedUserType] = useState<UserType | null>(null);
+  const [, setSelectedUserType] = useState<UserType | null>(null);
 
   const userTypes = [
     {

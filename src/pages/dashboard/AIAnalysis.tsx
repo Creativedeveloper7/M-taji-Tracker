@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 export default function AIAnalysis() {
-  const [selectedProject, setSelectedProject] = useState<string>('');
 
   // Mock data - replace with actual AI analysis results
   const analysisData = {

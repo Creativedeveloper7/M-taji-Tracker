@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GovernmentEntityRegistrationData, EntityType, JurisdictionLevel } from '../types/auth';
+import { GovernmentEntityRegistrationData } from '../types/auth';
 import { registerGovernmentEntity } from '../services/authService';
 import { kenyanCounties } from '../data/kenyanCounties';
 import { kenyanMinistries, commonDepartments } from '../data/kenyanMinistries';

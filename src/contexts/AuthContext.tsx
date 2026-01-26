@@ -6,7 +6,6 @@ import {
   CompleteUserProfile,
   AuthContextType,
   UserType,
-  OnboardingProgress,
 } from '../types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

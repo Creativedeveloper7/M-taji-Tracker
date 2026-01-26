@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 
 interface SatelliteImage {
   id: string;
@@ -17,7 +16,7 @@ export default function SatelliteTracker() {
 
   // Mock data - replace with actual satellite API integration
   const satelliteImages: SatelliteImage[] = [];
-  const projects = [];
+  const projects: Array<{ id: string; name: string }> = [];
 
   return (
     <div className="space-y-6">
@@ -33,7 +32,7 @@ export default function SatelliteTracker() {
               className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-mtaji-primary bg-gray-800"
             >
               <option value="">All Projects</option>
-              {projects.map((project: any) => (
+              {projects.map((project) => (
                 <option key={project.id} value={project.id}>{project.name}</option>
               ))}
             </select>

@@ -4,10 +4,10 @@ import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
 
 interface HeaderProps {
-  onCreateInitiative: () => void
+  onCreateInitiative?: () => void
 }
 
-const Header = ({ onCreateInitiative }: HeaderProps) => {
+const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
   const location = useLocation()
   const navigate = useNavigate()
   const { isDark, toggleTheme } = useTheme()

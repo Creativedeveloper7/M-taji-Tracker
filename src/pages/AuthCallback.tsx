@@ -27,11 +27,11 @@ export default function AuthCallback() {
         if (type === 'signup' || code || token || accessToken) {
           // Exchange the code/token for a session
           if (code) {
-            const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+            const { error } = await supabase.auth.exchangeCodeForSession(code);
             if (error) throw error;
           } else if (accessToken && refreshToken) {
             // Set the session directly
-            const { data, error } = await supabase.auth.setSession({
+            const { error } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken,
             });

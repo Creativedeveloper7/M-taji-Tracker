@@ -2,8 +2,6 @@ import { supabase } from '../lib/supabase';
 import {
   OrganizationRegistrationData,
   GovernmentEntityRegistrationData,
-  PoliticalFigureRegistrationData,
-  UserType,
   RegistrationResponse,
   ApiResponse,
   VerificationDocument,
@@ -22,7 +20,7 @@ export const uploadDocument = async (
     const fileExt = file.name.split('.').pop();
     const fileName = `${userProfileId}/${documentType}_${Date.now()}.${fileExt}`;
     
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('verification-documents')
       .upload(fileName, file);
 
@@ -594,7 +592,7 @@ export const checkEmailAvailability = async (
   email: string
 ): Promise<boolean> => {
   try {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('user_profiles')
       .select('id')
       .eq('email', email)
