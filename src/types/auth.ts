@@ -451,8 +451,8 @@ export interface ApiResponse<T> {
 }
 
 export interface RegistrationResponse {
-  user_id: string;
-  user_profile_id: string;
+  user_id?: string;
+  user_profile_id?: string;
   email: string;
   verification_status: VerificationStatus;
   message: string;

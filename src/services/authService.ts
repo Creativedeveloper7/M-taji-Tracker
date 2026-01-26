@@ -7,6 +7,7 @@ import {
   RegistrationResponse,
   ApiResponse,
   VerificationDocument,
+  OnboardingSteps,
 } from '../types/auth';
 
 // ============================================
@@ -65,6 +66,8 @@ export const registerOrganization = async (
         return {
           success: true,
           data: {
+            user_id: undefined,
+            user_profile_id: undefined,
             email: data.email,
             verification_status: 'pending',
             message: 'Account created successfully! Please check your email to confirm your account before logging in.',
@@ -246,6 +249,8 @@ export const registerOrganization = async (
       return {
         success: true,
         data: {
+          user_id: undefined,
+          user_profile_id: undefined,
           email: data.email,
           verification_status: 'pending',
           message: 'Account created successfully! Please check your email to confirm your account. After email confirmation, you can complete your profile setup.',
@@ -258,6 +263,8 @@ export const registerOrganization = async (
       return {
         success: true,
         data: {
+          user_id: undefined,
+          user_profile_id: undefined,
           email: data.email,
           verification_status: 'pending',
           message: 'Account created successfully! Please check your email to confirm your account before logging in.',
@@ -291,7 +298,23 @@ export const registerGovernmentEntity = async (
       },
     });
 
-    if (authError) throw authError;
+    if (authError) {
+      // If email confirmation is required, treat it as success
+      if (authError.message?.includes('Email not confirmed') || 
+          authError.message?.includes('email_not_confirmed')) {
+        return {
+          success: true,
+          data: {
+            user_id: undefined,
+            user_profile_id: undefined,
+            email: data.email,
+            verification_status: 'pending',
+            message: 'Account created successfully! Please check your email to confirm your account before logging in.',
+          },
+        };
+      }
+      throw authError;
+    }
     if (!authData.user) throw new Error('Failed to create user');
 
     // 2. Wait a moment for the trigger to create the profile, then fetch it
@@ -489,6 +512,8 @@ export const registerGovernmentEntity = async (
       return {
         success: true,
         data: {
+          user_id: undefined,
+          user_profile_id: undefined,
           email: data.email,
           verification_status: 'pending',
           message: 'Account created successfully! Please check your email to confirm your account. After email confirmation, you can complete your profile setup.',
@@ -501,6 +526,8 @@ export const registerGovernmentEntity = async (
       return {
         success: true,
         data: {
+          user_id: undefined,
+          user_profile_id: undefined,
           email: data.email,
           verification_status: 'pending',
           message: 'Account created successfully! Please check your email to confirm your account before logging in.',
@@ -542,21 +569,21 @@ export const getUserDocuments = async (
 export const updateOnboardingStep = async (
   userProfileId: string,
   step: number,
-  stepName: keyof typeof import('../types/auth').OnboardingSteps
+  stepName: keyof OnboardingSteps
 ) => {
   try {
     const { error } = await supabase
       .from('onboarding_progress')
       .update({
         current_step: step,
-        [`steps_completed.${stepName}`]: true,
+        [`steps_completed.${String(stepName)}`]: true,
       })
       .eq('user_profile_id', userProfileId);
 
     if (error) throw error;
-  } catch (error) {
-    console.error('Error updating onboarding step:', error);
-    throw error;
+  } catch (err) {
+    console.error('Error updating onboarding step:', err);
+    throw err;
   }
 };
 
@@ -575,7 +602,7 @@ export const checkEmailAvailability = async (
 
     // If no data found, email is available
     return !data;
-  } catch (error) {
+  } catch {
     // If error is "No rows found", email is available
     return true;
   }
