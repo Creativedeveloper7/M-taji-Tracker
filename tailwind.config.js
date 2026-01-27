@@ -8,20 +8,28 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Primary Colors
+        // New Color System (CSS Variables)
+        'bg-primary': 'var(--bg-primary)',
+        'bg-secondary': 'var(--bg-secondary)',
+        'bg-overlay': 'var(--bg-overlay)',
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'text-muted': 'var(--text-muted)',
+        'accent-primary': 'var(--accent-primary)',
+        'accent-secondary': 'var(--accent-secondary)',
+        'border-subtle': 'var(--border-subtle)',
+        'divider': 'var(--divider)',
+        // Legacy colors for backward compatibility (will be phased out)
         'mtaji-primary': '#00A859',
         'mtaji-primary-dark': '#008C4A',
         'mtaji-primary-light': '#E6F9F0',
-        // Secondary Colors
         'mtaji-accent': '#FF6B2C',
         'mtaji-purple': '#1A0B2E',
         'mtaji-navy': '#0A1F44',
-        // Neutral Colors
         'mtaji-off-white': '#F8F9FA',
         'mtaji-light-gray': '#E5E7EB',
         'mtaji-medium-gray': '#6B7280',
         'mtaji-dark-gray': '#1F2937',
-        // Legacy colors for backward compatibility
         'mtaji-secondary': '#95D5B2',
         'agriculture': '#52B788',
         'water': '#4ECDC4',

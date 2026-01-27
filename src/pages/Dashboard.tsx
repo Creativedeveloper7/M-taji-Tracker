@@ -53,10 +53,10 @@ export default function Dashboard() {
   // Show loading while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-mtaji-purple via-mtaji-navy to-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-primary text-primary flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mtaji-primary mx-auto mb-4"></div>
-          <p className="text-mtaji-light-gray">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--accent-primary)' }}></div>
+          <p className="text-secondary">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -65,10 +65,10 @@ export default function Dashboard() {
   // If not authenticated, show loading while redirect happens
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-mtaji-purple via-mtaji-navy to-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-primary text-primary flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mtaji-primary mx-auto mb-4"></div>
-          <p className="text-mtaji-light-gray">Redirecting to login...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--accent-primary)' }}></div>
+          <p className="text-secondary">Redirecting to login...</p>
         </div>
       </div>
     );
@@ -92,11 +92,11 @@ export default function Dashboard() {
       case 'verified':
         return 'text-green-400';
       case 'under_review':
-        return 'text-yellow-400';
+        return 'text-accent-primary';
       case 'rejected':
         return 'text-red-400';
       default:
-        return 'text-mtaji-light-gray';
+        return 'text-secondary';
     }
   };
 
@@ -132,17 +132,17 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mtaji-purple via-mtaji-navy to-black text-white">
+    <div className="min-h-screen bg-primary text-primary">
       <Header onCreateInitiative={() => {}} />
       
       <div className="flex">
         {/* Sidebar Navigation */}
-        <aside className="w-64 bg-black/20 backdrop-blur-lg border-r border-white/10 min-h-[calc(100vh-80px)] p-4">
+        <aside className="w-64 bg-secondary border-r border-subtle min-h-[calc(100vh-80px)] p-4">
           {/* User Info */}
-          <div className="mb-6 pb-6 border-b border-white/10">
-            <h2 className="text-xl font-heading font-black mb-2">Dashboard</h2>
+          <div className="mb-6 pb-6 border-b border-divider">
+            <h2 className="text-xl font-heading font-black mb-2 text-primary">Dashboard</h2>
             {userProfile && (
-              <p className="text-sm text-mtaji-light-gray">
+              <p className="text-sm text-secondary">
                 {getUserTypeDisplay(userProfile.user_type)}
               </p>
             )}
@@ -156,9 +156,10 @@ export default function Dashboard() {
                 onClick={() => setActiveSection(section.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                   activeSection === section.id
-                    ? 'bg-mtaji-primary text-white'
-                    : 'text-mtaji-light-gray hover:bg-white/10 hover:text-white'
+                    ? 'text-primary'
+                    : 'text-secondary hover:bg-overlay hover:text-primary'
                 }`}
+                style={activeSection === section.id ? { backgroundColor: 'var(--accent-primary)', color: '#121212' } : {}}
               >
                 <span className="text-xl">{section.icon}</span>
                 <span className="font-semibold">{section.label}</span>
@@ -168,18 +169,18 @@ export default function Dashboard() {
 
           {/* Account Status (Bottom) */}
           {userProfile && (
-            <div className="mt-8 pt-6 border-t border-white/10">
-              <div className="text-xs text-mtaji-medium-gray mb-2">Account Status</div>
+            <div className="mt-8 pt-6 border-t border-divider">
+              <div className="text-xs text-muted mb-2">Account Status</div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-mtaji-light-gray">Verification:</span>
+                  <span className="text-secondary">Verification:</span>
                   <span className={`font-semibold capitalize ${getVerificationStatusColor(userProfile.verification_status)}`}>
                     {userProfile.verification_status || 'Pending'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-mtaji-light-gray">Email:</span>
-                  <span className={user?.email_confirmed_at ? 'text-green-400' : 'text-yellow-400'}>
+                  <span className="text-secondary">Email:</span>
+                  <span className={user?.email_confirmed_at ? 'text-green-400' : 'text-accent-primary'}>
                     {user?.email_confirmed_at ? '✓' : '⏳'}
                   </span>
                 </div>

@@ -59,22 +59,22 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mtaji-purple via-mtaji-navy to-black text-white">
+    <div className="min-h-screen bg-primary text-primary">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-mtaji-light-gray hover:text-white transition-colors"
+            className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
           >
             <span>←</span>
             <span>Back to Home</span>
           </button>
-          <div className="text-sm text-mtaji-light-gray">
+          <div className="text-sm text-secondary">
             Already have an account?{' '}
             <button
               onClick={() => navigate('/login')}
-              className="text-mtaji-primary hover:underline font-semibold"
+              className="text-accent-primary hover:underline font-semibold"
             >
               Sign In
             </button>
@@ -90,10 +90,10 @@ export default function Register() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl md:text-6xl font-heading font-black mb-6">
-            Join the <span className="text-mtaji-primary">Transparency</span> Revolution
+          <h1 className="text-5xl md:text-6xl font-heading font-black mb-6 text-primary">
+            Join the <span className="text-accent-primary">Transparency</span> Revolution
           </h1>
-          <p className="text-xl text-mtaji-light-gray max-w-3xl mx-auto">
+          <p className="text-xl text-secondary max-w-3xl mx-auto">
             Select your account type to get started. All accounts are verified to ensure transparency and accountability.
           </p>
         </motion.div>
@@ -112,7 +112,7 @@ export default function Register() {
                 whileHover={{ scale: 1.02, y: -4 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleSelectUserType(userType.type)}
-                className="w-full bg-white/10 backdrop-blur-lg border-2 border-white/20 rounded-3xl p-8 text-left transition-all duration-300 hover:border-mtaji-primary hover:bg-white/15 group"
+                className="w-full bg-secondary border-2 border-subtle rounded-lg p-8 text-left transition-all duration-300 hover:border-accent-primary hover:bg-overlay group"
               >
                 {/* Icon */}
                 <div className="text-6xl mb-6 group-hover:scale-110 transition-transform">
@@ -120,12 +120,12 @@ export default function Register() {
                 </div>
 
                 {/* Title */}
-                <h2 className="text-2xl font-heading font-bold mb-3 group-hover:text-mtaji-primary transition-colors">
+                <h2 className="text-2xl font-heading font-bold mb-3 text-primary group-hover:text-accent-primary transition-colors">
                   {userType.title}
                 </h2>
 
                 {/* Description */}
-                <p className="text-mtaji-light-gray mb-6">
+                <p className="text-secondary mb-6">
                   {userType.description}
                 </p>
 
@@ -133,14 +133,14 @@ export default function Register() {
                 <ul className="space-y-3 mb-6">
                   {userType.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2 text-sm">
-                      <span className="text-mtaji-primary mt-0.5">✓</span>
-                      <span className="text-mtaji-medium-gray">{feature}</span>
+                      <span className="text-accent-primary mt-0.5">✓</span>
+                      <span className="text-secondary">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
                 {/* CTA */}
-                <div className="flex items-center justify-between text-mtaji-primary font-semibold">
+                <div className="flex items-center justify-between text-accent-primary font-semibold">
                   <span>Get Started</span>
                   <span className="group-hover:translate-x-2 transition-transform">→</span>
                 </div>
@@ -156,19 +156,19 @@ export default function Register() {
           transition={{ delay: 0.5 }}
           className="mt-20 text-center"
         >
-          <p className="text-mtaji-medium-gray mb-6">Trusted by development organizations across Kenya</p>
+          <p className="text-muted mb-6">Trusted by development organizations across Kenya</p>
           <div className="flex items-center justify-center gap-12 flex-wrap">
             <div className="text-center">
-              <div className="text-3xl font-bold text-mtaji-primary">24-48hrs</div>
-              <div className="text-sm text-mtaji-light-gray">Verification Time</div>
+              <div className="text-3xl font-bold text-accent-primary">24-48hrs</div>
+              <div className="text-sm text-secondary">Verification Time</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-mtaji-primary">100%</div>
-              <div className="text-sm text-mtaji-light-gray">Secure & Encrypted</div>
+              <div className="text-3xl font-bold text-accent-primary">100%</div>
+              <div className="text-sm text-secondary">Secure & Encrypted</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-mtaji-primary">500+</div>
-              <div className="text-sm text-mtaji-light-gray">Verified Users</div>
+              <div className="text-3xl font-bold text-accent-primary">500+</div>
+              <div className="text-sm text-secondary">Verified Users</div>
             </div>
           </div>
         </motion.div>
@@ -178,13 +178,13 @@ export default function Register() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="mt-16 max-w-3xl mx-auto bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6"
+          className="mt-16 max-w-3xl mx-auto bg-secondary border border-subtle rounded-lg p-6"
         >
           <div className="flex items-start gap-4">
             <div className="text-3xl">🔒</div>
             <div>
-              <h3 className="font-heading font-bold mb-2">Your Security Matters</h3>
-              <p className="text-sm text-mtaji-light-gray leading-relaxed">
+              <h3 className="font-heading font-bold mb-2 text-primary">Your Security Matters</h3>
+              <p className="text-sm text-secondary leading-relaxed">
                 All registrations undergo thorough verification including KYC compliance checks,
                 document verification, and admin approval. Your data is encrypted and securely stored
                 in compliance with data protection regulations.

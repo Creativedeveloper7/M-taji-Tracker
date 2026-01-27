@@ -128,23 +128,23 @@ function Home() {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-white dark:bg-gray-900">
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-primary">
       <Header onCreateInitiative={() => setShowForm(true)} />
       <div className="flex-1 relative">
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+          <div className="absolute inset-0 flex items-center justify-center bg-overlay bg-opacity-75 z-50">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mtaji-accent mx-auto mb-4"></div>
-              <p className="text-mtaji-primary font-medium">Loading initiatives...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--accent-primary)' }}></div>
+              <p className="text-primary font-medium">Loading initiatives...</p>
             </div>
           </div>
         )}
         {error && (
-          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-red-500/20 border border-red-500 text-red-400 px-4 py-3 rounded z-50">
             <p>{error}</p>
             <button 
               onClick={() => setError(null)}
-              className="mt-2 text-sm underline"
+              className="mt-2 text-sm underline text-accent-primary"
             >
               Dismiss
             </button>

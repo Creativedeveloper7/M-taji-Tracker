@@ -66,7 +66,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mtaji-purple via-mtaji-navy to-black text-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-primary text-primary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -74,16 +74,16 @@ export default function Login() {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-heading font-black mb-2">
-            Welcome <span className="text-mtaji-primary">Back</span>
+          <h1 className="text-4xl font-heading font-black mb-2 text-primary">
+            Welcome <span className="text-accent-primary">Back</span>
           </h1>
-          <p className="text-mtaji-light-gray">
+          <p className="text-secondary">
             Sign in to your account to continue tracking development projects
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8">
+        <div className="bg-secondary border border-subtle rounded-lg p-8">
           {error && (
             <div className="mb-6 bg-red-500/20 border border-red-500 rounded-lg p-4">
               <p className="text-red-200 text-sm">{error}</p>
@@ -102,7 +102,7 @@ export default function Login() {
                     message: 'Invalid email address',
                   },
                 })}
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary transition-colors"
+                className="w-full bg-overlay border border-subtle rounded-lg px-4 py-3 text-primary placeholder-muted focus:outline-none focus:border-accent-primary transition-colors"
                 placeholder="your.email@example.com"
               />
               {errors.email && (
@@ -122,13 +122,13 @@ export default function Login() {
                       message: 'Password must be at least 6 characters',
                     },
                   })}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pr-12 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary transition-colors"
+                  className="w-full bg-overlay border border-subtle rounded-lg px-4 py-3 pr-12 text-primary placeholder-muted focus:outline-none focus:border-accent-primary transition-colors"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-mtaji-light-gray hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-primary transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -154,11 +154,11 @@ export default function Login() {
                   type="checkbox"
                   className="w-4 h-4 text-mtaji-primary bg-white/10 border-white/20 rounded focus:ring-mtaji-primary"
                 />
-                <span className="text-sm text-mtaji-light-gray">Remember me</span>
+                <span className="text-sm text-secondary">Remember me</span>
               </label>
               <Link
                 to="/forgot-password"
-                className="text-sm text-mtaji-primary hover:underline"
+                className="text-sm text-accent-primary hover:underline"
               >
                 Forgot password?
               </Link>
@@ -167,7 +167,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-6 py-3 bg-mtaji-primary rounded-lg font-semibold hover:bg-mtaji-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary w-full"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
@@ -175,19 +175,19 @@ export default function Login() {
 
           {/* Divider */}
           <div className="my-6 flex items-center">
-            <div className="flex-1 border-t border-white/20"></div>
-            <span className="px-4 text-sm text-mtaji-light-gray">OR</span>
-            <div className="flex-1 border-t border-white/20"></div>
+            <div className="flex-1 border-t border-divider"></div>
+            <span className="px-4 text-sm text-muted">OR</span>
+            <div className="flex-1 border-t border-divider"></div>
           </div>
 
           {/* Sign Up Link */}
           <div className="text-center">
-            <p className="text-sm text-mtaji-light-gray mb-4">
+            <p className="text-sm text-secondary mb-4">
               Don't have an account?
             </p>
             <Link
               to="/register"
-              className="inline-block px-6 py-3 bg-white/10 border border-white/20 rounded-lg font-semibold hover:bg-white/15 transition-colors"
+              className="btn-secondary inline-block"
             >
               Create Account
             </Link>
@@ -198,7 +198,7 @@ export default function Login() {
         <div className="mt-6 text-center">
           <Link
             to="/"
-            className="text-sm text-mtaji-light-gray hover:text-white transition-colors"
+            className="text-sm text-secondary hover:text-primary transition-colors"
           >
             ← Back to Home
           </Link>

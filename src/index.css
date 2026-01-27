@@ -3,25 +3,35 @@
 @tailwind utilities;
 
 :root {
-  /* Primary Colors */
+  /* Background Colors */
+  --bg-primary: #121212;
+  --bg-secondary: #1A1A1A;
+  --bg-overlay: #0E0E0E;
+
+  /* Text Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #B3B3B3;
+  --text-muted: #8A8A8A;
+
+  /* Accent Colors */
+  --accent-primary: #F2C300;
+  --accent-secondary: #D9AD00;
+
+  /* Border Colors */
+  --border-subtle: #2A2A2A;
+  --divider: #242424;
+
+  /* Legacy colors for backward compatibility (will be phased out) */
   --color-primary: #ffd500;
   --color-primary-dark: #ffd900;
   --color-primary-light: #E6F9F0;
-  
-  /* Secondary Colors */
   --color-accent: #FF6B2C;
   --color-purple: #1A0B2E;
   --color-navy: #0A1F44;
-  
-  /* Neutral Colors */
   --color-off-white: #F8F9FA;
   --color-light-gray: #E5E7EB;
   --color-medium-gray: #6B7280;
   --color-dark-gray: #1F2937;
-  
-  /* Shadows */
-  --shadow-green: 0 10px 30px rgba(0, 168, 89, 0.2);
-  --shadow-green-lg: 0 10px 40px rgba(0, 168, 89, 0.3);
   
   /* Timing Functions */
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
@@ -31,51 +41,125 @@
 
 @layer base {
   body {
-    @apply font-sans antialiased bg-white dark:bg-gray-900;
+    @apply font-sans antialiased;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
+    color: var(--text-primary);
   }
 }
 
 @layer components {
+  /* Primary CTA Button */
   .btn-primary {
-    @apply bg-mtaji-primary text-white px-8 py-3 rounded-lg font-heading font-semibold transition-all duration-300;
-    box-shadow: 0 4px 14px rgba(0, 168, 89, 0.3);
+    background-color: var(--accent-primary);
+    color: #121212;
+    border-radius: 6px;
+    padding: 12px 20px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    outline: none;
   }
   
-  .btn-primary:hover {
-    @apply bg-mtaji-primary-dark;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 168, 89, 0.4);
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--accent-secondary);
   }
   
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+  }
+  
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  /* Secondary CTA Button */
+  .btn-secondary {
+    background-color: transparent;
+    color: var(--accent-primary);
+    border: 1px solid var(--accent-primary);
+    border-radius: 6px;
+    padding: 12px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+  
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--accent-primary);
+    color: #121212;
+  }
+  
+  .btn-secondary:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+  }
+  
+  .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  /* Card Component */
   .card {
-    @apply bg-white rounded-2xl p-8 shadow-md transition-all duration-300;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
   }
   
   .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    border-color: var(--divider);
   }
 }
 
 @layer utilities {
-  .shadow-mtaji {
-    box-shadow: 0 10px 25px -5px rgba(27, 67, 50, 0.1), 0 10px 10px -5px rgba(27, 67, 50, 0.04);
+  /* Background utilities */
+  .bg-primary {
+    background-color: var(--bg-primary);
   }
   
-  .gradient-primary {
-    background: linear-gradient(135deg, #00A859 0%, #008C4A 100%);
+  .bg-secondary {
+    background-color: var(--bg-secondary);
   }
   
-  .gradient-dark {
-    background: linear-gradient(135deg, #1A0B2E 0%, #0A1F44 100%);
+  .bg-overlay {
+    background-color: var(--bg-overlay);
   }
   
-  .gradient-light {
-    background: linear-gradient(135deg, #E6F9F0 0%, #FFFFFF 100%);
+  /* Text utilities */
+  .text-primary {
+    color: var(--text-primary);
+  }
+  
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+  
+  .text-muted {
+    color: var(--text-muted);
+  }
+  
+  .text-accent {
+    color: var(--accent-primary);
+  }
+  
+  /* Border utilities */
+  .border-subtle {
+    border-color: var(--border-subtle);
+  }
+  
+  .border-divider {
+    border-color: var(--divider);
   }
 }
 
@@ -84,7 +168,7 @@
   font-size: 15px;
   line-height: 1.7;
   max-width: 65ch;
-  color: #1f2937; /* text-gray-800 for good contrast */
+  color: var(--text-secondary);
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -108,19 +192,22 @@
 
 /* Dark theme for select dropdowns */
 select {
-  color: white;
-  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  color: var(--text-primary);
+  background-color: var(--bg-overlay) !important;
+  border-color: var(--border-subtle);
 }
 
 select option {
-  background-color: rgb(31, 41, 55) !important; /* gray-800 */
-  color: white !important;
+  background-color: var(--bg-overlay) !important;
+  color: var(--text-primary) !important;
 }
 
 /* Ensure select dropdowns are visible on dark backgrounds */
 select:focus {
-  background-color: rgb(31, 41, 55) !important;
-  color: white !important;
+  background-color: var(--bg-overlay) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--accent-primary);
+  outline: none;
 }
 
 

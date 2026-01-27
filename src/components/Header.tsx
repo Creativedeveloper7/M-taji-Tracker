@@ -118,7 +118,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 dark:bg-black/90 backdrop-blur-md transition-all duration-300 border-b border-gray-200 dark:border-gray-800">
+    <header className="sticky top-0 z-50 bg-secondary backdrop-blur-md transition-all duration-300 border-b border-subtle">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo - Left */}
@@ -129,7 +129,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
               className="h-10 w-auto object-contain"
             />
             <div className="hidden sm:block">
-              <h1 className="text-xl font-heading font-bold text-gray-900 dark:text-white transition-colors duration-300">M-taji Tracker</h1>
+              <h1 className="text-xl font-heading font-bold text-primary transition-colors duration-300">M-taji Tracker</h1>
             </div>
           </Link>
 
@@ -143,8 +143,8 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                       onClick={() => setInitiativesDropdownOpen(!initiativesDropdownOpen)}
                       className={`text-sm font-medium transition-colors duration-300 flex items-center space-x-1 ${
                         isActive(link.href)
-                          ? 'text-gray-900 dark:text-white font-semibold'
-                          : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                          ? 'text-primary font-semibold'
+                          : 'text-secondary hover:text-primary'
                       }`}
                     >
                       <span>{link.label}</span>
@@ -165,7 +165,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                       </svg>
                     </button>
                     {initiativesDropdownOpen && (
-                      <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                      <div className="absolute top-full left-0 mt-2 w-48 bg-secondary rounded-lg shadow-lg border border-subtle z-50 overflow-hidden">
                         {dropdownOptions.map((option) => (
                           <button
                             key={option.value}
@@ -173,13 +173,13 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                               navigate(option.href)
                               setInitiativesDropdownOpen(false)
                             }}
-                            className={`w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
-                              option.type === 'link' ? 'border-t border-gray-200 dark:border-gray-700 mt-1 pt-3' : ''
+                            className={`w-full text-left px-4 py-3 text-sm text-secondary hover:bg-overlay transition-colors duration-200 ${
+                              option.type === 'link' ? 'border-t border-divider mt-1 pt-3' : ''
                             } ${
                               location.pathname === option.href || 
                               (option.type === 'initiative' && location.pathname.startsWith('/initiatives') && 
                                (option.value === 'all' ? !location.search.includes('org_type') : location.search.includes(`org_type=${option.value}`)))
-                              ? 'bg-gray-50 dark:bg-gray-700 font-medium' 
+                              ? 'bg-overlay font-medium text-primary' 
                               : ''
                             }`}
                           >
@@ -197,8 +197,8 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                   to={link.href}
                   className={`text-sm font-medium transition-colors duration-300 ${
                     isActive(link.href)
-                      ? 'text-gray-900 dark:text-white font-semibold'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                      ? 'text-primary font-semibold'
+                      : 'text-secondary hover:text-primary'
                   }`}
                 >
                   {link.label}
@@ -211,7 +211,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
           <div className="hidden lg:flex items-center space-x-4">
             {/* Search Icon */}
             <button
-              className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+              className="p-2 text-secondary hover:text-primary transition-colors duration-300"
               aria-label="Search"
             >
               <svg
@@ -232,7 +232,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+              className="p-2 text-secondary hover:text-primary transition-colors duration-300"
               aria-label="Toggle theme"
             >
               {isDark ? (
@@ -271,9 +271,9 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-300"
+                  className="flex items-center space-x-2 px-4 py-2 text-secondary hover:bg-overlay rounded-lg transition-colors duration-300"
                 >
-                  <div className="w-8 h-8 rounded-full bg-mtaji-primary flex items-center justify-center text-white font-semibold">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center font-semibold" style={{ backgroundColor: 'var(--accent-primary)', color: '#121212' }}>
                     {userProfile?.email?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <span className="text-sm font-medium hidden xl:block">
@@ -296,13 +296,13 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                   </svg>
                 </button>
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
-                    <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  <div className="absolute right-0 mt-2 w-48 bg-secondary rounded-lg shadow-lg border border-subtle z-50 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-divider">
+                      <p className="text-sm font-medium text-primary">
                         {getDisplayName()}
                       </p>
                       {userProfile && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 capitalize mt-1">
+                        <p className="text-xs text-muted capitalize mt-1">
                           {userProfile.user_type?.replace('_', ' ')}
                         </p>
                       )}
@@ -312,13 +312,13 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                         navigate('/dashboard')
                         setUserMenuOpen(false)
                       }}
-                      className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                      className="w-full text-left px-4 py-3 text-sm text-secondary hover:bg-overlay transition-colors duration-200"
                     >
                       Dashboard
                     </button>
                     <button
                       onClick={handleSignOut}
-                      className="w-full text-left px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                      className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-overlay transition-colors duration-200"
                     >
                       Sign Out
                     </button>
@@ -329,13 +329,13 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
               <>
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+                  className="px-4 py-2 text-sm font-medium text-secondary hover:text-primary transition-colors duration-300"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 bg-mtaji-primary hover:bg-mtaji-primary-dark text-white font-semibold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+                  className="btn-primary"
                 >
                   Sign Up
                 </Link>
@@ -347,7 +347,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
           <div className="flex lg:hidden items-center space-x-2">
             {/* Search Icon - Mobile */}
             <button
-              className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+              className="p-2 text-secondary hover:text-primary transition-colors duration-300"
               aria-label="Search"
             >
               <svg
@@ -368,7 +368,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
             {/* Theme Toggle - Mobile */}
             <button
               onClick={toggleTheme}
-              className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+              className="p-2 text-secondary hover:text-primary transition-colors duration-300"
               aria-label="Toggle theme"
             >
               {isDark ? (
@@ -405,7 +405,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
             {/* Hamburger Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+              className="p-2 text-secondary hover:text-primary transition-colors duration-300"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
@@ -443,13 +443,13 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-gray-200 dark:border-gray-800 transition-all duration-300">
+          <div className="lg:hidden py-4 border-t border-divider transition-all duration-300">
             <nav className="flex flex-col space-y-3">
               {navLinks.map((link) => {
                 if (link.hasDropdown) {
                   return (
                     <div key={link.href} className="px-4">
-                      <div className="text-base font-medium text-gray-600 dark:text-gray-300 mb-2">
+                      <div className="text-base font-medium text-secondary mb-2">
                         {link.label}
                       </div>
                       <div className="flex flex-col space-y-1 ml-4">
@@ -460,13 +460,13 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                               navigate(option.href)
                               setMobileMenuOpen(false)
                             }}
-                            className={`px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-300 text-left ${
-                              option.type === 'link' ? 'border-t border-gray-200 dark:border-gray-700 mt-2 pt-3' : ''
+                            className={`px-4 py-2 text-sm text-secondary hover:bg-overlay rounded-lg transition-colors duration-300 text-left ${
+                              option.type === 'link' ? 'border-t border-divider mt-2 pt-3' : ''
                             } ${
                               location.pathname === option.href || 
                               (option.type === 'initiative' && location.pathname.startsWith('/initiatives') && 
                                (option.value === 'all' ? !location.search.includes('org_type') : location.search.includes(`org_type=${option.value}`)))
-                              ? 'bg-gray-100 dark:bg-gray-700 font-medium' 
+                              ? 'bg-overlay font-medium text-primary' 
                               : ''
                             }`}
                           >
@@ -484,8 +484,8 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`px-4 py-2 text-base font-medium rounded-lg transition-colors duration-300 ${
                       isActive(link.href)
-                        ? 'text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 font-semibold'
-                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                        ? 'text-primary bg-overlay font-semibold'
+                        : 'text-secondary hover:text-primary hover:bg-overlay'
                     }`}
                   >
                     {link.label}
@@ -495,17 +495,17 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
               {/* Auth Buttons - Mobile */}
               {user ? (
                 <>
-                  <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="px-4 py-3 border-t border-divider">
                     <div className="flex items-center space-x-3 mb-3">
-                      <div className="w-10 h-10 rounded-full bg-mtaji-primary flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold" style={{ backgroundColor: 'var(--accent-primary)', color: '#121212' }}>
                         {getInitials()}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        <p className="text-sm font-medium text-primary">
                           {getDisplayName()}
                         </p>
                         {userProfile && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                          <p className="text-xs text-muted capitalize">
                             {userProfile.user_type?.replace('_', ' ')}
                           </p>
                         )}
@@ -516,7 +516,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                         navigate('/dashboard')
                         setMobileMenuOpen(false)
                       }}
-                      className="w-full px-4 py-2 bg-mtaji-primary hover:bg-mtaji-primary-dark text-white font-semibold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg text-center mb-2"
+                      className="btn-primary w-full text-center mb-2"
                     >
                       Dashboard
                     </button>
@@ -532,18 +532,18 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                   </div>
                 </>
               ) : (
-                <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                <div className="px-4 py-3 border-t border-divider space-y-2">
                   <Link
                     to="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block w-full px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors duration-300"
+                    className="block w-full px-4 py-2 text-center text-sm font-medium text-secondary bg-overlay hover:bg-secondary rounded-lg transition-colors duration-300"
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block w-full px-4 py-2 text-center bg-mtaji-primary hover:bg-mtaji-primary-dark text-white font-semibold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+                    className="btn-primary block w-full text-center"
                   >
                     Sign Up
                   </Link>

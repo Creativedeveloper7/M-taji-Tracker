@@ -116,9 +116,9 @@ const InitiativeModal = ({ initiative, onClose }: InitiativeModalProps) => {
     : []
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2000] p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-overlay bg-opacity-80 flex items-center justify-center z-[2000] p-4" onClick={onClose}>
       <div 
-        className="bg-white rounded-xl shadow-lg max-w-2xl w-full p-6 md:p-8 transform transition-all duration-300 hover:-translate-y-1 max-h-[90vh] overflow-y-auto"
+        className="bg-secondary border border-subtle rounded-lg max-w-2xl w-full p-6 md:p-8 transform transition-all duration-300 hover:-translate-y-1 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
         style={{
           scrollbarWidth: 'thin',
@@ -131,20 +131,20 @@ const InitiativeModal = ({ initiative, onClose }: InitiativeModalProps) => {
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: categoryColors[initiative.category] }}
               />
-              <span className="text-sm font-medium text-gray-600 uppercase">{initiative.category}</span>
+              <span className="text-sm font-medium text-secondary uppercase">{initiative.category}</span>
               <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${statusColors[initiative.status]}`}>
                 {initiative.status}
               </span>
             </div>
-            <h2 className="text-2xl font-heading font-bold text-mtaji-primary mb-2">{initiative.title}</h2>
-            <p className="text-gray-600 text-sm">📍 {initiative.location.county} County</p>
+            <h2 className="text-2xl font-heading font-bold text-accent-primary mb-2">{initiative.title}</h2>
+            <p className="text-secondary text-sm">📍 {initiative.location.county} County</p>
             {initiative.location.constituency && (
-              <p className="text-gray-500 text-xs">{initiative.location.constituency}</p>
+              <p className="text-muted text-xs">{initiative.location.constituency}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors duration-300 ml-4"
+            className="text-muted hover:text-primary transition-colors duration-300 ml-4"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -154,12 +154,12 @@ const InitiativeModal = ({ initiative, onClose }: InitiativeModalProps) => {
 
         {descriptionParagraphs.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3" style={{ fontSize: '16px' }}>Description</h3>
+            <h3 className="text-sm font-semibold text-primary mb-3" style={{ fontSize: '16px' }}>Description</h3>
             <div className="initiative-description">
               {descriptionParagraphs.map((paragraph, index) => (
                 <p 
                   key={index}
-                  className="text-gray-800"
+                  className="text-secondary"
                   style={{
                     marginBottom: index < descriptionParagraphs.length - 1 ? '1rem' : '0',
                   }}
@@ -173,32 +173,32 @@ const InitiativeModal = ({ initiative, onClose }: InitiativeModalProps) => {
 
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-600">Progress</span>
-            <span className="font-semibold text-mtaji-primary">{Math.round(progressPercentage)}%</span>
+            <span className="text-secondary">Progress</span>
+            <span className="font-semibold text-accent-primary">{Math.round(progressPercentage)}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-overlay rounded-full h-3 overflow-hidden">
             <div
-              className="h-full bg-mtaji-accent transition-all duration-500 rounded-full"
-              style={{ width: `${progressPercentage}%` }}
+              className="h-full transition-all duration-500 rounded-full"
+              style={{ width: `${progressPercentage}%`, backgroundColor: 'var(--accent-primary)' }}
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="bg-gray-50 rounded-lg p-3">
-            <p className="text-xs text-gray-600 mb-1">Raised</p>
-            <p className="text-lg font-heading font-bold text-mtaji-primary">{formatCurrency(initiative.raised_amount)}</p>
+          <div className="bg-overlay rounded-lg p-3">
+            <p className="text-xs text-muted mb-1">Raised</p>
+            <p className="text-lg font-heading font-bold text-accent-primary">{formatCurrency(initiative.raised_amount)}</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3">
-            <p className="text-xs text-gray-600 mb-1">Target</p>
-            <p className="text-lg font-heading font-bold text-gray-700">{formatCurrency(initiative.target_amount)}</p>
+          <div className="bg-overlay rounded-lg p-3">
+            <p className="text-xs text-muted mb-1">Target</p>
+            <p className="text-lg font-heading font-bold text-primary">{formatCurrency(initiative.target_amount)}</p>
           </div>
         </div>
 
         <div className="flex flex-col gap-3">
           <button 
             onClick={() => setShowSatelliteMonitor(true)}
-            className="w-full bg-mtaji-primary text-white font-heading font-semibold py-3 rounded-xl hover:bg-mtaji-primary-light transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+            className="btn-primary w-full flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -207,14 +207,14 @@ const InitiativeModal = ({ initiative, onClose }: InitiativeModalProps) => {
           </button>
           <button
             onClick={() => setShowVolunteerForm(true)}
-            className="w-full bg-green-600 text-white font-heading font-semibold py-3 rounded-xl hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+            className="btn-secondary w-full flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             Volunteer
           </button>
-          <button className="w-full bg-mtaji-accent text-white font-heading font-semibold py-3 rounded-xl hover:bg-mtaji-primary-light transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+          <button className="btn-secondary w-full">
             View Details
           </button>
         </div>

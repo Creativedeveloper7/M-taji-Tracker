@@ -124,16 +124,16 @@ const Initiatives = () => {
   }
 
   return (
-    <div className="min-h-screen pt-16 bg-white dark:bg-gray-900">
+    <div className="min-h-screen pt-16 bg-primary">
       <Header onCreateInitiative={handleCreateInitiative} />
       
       <div className="container mx-auto px-6 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-heading font-bold text-mtaji-primary mb-2">
+            <h1 className="text-4xl font-heading font-bold text-accent-primary mb-2">
               {orgTypeFilter !== 'all' ? `${orgTypeFilter} Initiatives` : 'All Initiatives'}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-secondary">
               {orgTypeFilter !== 'all' 
                 ? `Discover and explore ${orgTypeFilter} initiatives across Kenya`
                 : 'Discover and explore all published initiatives across Kenya'}
@@ -142,7 +142,7 @@ const Initiatives = () => {
           <button
             onClick={loadAllInitiatives}
             disabled={loading}
-            className="px-4 py-2 bg-mtaji-accent hover:bg-mtaji-primary-light text-white rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="btn-primary flex items-center gap-2"
             title="Refresh initiatives"
           >
             <span>🔄</span>
@@ -152,17 +152,17 @@ const Initiatives = () => {
 
         {loading && (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mtaji-accent mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading initiatives...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--accent-primary)' }}></div>
+            <p className="text-secondary">Loading initiatives...</p>
           </div>
         )}
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-500/20 border border-red-500 text-red-400 px-4 py-3 rounded mb-6">
             <p>{error}</p>
             <button 
               onClick={loadAllInitiatives}
-              className="mt-2 text-sm underline"
+              className="mt-2 text-sm underline text-accent-primary"
             >
               Retry
             </button>
@@ -178,7 +178,7 @@ const Initiatives = () => {
                 placeholder="Search initiatives..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-mtaji-accent"
+                className="w-full px-4 py-2 bg-overlay border border-subtle rounded-lg text-primary placeholder-muted focus:outline-none focus:border-accent-primary transition-colors"
               />
             </div>
             <div className="flex gap-2">
@@ -186,11 +186,12 @@ const Initiatives = () => {
                 <button
                   key={status}
                   onClick={() => setFilter(status)}
-                  className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
                     filter === status
-                      ? 'bg-mtaji-accent text-white shadow-lg'
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      ? 'text-primary'
+                      : 'bg-secondary text-secondary hover:text-primary border border-subtle'
                   }`}
+                  style={filter === status ? { backgroundColor: 'var(--accent-primary)', color: '#121212' } : {}}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </button>
@@ -202,11 +203,11 @@ const Initiatives = () => {
         {/* Initiatives Grid */}
         {!loading && filteredInitiatives.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No initiatives found matching your criteria.</p>
+            <p className="text-secondary text-lg">No initiatives found matching your criteria.</p>
             {initiatives.length === 0 && (
               <Link
                 to="/"
-                className="mt-4 inline-block px-6 py-2 bg-mtaji-accent text-white font-heading font-semibold rounded-xl hover:bg-mtaji-primary-light transition-all duration-300"
+                className="btn-primary mt-4 inline-block"
               >
                 Create Your First Initiative
               </Link>
@@ -222,10 +223,10 @@ const Initiatives = () => {
               return (
                 <div
                   key={initiative.id}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  className="bg-secondary border border-subtle rounded-lg overflow-hidden hover:border-divider transition-all duration-300 hover:-translate-y-1"
                 >
                   {/* Image placeholder or first reference image */}
-                  <div className="h-48 bg-gradient-to-br from-mtaji-primary to-mtaji-accent relative">
+                  <div className="h-48 relative" style={{ backgroundColor: categoryColors[initiative.category] || 'var(--bg-overlay)' }}>
                     {initiative.reference_images && initiative.reference_images.length > 0 ? (
                       <img
                         src={initiative.reference_images[0]}
@@ -252,10 +253,10 @@ const Initiatives = () => {
                   </div>
 
                   <div className="p-6">
-                    <h3 className="text-xl font-heading font-bold text-mtaji-primary mb-2 line-clamp-2">
+                    <h3 className="text-xl font-heading font-bold text-accent-primary mb-2 line-clamp-2">
                       {initiative.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-3 flex items-center">
+                    <p className="text-secondary text-sm mb-3 flex items-center">
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -266,7 +267,7 @@ const Initiatives = () => {
                     {initiative.description && (
                       <div className="mb-4">
                         <p 
-                          className="text-gray-700 mb-0 line-clamp-3"
+                          className="text-secondary mb-0 line-clamp-3"
                           style={{
                             lineHeight: '1.6',
                             fontSize: '14px',
@@ -283,28 +284,28 @@ const Initiatives = () => {
                     {/* Progress Bar */}
                     <div className="mb-4">
                       <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-600">Progress</span>
-                        <span className="font-semibold text-mtaji-primary">{Math.round(progressPercentage)}%</span>
+                        <span className="text-secondary">Progress</span>
+                        <span className="font-semibold text-accent-primary">{Math.round(progressPercentage)}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-overlay rounded-full h-2 overflow-hidden">
                         <div
-                          className="h-full bg-mtaji-accent transition-all duration-500 rounded-full"
-                          style={{ width: `${progressPercentage}%` }}
+                          className="h-full transition-all duration-500 rounded-full"
+                          style={{ width: `${progressPercentage}%`, backgroundColor: 'var(--accent-primary)' }}
                         />
                       </div>
                     </div>
 
                     {/* Financial Info */}
                     <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-gray-50 rounded-lg p-2">
-                        <p className="text-xs text-gray-600 mb-1">Raised</p>
-                        <p className="text-sm font-heading font-bold text-mtaji-primary">
+                      <div className="bg-overlay rounded-lg p-2">
+                        <p className="text-xs text-muted mb-1">Raised</p>
+                        <p className="text-sm font-heading font-bold text-accent-primary">
                           {formatCurrency(initiative.raised_amount)}
                         </p>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-2">
-                        <p className="text-xs text-gray-600 mb-1">Target</p>
-                        <p className="text-sm font-heading font-bold text-gray-700">
+                      <div className="bg-overlay rounded-lg p-2">
+                        <p className="text-xs text-muted mb-1">Target</p>
+                        <p className="text-sm font-heading font-bold text-primary">
                           {formatCurrency(initiative.target_amount)}
                         </p>
                       </div>
@@ -312,7 +313,7 @@ const Initiatives = () => {
 
                     <Link
                       to={`/initiatives/${initiative.id}`}
-                      className="block w-full bg-mtaji-accent text-white font-heading font-semibold py-2 rounded-xl hover:bg-mtaji-primary-light transition-all duration-300 text-center"
+                      className="btn-primary block w-full text-center"
                     >
                       View Details
                     </Link>
