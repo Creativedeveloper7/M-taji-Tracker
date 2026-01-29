@@ -24,8 +24,60 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
+// CORS configuration for production and development
+const isProduction = process.env.NODE_ENV === 'production';
+const frontendUrl = process.env.FRONTEND_URL;
+
+// Build allowed origins list
+const allowedOrigins: string[] = [];
+
+if (isProduction) {
+  // Production: Only allow the specified FRONTEND_URL
+  if (frontendUrl) {
+    allowedOrigins.push(frontendUrl);
+    // Also allow without trailing slash
+    if (frontendUrl.endsWith('/')) {
+      allowedOrigins.push(frontendUrl.slice(0, -1));
+    } else {
+      allowedOrigins.push(`${frontendUrl}/`);
+    }
+  }
+} else {
+  // Development: Allow localhost on various ports
+  allowedOrigins.push(
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://localhost:5176',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+    'http://127.0.0.1:5175',
+    'http://127.0.0.1:5176',
+  );
+  if (frontendUrl) {
+    allowedOrigins.push(frontendUrl);
+  }
+}
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.some(url => origin === url || origin.startsWith(url))) {
+      callback(null, true);
+    } else if (!isProduction && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+      // Development: Allow any localhost origin
+      callback(null, true);
+    } else {
+      console.warn(`⚠️ CORS blocked request from origin: ${origin}`);
+      callback(new Error(`Not allowed by CORS. Allowed origins: ${allowedOrigins.join(', ')}`));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

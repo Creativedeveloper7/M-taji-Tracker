@@ -25,7 +25,20 @@ const Step3Location = () => {
   const [polygonPoints, setPolygonPoints] = useState<Array<{ lat: number; lng: number }>>([])
   const [isDrawing, setIsDrawing] = useState(false)
   const [coordinateDetected, setCoordinateDetected] = useState(false)
+  const [mapType, setMapType] = useState<'street' | 'satellite'>('street')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [locationDetails, setLocationDetails] = useState<{
+    county?: string
+    constituency?: string
+    ward?: string
+    place?: string
+    address?: string
+  }>({})
   const mapRef = useRef<L.Map | null>(null)
+  const markerRef = useRef<L.Marker | null>(null)
 
   const county = watch('location.county')
   const coordinates = watch('location.coordinates')
@@ -60,6 +73,37 @@ const Step3Location = () => {
     })
   }
 
+  // Draggable marker component
+  const DraggableMarker = ({ position, onDragEnd }: { position: [number, number], onDragEnd: (lat: number, lng: number) => void }) => {
+    const [markerPosition, setMarkerPosition] = useState(position)
+    
+    useEffect(() => {
+      setMarkerPosition(position)
+    }, [position])
+
+    const eventHandlers = {
+      dragend: (e: any) => {
+        const marker = e.target
+        const newPosition = marker.getLatLng()
+        setMarkerPosition([newPosition.lat, newPosition.lng])
+        onDragEnd(newPosition.lat, newPosition.lng)
+        setIsDragging(false)
+      },
+      dragstart: () => {
+        setIsDragging(true)
+      },
+    }
+
+    return (
+      <Marker
+        position={markerPosition}
+        icon={createCustomIcon(categoryColors[category || 'agriculture'])}
+        draggable={true}
+        eventHandlers={eventHandlers}
+      />
+    )
+  }
+
   // Map click handler component
   const MapClickHandler = ({ 
     mapMode, 
@@ -74,7 +118,7 @@ const Step3Location = () => {
   }) => {
     useMapEvents({
       click: (e) => {
-        if (mapMode === 'pin') {
+        if (mapMode === 'pin' && !isDragging) {
           onPinClick(e.latlng.lat, e.latlng.lng)
         } else if (mapMode === 'polygon' && isDrawing) {
           onPolygonClick(e.latlng.lat, e.latlng.lng)
@@ -138,7 +182,7 @@ const Step3Location = () => {
     return null
   }
 
-  // Reverse geocode coordinates to get county and constituency
+  // Enhanced reverse geocode to get detailed location information
   const reverseGeocode = async (lat: number, lng: number) => {
     const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
     if (!mapboxToken || mapboxToken === 'pk.your-token-here') {
@@ -147,36 +191,123 @@ const Step3Location = () => {
     }
 
     try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}&country=KE`
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}&country=KE&types=place,locality,neighborhood,address`
       const response = await fetch(url)
       const data = await response.json()
 
       if (data.features && data.features.length > 0) {
-        // Look for county and constituency in the results
-        for (const feature of data.features) {
-          const context = feature.context || []
+        const mainFeature = data.features[0]
+        const context = mainFeature.context || []
+        
+        const details: typeof locationDetails = {}
+        
+        // Extract place name
+        if (mainFeature.place_name) {
+          details.address = mainFeature.place_name
+        }
+        if (mainFeature.text) {
+          details.place = mainFeature.text
+        }
+        
+        // Parse context to find county, constituency, ward
+        for (const item of context) {
+          const id = item.id || ''
+          const text = item.text || ''
           
-          // Find county (usually "district" or "region" in Kenya)
-          for (const item of context) {
-            if (item.id?.startsWith('district') || item.id?.startsWith('region')) {
-              const countyName = item.text
-              // Try to match with our county list
-              const matchedCounty = kenyanCounties.find(c => 
-                c.toLowerCase().includes(countyName.toLowerCase()) ||
-                countyName.toLowerCase().includes(c.toLowerCase())
-              )
-              if (matchedCounty) {
-                setValue('location.county', matchedCounty, { shouldValidate: true })
-                console.log('📍 Auto-filled county:', matchedCounty)
-                break
-              }
+          // County detection - Mapbox might use different IDs
+          if (id.includes('district') || id.includes('region') || id.includes('admin')) {
+            const matchedCounty = kenyanCounties.find(c => 
+              c.toLowerCase() === text.toLowerCase() ||
+              text.toLowerCase().includes(c.toLowerCase()) ||
+              c.toLowerCase().includes(text.toLowerCase())
+            )
+            if (matchedCounty) {
+              details.county = matchedCounty
+              setValue('location.county', matchedCounty, { shouldValidate: true })
             }
           }
+          
+          // Ward detection
+          if (id.includes('locality') || id.includes('neighborhood')) {
+            details.ward = text
+          }
         }
+        
+        setLocationDetails(details)
+        
+        // Update specific_area if we have a place name
+        if (details.place && !watch('location.specific_area')) {
+          setValue('location.specific_area', details.place, { shouldValidate: true })
+        }
+        
+        console.log('📍 Reverse geocoded location:', details)
       }
     } catch (error) {
       console.error('Reverse geocoding error:', error)
     }
+  }
+
+  // Search for places using Mapbox Geocoding API
+  const searchPlaces = async (query: string) => {
+    if (!query || query.length < 3) {
+      setSearchResults([])
+      return
+    }
+
+    const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
+    if (!mapboxToken || mapboxToken === 'pk.your-token-here') {
+      return
+    }
+
+    setIsSearching(true)
+    try {
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&country=KE&types=place,locality,neighborhood,address&limit=5`
+      const response = await fetch(url)
+      const data = await response.json()
+
+      if (data.features) {
+        setSearchResults(data.features)
+      }
+    } catch (error) {
+      console.error('Search error:', error)
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  // Handle search input with debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery) {
+        searchPlaces(searchQuery)
+      } else {
+        setSearchResults([])
+      }
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery])
+
+  // Handle place selection from search
+  const handlePlaceSelect = (feature: any) => {
+    const [lng, lat] = feature.center
+    const coords = { lat, lng }
+    
+    setValue('location.coordinates', coords, { shouldValidate: true })
+    setValue('location.specific_area', feature.place_name || feature.text, { shouldValidate: true })
+    setSearchQuery(feature.place_name || feature.text)
+    setSearchResults([])
+    
+    // Update map view
+    if (mapRef.current) {
+      mapRef.current.setView([lat, lng], 16, {
+        animate: true,
+        duration: 1.0
+      })
+    }
+    
+    // Reverse geocode for additional details
+    reverseGeocode(lat, lng)
   }
 
   // Handle input change and detect coordinates
@@ -239,15 +370,23 @@ const Step3Location = () => {
           
           // Update map
           if (mapRef.current) {
-            mapRef.current.setView([coords.lat, coords.lng], 15, {
+            mapRef.current.setView([coords.lat, coords.lng], 16, {
               animate: true,
               duration: 1.0
             })
           }
+          
+          // Reverse geocode to get location details
+          reverseGeocode(coords.lat, coords.lng)
         },
         (error) => {
           console.error('Error getting location:', error)
           alert('Could not get your current location. Please click on the map to set the location.')
+        },
+        {
+          enableHighAccuracy: true, // Request high accuracy GPS
+          timeout: 10000,
+          maximumAge: 0
         }
       )
     } else {
@@ -348,17 +487,26 @@ const Step3Location = () => {
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <label className="block text-sm font-semibold text-gray-700">
             Map Location <span className="text-red-500">*</span>
           </label>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 flex-wrap">
             <button
               type="button"
               onClick={getCurrentLocation}
               className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              title="Use your device's GPS location"
             >
-              📍 Use My Location
+              📍 My Location
+            </button>
+            <button
+              type="button"
+              onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
+              className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              title="Toggle between street map and satellite view"
+            >
+              {mapType === 'street' ? '🛰️ Satellite' : '🗺️ Street'}
             </button>
             <div className="flex items-center space-x-2">
               <button
@@ -446,9 +594,31 @@ const Step3Location = () => {
           </p>
         )}
         {coordinates && (
-          <p className="mt-2 text-sm text-mtaji-primary">
-            Coordinates: {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}
-          </p>
+          <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Coordinates:</p>
+                <p className="text-sm text-mtaji-primary font-mono">
+                  {coordinates.lat.toFixed(8)}, {coordinates.lng.toFixed(8)}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Precision: ~{Math.round(111320 * Math.cos(coordinates.lat * Math.PI / 180) / Math.pow(2, 15))}m
+                </p>
+              </div>
+              {locationDetails.ward && (
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">Detected Location:</p>
+                  <p className="text-sm font-medium text-gray-700">
+                    {locationDetails.ward}
+                    {locationDetails.county && `, ${locationDetails.county}`}
+                  </p>
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              💡 Tip: Drag the marker on the map for precise positioning, or use satellite view for better accuracy
+            </p>
+          </div>
         )}
         {errors.location?.coordinates && (
           <p className="mt-1 text-sm text-red-500">{errors.location.coordinates.message}</p>

@@ -108,24 +108,28 @@ export const registerOrganization = async (
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    // If profile wasn't created by trigger, wait a bit more and try RPC again
-    // The trigger might just need more time
+    // If profile wasn't created by trigger, fall back to direct insert
     if (!profileData) {
-      // Wait a bit more and try RPC one more time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const { data: retryData, error: retryError } = await supabase.rpc('get_user_profile_by_user_id', {
-        p_user_id: authData.user.id
-      });
-      
-      if (retryData && Array.isArray(retryData) && retryData.length > 0 && !retryError) {
-        profileData = retryData[0];
-      } else {
-        // If still no profile, the trigger failed - check logs
-        console.error('Profile was not created by trigger after multiple attempts');
-        console.error('RPC error:', retryError);
-        throw new Error('Profile was not created automatically. The trigger may have failed. Please check Supabase Postgres Logs for errors. Run COMPLETE_FIX_ALL_IN_ONE.sql if you haven\'t already.');
+      console.warn('Profile was not created by trigger. Falling back to direct insert into user_profiles.');
+      const { data: createdProfile, error: createProfileError } = await supabase
+        .from('user_profiles')
+        .insert({
+          user_id: authData.user.id,
+          email: data.email,
+          user_type: 'organization',
+          verification_status: 'pending',
+          kyc_status: 'not_started',
+          profile_visibility: 'public',
+        })
+        .select('*')
+        .single();
+
+      if (createProfileError || !createdProfile) {
+        console.error('Direct profile insert failed:', createProfileError);
+        throw new Error('Failed to create user profile. Please try again or contact support.');
       }
+
+      profileData = createdProfile;
     } else {
       // Update phone if provided
       if (data.phone && profileData.phone !== data.phone) {
@@ -164,6 +168,22 @@ export const registerOrganization = async (
       });
 
     if (orgError) throw orgError;
+
+    // 4.5. Create changemaker for the organization
+    const { error: changemakerError } = await supabase
+      .from('changemakers')
+      .insert({
+        user_id: authData.user.id,
+        name: data.organization_name,
+        email: data.email,
+        phone: data.phone,
+        organization: data.organization_name,
+      });
+
+    if (changemakerError) {
+      console.warn('Failed to create changemaker during registration:', changemakerError);
+      // Don't throw - changemaker can be created later when creating initiatives
+    }
 
     // 5. Upload documents
     const documentPromises = [];
@@ -347,24 +367,28 @@ export const registerGovernmentEntity = async (
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    // If profile wasn't created by trigger, wait a bit more and try RPC again
-    // The trigger might just need more time
+    // If profile wasn't created by trigger, fall back to direct insert
     if (!profileData) {
-      // Wait a bit more and try RPC one more time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const { data: retryData, error: retryError } = await supabase.rpc('get_user_profile_by_user_id', {
-        p_user_id: authData.user.id
-      });
-      
-      if (retryData && Array.isArray(retryData) && retryData.length > 0 && !retryError) {
-        profileData = retryData[0];
-      } else {
-        // If still no profile, the trigger failed - check logs
-        console.error('Profile was not created by trigger after multiple attempts');
-        console.error('RPC error:', retryError);
-        throw new Error('Profile was not created automatically. The trigger may have failed. Please check Supabase Postgres Logs for errors. Run COMPLETE_FIX_ALL_IN_ONE.sql if you haven\'t already.');
+      console.warn('Profile was not created by trigger. Falling back to direct insert into user_profiles (government).');
+      const { data: createdProfile, error: createProfileError } = await supabase
+        .from('user_profiles')
+        .insert({
+          user_id: authData.user.id,
+          email: data.email,
+          user_type: 'government',
+          verification_status: 'pending',
+          kyc_status: 'not_started',
+          profile_visibility: 'public',
+        })
+        .select('*')
+        .single();
+
+      if (createProfileError || !createdProfile) {
+        console.error('Direct profile insert (government) failed:', createProfileError);
+        throw new Error('Failed to create user profile. Please try again or contact support.');
       }
+
+      profileData = createdProfile;
     } else {
       // Update phone if provided
       if (data.phone && profileData.phone !== data.phone) {
@@ -426,6 +450,22 @@ export const registerGovernmentEntity = async (
         };
       }
       throw govError;
+    }
+
+    // 3.5. Create changemaker for the government entity
+    const { error: changemakerError } = await supabase
+      .from('changemakers')
+      .insert({
+        user_id: authData.user.id,
+        name: entityName,
+        email: data.email,
+        phone: data.phone,
+        organization: entityName,
+      });
+
+    if (changemakerError) {
+      console.warn('Failed to create changemaker during registration:', changemakerError);
+      // Don't throw - changemaker can be created later when creating initiatives
     }
 
     // 4. Upload documents

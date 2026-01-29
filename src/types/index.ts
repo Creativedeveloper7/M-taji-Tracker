@@ -51,6 +51,11 @@ export interface Initiative {
       notes: string;
     };
   }>;
+  opportunity_preferences?: {
+    acceptProposals?: boolean;
+    acceptContentCreators?: boolean;
+    acceptAmbassadors?: boolean;
+  };
 }
 
 // Legacy interface for backward compatibility with existing data

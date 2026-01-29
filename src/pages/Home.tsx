@@ -98,32 +98,28 @@ function Home() {
   }
 
   const handleFormSubmit = async (newInitiative: Initiative) => {
-    try {
-      setError(null)
-      console.log('Creating initiative:', newInitiative)
-      console.log('Location data:', newInitiative.location)
-      console.log('Coordinates:', newInitiative.location.coordinates)
+    setError(null)
+    console.log('Creating initiative:', newInitiative)
+    console.log('Location data:', newInitiative.location)
+    console.log('Coordinates:', newInitiative.location.coordinates)
+    
+    const created = await createInitiative(newInitiative)
+    
+    if (created) {
+      console.log('Created initiative:', created)
+      console.log('Created initiative location:', created.location)
+      console.log('Created initiative coordinates:', created.location.coordinates)
       
-      const created = await createInitiative(newInitiative)
-      
-      if (created) {
-        console.log('Created initiative:', created)
-        console.log('Created initiative location:', created.location)
-        console.log('Created initiative coordinates:', created.location.coordinates)
-        
-        // Reload initiatives to get the latest data
-        await loadInitiatives()
-        setShowForm(false)
-        console.log('New initiative created successfully:', created)
-      } else {
-        const errorMsg = 'Failed to create initiative. Check console for details.'
-        setError(errorMsg)
-        console.error('createInitiative returned null - check console above for errors')
-      }
-    } catch (err: any) {
-      console.error('Error creating initiative:', err)
-      const errorMessage = err?.message || 'Failed to create initiative. Please check your Supabase setup and RLS policies.'
-      setError(errorMessage)
+      // Reload initiatives to get the latest data
+      await loadInitiatives()
+      setShowForm(false)
+      console.log('New initiative created successfully:', created)
+    } else {
+      const errorMsg = 'Failed to create initiative. Check console for details.'
+      setError(errorMsg)
+      console.error('createInitiative returned null - check console above for errors')
+      // Throw error so the form can catch it
+      throw new Error(errorMsg)
     }
   }
 

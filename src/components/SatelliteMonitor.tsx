@@ -43,6 +43,12 @@ interface Props {
   startDate: string; // When project started
   isOpen: boolean;
   onClose: () => void;
+  /**
+   * Optional snapshots already stored on the initiative (from backend jobs).
+   * When provided, these are treated as the source of truth for historical imagery,
+   * and the client-side Mapbox generator is only used as a fallback when empty.
+   */
+  storedSnapshots?: SatelliteSnapshot[] | null;
 }
 
 export const SatelliteMonitor: React.FC<Props> = ({
@@ -50,7 +56,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
   location,
   startDate,
   isOpen,
-  onClose
+  onClose,
+  storedSnapshots
 }) => {
   const [snapshots, setSnapshots] = useState<SatelliteSnapshot[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -119,29 +126,56 @@ export const SatelliteMonitor: React.FC<Props> = ({
     setLoading(true);
     setError(null);
     try {
+      // 1) Prefer snapshots already stored on the initiative (from backend jobs / Sentinel Hub)
+      if (storedSnapshots && storedSnapshots.length > 0) {
+        console.log('🛰️ Using stored satellite_snapshots from initiative:', {
+          count: storedSnapshots.length,
+          dates: storedSnapshots.map(s => s.date),
+        });
+
+        // Sort by date ascending to ensure timeline order
+        const sorted = [...storedSnapshots].sort((a, b) => a.date.localeCompare(b.date));
+        setSnapshots(sorted);
+
+        if (sorted.length > 0) {
+          setCurrentIndex(sorted.length - 1); // latest as "after"
+          setComparisonIndex(0);              // earliest as "before"
+          console.log('📅 Current snapshot:', sorted[sorted.length - 1].date);
+          console.log('📅 Comparison snapshot:', sorted[0].date);
+        }
+        return;
+      }
+
+      // 2) Fallback: generate synthetic historical snapshots on the client using Mapbox
+      // Go back 6 months (180 days) to ensure we have historical data
       const endDate = new Date().toISOString().split('T')[0];
-      console.log('🛰️ Loading satellite snapshots...', {
+      const fallbackStartDate = new Date();
+      fallbackStartDate.setDate(fallbackStartDate.getDate() - 180); // 6 months ago
+      const startDateStr = fallbackStartDate.toISOString().split('T')[0];
+      
+      console.log('🛰️ No stored snapshots found. Generating client-side historical snapshots...', {
         lat: location.lat,
         lng: location.lng,
-        startDate,
-        endDate
+        startDate: startDateStr,
+        endDate,
+        daysBack: 180,
       });
-      
+
       const data = await satelliteService.getHistoricalSnapshots(
         location.lat,
         location.lng,
-        1000, // Increased radius for better coverage
-        startDate,
+        1000, // radius in meters
+        startDateStr,
         endDate,
-        30 // interval in days
+        15 // interval in days (every 2 weeks for better coverage)
       );
-      
-      console.log(`✅ Loaded ${data.length} satellite snapshots`);
+
+      console.log(`✅ Generated ${data.length} client-side satellite snapshots`);
       setSnapshots(data);
-      
+
       if (data.length > 0) {
-        setCurrentIndex(data.length - 1); // Start with most recent
-        setComparisonIndex(0); // Compare with first
+        setCurrentIndex(data.length - 1); // most recent
+        setComparisonIndex(0);            // earliest
         console.log('📅 Current snapshot:', data[data.length - 1].date);
         console.log('📅 Comparison snapshot:', data[0].date);
       } else {
@@ -187,7 +221,9 @@ export const SatelliteMonitor: React.FC<Props> = ({
               Track physical progress over time
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Note: Using Mapbox satellite imagery (current imagery only)
+              {storedSnapshots && storedSnapshots.length > 0
+                ? 'Using stored satellite snapshots (can include true historical imagery).'
+                : 'Using live Mapbox satellite imagery as a fallback (current imagery only).'}
             </p>
           </div>
           <div className="flex gap-3">

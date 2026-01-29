@@ -171,21 +171,25 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Triggers to auto-update updated_at
+DROP TRIGGER IF EXISTS update_changemakers_updated_at ON changemakers;
 CREATE TRIGGER update_changemakers_updated_at
   BEFORE UPDATE ON changemakers
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_initiatives_updated_at ON initiatives;
 CREATE TRIGGER update_initiatives_updated_at
   BEFORE UPDATE ON initiatives
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_milestones_updated_at ON milestones;
 CREATE TRIGGER update_milestones_updated_at
   BEFORE UPDATE ON milestones
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_donations_updated_at ON donations;
 CREATE TRIGGER update_donations_updated_at
   BEFORE UPDATE ON donations
   FOR EACH ROW
@@ -208,6 +212,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_raised_amount_on_donation ON donations;
 CREATE TRIGGER update_raised_amount_on_donation
   AFTER INSERT OR UPDATE ON donations
   FOR EACH ROW
@@ -224,23 +229,28 @@ ALTER TABLE milestones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE donations ENABLE ROW LEVEL SECURITY;
 
 -- Policies for changemakers (public read, authenticated write)
+DROP POLICY IF EXISTS "Changemakers are viewable by everyone" ON changemakers;
 CREATE POLICY "Changemakers are viewable by everyone"
   ON changemakers FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Users can insert their own changemaker profile" ON changemakers;
 CREATE POLICY "Users can insert their own changemaker profile"
   ON changemakers FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own changemaker profile" ON changemakers;
 CREATE POLICY "Users can update their own changemaker profile"
   ON changemakers FOR UPDATE
   USING (auth.uid() = user_id);
 
 -- Policies for initiatives (public read published/active, authenticated write)
+DROP POLICY IF EXISTS "Published initiatives are viewable by everyone" ON initiatives;
 CREATE POLICY "Published initiatives are viewable by everyone"
   ON initiatives FOR SELECT
   USING (status IN ('published', 'active', 'completed'));
 
+DROP POLICY IF EXISTS "Users can view their own initiatives" ON initiatives;
 CREATE POLICY "Users can view their own initiatives"
   ON initiatives FOR SELECT
   USING (
@@ -251,6 +261,7 @@ CREATE POLICY "Users can view their own initiatives"
     )
   );
 
+DROP POLICY IF EXISTS "Users can create initiatives" ON initiatives;
 CREATE POLICY "Users can create initiatives"
   ON initiatives FOR INSERT
   WITH CHECK (
@@ -261,6 +272,7 @@ CREATE POLICY "Users can create initiatives"
     )
   );
 
+DROP POLICY IF EXISTS "Users can update their own initiatives" ON initiatives;
 CREATE POLICY "Users can update their own initiatives"
   ON initiatives FOR UPDATE
   USING (
@@ -271,6 +283,7 @@ CREATE POLICY "Users can update their own initiatives"
     )
   );
 
+DROP POLICY IF EXISTS "Users can delete their own initiatives" ON initiatives;
 CREATE POLICY "Users can delete their own initiatives"
   ON initiatives FOR DELETE
   USING (
@@ -282,6 +295,7 @@ CREATE POLICY "Users can delete their own initiatives"
   );
 
 -- Policies for milestones (public read for published initiatives)
+DROP POLICY IF EXISTS "Milestones are viewable for published initiatives" ON milestones;
 CREATE POLICY "Milestones are viewable for published initiatives"
   ON milestones FOR SELECT
   USING (
@@ -292,6 +306,7 @@ CREATE POLICY "Milestones are viewable for published initiatives"
     )
   );
 
+DROP POLICY IF EXISTS "Users can manage milestones for their initiatives" ON milestones;
 CREATE POLICY "Users can manage milestones for their initiatives"
   ON milestones FOR ALL
   USING (
@@ -306,16 +321,19 @@ CREATE POLICY "Users can manage milestones for their initiatives"
 -- Policies for donations (users can only see their own donations)
 -- Note: This assumes you'll store user_id in donations or match by email/phone
 -- For now, allowing public read of donations for transparency
+DROP POLICY IF EXISTS "Donations are viewable by everyone" ON donations;
 CREATE POLICY "Donations are viewable by everyone"
   ON donations FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Anyone can create donations" ON donations;
 CREATE POLICY "Anyone can create donations"
   ON donations FOR INSERT
   WITH CHECK (true);
 
 -- If you want to restrict updates, add a user_id column to donations table
 -- For now, allowing updates (you may want to restrict this)
+DROP POLICY IF EXISTS "Users can update donations" ON donations;
 CREATE POLICY "Users can update donations"
   ON donations FOR UPDATE
   USING (true);
@@ -339,7 +357,8 @@ VALUES (
 -- ============================================
 
 -- View for initiatives with changemaker info
-CREATE OR REPLACE VIEW initiatives_with_changemaker AS
+DROP VIEW IF EXISTS initiatives_with_changemaker;
+CREATE VIEW initiatives_with_changemaker AS
 SELECT 
   i.*,
   c.name as changemaker_name,
@@ -351,7 +370,8 @@ FROM initiatives i
 LEFT JOIN changemakers c ON i.changemaker_id = c.id;
 
 -- View for initiative statistics
-CREATE OR REPLACE VIEW initiative_stats AS
+DROP VIEW IF EXISTS initiative_stats;
+CREATE VIEW initiative_stats AS
 SELECT 
   i.id,
   i.title,

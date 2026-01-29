@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import { satelliteService } from '../services/satelliteService';
 import { mockSatelliteService } from '../services/mockSatelliteService';
+import { db } from '../lib/database';
+import { fetchSatelliteImageByDate } from '../services/sentinelService';
+import { SatelliteSnapshot } from '../services/types';
 
 const router = Router();
 
-// Use mock for now, switch to real when ready
+// Use mock for most on-demand endpoints, real service only when explicitly requested
 const USE_MOCK = process.env.USE_MOCK_SATELLITE !== 'false'; // Default to true
 const service = USE_MOCK ? mockSatelliteService : satelliteService;
 
@@ -137,6 +140,159 @@ router.get('/status', (req, res) => {
     status: 'operational',
     mockMode: USE_MOCK
   });
+});
+
+/**
+ * POST /api/satellite/backfill-initiative
+ *
+ * Populate / refresh satellite_snapshots for a single initiative using real data
+ * (Sentinel Hub when enabled, otherwise falls back to existing service).
+ *
+ * Body:
+ * {
+ *   initiativeId: string;            // required
+ *   startDate?: string;             // optional ISO date, default: N months ago
+ *   endDate?: string;               // optional ISO date, default: today
+   *   intervalDays?: number;          // optional, default: 30
+ * }
+ */
+router.post('/backfill-initiative', async (req, res) => {
+  try {
+    console.log('📥 Received backfill request:', req.body);
+    const { initiativeId, startDate, endDate, intervalDays = 15 } = req.body as {
+      initiativeId?: string;
+      startDate?: string;
+      endDate?: string;
+      intervalDays?: number;
+    };
+
+    if (!initiativeId) {
+      console.error('❌ Backfill request missing initiativeId');
+      return res.status(400).json({ error: 'initiativeId is required' });
+    }
+
+    console.log(`🛰️ Starting satellite backfill for initiative ${initiativeId}...`);
+
+    // Load initiative from DB - check both active initiatives and directly by ID
+    // (newly created initiatives might not be in "active" status yet)
+    let initiative = await db.getActiveInitiatives()
+      .then(all => all.find(i => i.id === initiativeId));
+    
+    // If not found in active initiatives, try fetching directly by ID
+    if (!initiative) {
+      console.log(`⚠️ Initiative not found in active list, fetching directly by ID...`);
+      initiative = await db.getInitiativeById(initiativeId);
+    }
+
+    if (!initiative) {
+      console.error(`❌ Initiative ${initiativeId} not found in database`);
+      return res.status(404).json({ error: `Initiative ${initiativeId} not found` });
+    }
+    
+    console.log(`✅ Found initiative: ${initiative.title} (status: ${initiative.status})`);
+
+    const location = initiative.location;
+    if (!location || !location.coordinates) {
+      return res.status(400).json({ error: 'Initiative has no location coordinates' });
+    }
+
+    const { lat, lng } = location.coordinates;
+    if (
+      typeof lat !== 'number' || typeof lng !== 'number' ||
+      isNaN(lat) || isNaN(lng) ||
+      lat < -90 || lat > 90 || lng < -180 || lng > 180
+    ) {
+      return res.status(400).json({ error: 'Initiative has invalid coordinates' });
+    }
+
+    const now = new Date();
+    const end = endDate ? new Date(endDate) : now;
+    // Default: go back 6 months (180 days) to ensure we have historical data
+    const defaultDaysBack = 180;
+    const start = startDate
+      ? new Date(startDate)
+      : new Date(end.getTime() - defaultDaysBack * 24 * 60 * 60 * 1000);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ error: 'Invalid startDate or endDate' });
+    }
+    if (start > end) {
+      return res.status(400).json({ error: 'startDate must be before endDate' });
+    }
+
+    const existing: SatelliteSnapshot[] = initiative.satellite_snapshots || [];
+    const snapshots: SatelliteSnapshot[] = [...existing];
+    
+    console.log(`📊 Found ${existing.length} existing snapshots. Generating historical data from ${start.toISOString().split('T')[0]} to ${end.toISOString().split('T')[0]}...`);
+
+    let created = 0;
+    let skipped = 0;
+    let errors = 0;
+    const cursor = new Date(start);
+    const useSentinel = process.env.USE_SENTINEL_HUB === 'true';
+    
+    console.log(`🔧 Using ${useSentinel ? 'Sentinel Hub' : 'Mock/Mapbox'} service for snapshots`);
+
+    while (cursor <= end) {
+      const dateStr = cursor.toISOString().split('T')[0];
+
+      // Skip if we already have a snapshot for this date
+      const already = snapshots.some(s => s.date === dateStr);
+      if (already) {
+        skipped++;
+        cursor.setDate(cursor.getDate() + Number(intervalDays || 15));
+        continue;
+      }
+      
+      try {
+        console.log(`📸 Fetching snapshot for ${dateStr}...`);
+        // Prefer Sentinel Hub when enabled
+        if (useSentinel) {
+          const snap = await fetchSatelliteImageByDate(lat, lng, 500, dateStr, initiativeId, 7);
+          snapshots.push({
+            date: snap.date || dateStr,
+            imageUrl: snap.imageUrl,
+            cloudCoverage: 0,
+            bounds: snap.bounds,
+          } as SatelliteSnapshot);
+          console.log(`✅ Fetched Sentinel snapshot for ${dateStr}`);
+        } else {
+          const snap = await service.captureSnapshot(lat, lng, 500, dateStr);
+          snapshots.push(snap);
+          console.log(`✅ Fetched mock snapshot for ${dateStr}`);
+        }
+        created++;
+      } catch (err: any) {
+        errors++;
+        console.error(`❌ Error fetching snapshot for ${dateStr}:`, err.message || err);
+        // Continue with next date - don't fail the entire backfill
+      }
+
+      cursor.setDate(cursor.getDate() + Number(intervalDays || 15));
+    }
+    
+    console.log(`📈 Backfill summary: ${created} created, ${skipped} skipped (already exist), ${errors} errors`);
+
+    // Persist updated snapshots
+    console.log(`💾 Saving ${snapshots.length} snapshots to database for initiative ${initiativeId}...`);
+    await db.updateInitiativeSnapshots(initiativeId, snapshots);
+    console.log(`✅ Successfully saved ${snapshots.length} snapshots to database`);
+
+    return res.json({
+      success: true,
+      initiativeId,
+      totalSnapshots: snapshots.length,
+      created,
+      startDate: start.toISOString().split('T')[0],
+      endDate: end.toISOString().split('T')[0],
+    });
+  } catch (error: any) {
+    console.error('Error in backfill-initiative:', error);
+    return res.status(500).json({
+      error: 'Failed to backfill satellite snapshots for initiative',
+      message: error.message,
+    });
+  }
 });
 
 export default router;

@@ -1,6 +1,42 @@
 import { supabase } from '../lib/supabase'
 import { Initiative } from '../types'
 
+// Base URL for our Node/Express backend (used to trigger satellite backfill)
+const BACKEND_BASE_URL =
+  import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
+
+async function triggerSatelliteBackfill(initiativeId: string) {
+  try {
+    console.log('🛰️ Triggering satellite backfill for initiative:', initiativeId)
+    const response = await fetch(`${BACKEND_BASE_URL}/api/satellite/backfill-initiative`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        initiativeId,
+        intervalDays: 15, // one snapshot roughly every 2 weeks
+        // Go back 6 months by default to get good historical coverage
+        startDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      }),
+    })
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+      throw new Error(`Backend responded with ${response.status}: ${errorData.error || response.statusText}`)
+    }
+    
+    const result = await response.json()
+    console.log('✅ Satellite backfill completed:', result)
+  } catch (error: any) {
+    console.error('❌ Failed to trigger satellite backfill:', error)
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      backendUrl: BACKEND_BASE_URL,
+    })
+    // Don't throw - this is non-blocking
+  }
+}
+
 // Database types matching Supabase schema
 interface SupabaseInitiative {
   id: string
@@ -49,6 +85,11 @@ interface SupabaseInitiative {
       notes: string
     }
   }>
+  opportunity_preferences?: {
+    acceptProposals?: boolean
+    acceptContentCreators?: boolean
+    acceptAmbassadors?: boolean
+  }
 }
 
 interface SupabaseMilestone {
@@ -193,11 +234,17 @@ const convertToInitiative = (supabaseInitiative: SupabaseInitiative, milestones:
       target_date: m.target_date,
       status: m.status,
     })),
+    satellite_snapshots: supabaseInitiative.satellite_snapshots || [],
     reference_images: supabaseInitiative.reference_images || [],
     status: supabaseInitiative.status,
     created_at: supabaseInitiative.created_at,
     updated_at: supabaseInitiative.updated_at,
     payment_details: supabaseInitiative.payment_details,
+    opportunity_preferences: supabaseInitiative.opportunity_preferences || {
+      acceptProposals: true,
+      acceptContentCreators: true,
+      acceptAmbassadors: true,
+    },
   }
 }
 
@@ -457,55 +504,113 @@ export const fetchInitiativeById = async (id: string): Promise<Initiative | null
 // Create a new initiative with milestones
 export const createInitiative = async (initiative: Initiative): Promise<Initiative | null> => {
   try {
-    // First, ensure changemaker exists (create if needed)
-    // For now, we'll use a default changemaker or the one provided
+    // Get current user from Supabase auth
+    const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !currentUser) {
+      console.error('Error getting current user:', userError)
+      throw new Error('You must be logged in to create an initiative')
+    }
+
+    // First, ensure changemaker exists for the current user
     let changemakerId = initiative.changemaker_id
 
-    // If changemaker_id is not a valid UUID, create or get default changemaker
+    // If changemaker_id is not provided or is a placeholder, find or create changemaker for current user
     if (!changemakerId || changemakerId === 'user-1' || changemakerId === 'system') {
-      // Check if default changemaker exists
-      const { data: existingChangemaker } = await supabase
+      // Check if changemaker exists for this user
+      const { data: existingChangemaker, error: changemakerFetchError } = await supabase
         .from('changemakers')
         .select('id')
-        .eq('id', '00000000-0000-0000-0000-000000000001')
-        .single()
+        .eq('user_id', currentUser.id)
+        .maybeSingle()
 
-      if (!existingChangemaker) {
-        // Create default changemaker
+      if (changemakerFetchError) {
+        console.error('Error fetching changemaker:', changemakerFetchError)
+      }
+
+      if (existingChangemaker) {
+        changemakerId = existingChangemaker.id
+        console.log('✅ Found existing changemaker for user:', changemakerId)
+      } else {
+        // Get user profile to get name and email
+        const { data: userProfile } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .maybeSingle()
+
+        // Prepare changemaker data based on user type
+        let changemakerData: any = {
+          user_id: currentUser.id,
+          name: userProfile?.email || currentUser.email || 'User',
+          email: userProfile?.email || currentUser.email || '',
+        }
+
+        // If user is an organization, get organization name
+        if (userProfile?.user_type === 'organization') {
+          const { data: org } = await supabase
+            .from('organizations')
+            .select('organization_name')
+            .eq('user_profile_id', userProfile.id)
+            .maybeSingle()
+          
+          if (org?.organization_name) {
+            changemakerData.name = org.organization_name
+            changemakerData.organization = org.organization_name
+          }
+        } 
+        // If user is government entity, get entity name
+        else if (userProfile?.user_type === 'government') {
+          const { data: gov } = await supabase
+            .from('government_entities')
+            .select('entity_name')
+            .eq('user_profile_id', userProfile.id)
+            .maybeSingle()
+          
+          if (gov?.entity_name) {
+            changemakerData.name = gov.entity_name
+            changemakerData.organization = gov.entity_name
+          }
+        }
+        // If user is political figure, get their name
+        else if (userProfile?.user_type === 'political_figure') {
+          const { data: political } = await supabase
+            .from('political_figures')
+            .select('name')
+            .eq('user_id', currentUser.id)
+            .maybeSingle()
+          
+          if (political?.name) {
+            changemakerData.name = political.name
+          }
+        }
+
+        // Create changemaker for this user
         const { data: newChangemaker, error: changemakerError } = await supabase
           .from('changemakers')
-          .insert({
-            id: '00000000-0000-0000-0000-000000000001',
-            name: 'System Admin',
-            email: 'admin@mtaji.com',
-            organization: 'Mtaji Tracker',
-            bio: 'System administrator account',
-          })
+          .insert(changemakerData)
           .select()
           .single()
 
         if (changemakerError) {
-          if (changemakerError.code === '23505') {
-            // Duplicate key - changemaker already exists, try to fetch it
-            console.log('Changemaker already exists, fetching...')
-            const { data: fetched } = await supabase
-              .from('changemakers')
-              .select('id')
-              .eq('id', '00000000-0000-0000-0000-000000000001')
-              .single()
-            changemakerId = fetched?.id || '00000000-0000-0000-0000-000000000001'
+          console.error('Error creating changemaker:', changemakerError)
+          // Try to fetch again in case it was created by another process
+          const { data: retryChangemaker } = await supabase
+            .from('changemakers')
+            .select('id')
+            .eq('user_id', currentUser.id)
+            .maybeSingle()
+          
+          if (retryChangemaker) {
+            changemakerId = retryChangemaker.id
+            console.log('✅ Found changemaker after retry:', changemakerId)
           } else {
-            console.error('Error creating changemaker:', changemakerError)
-            console.error('Changemaker error code:', changemakerError.code)
-            console.error('Changemaker error message:', changemakerError.message)
-            // Still try to use the ID even if insert failed (might be RLS issue)
-            changemakerId = '00000000-0000-0000-0000-000000000001'
+            throw new Error(`Failed to create changemaker: ${changemakerError.message}`)
           }
         } else {
-          changemakerId = newChangemaker?.id || '00000000-0000-0000-0000-000000000001'
+          changemakerId = newChangemaker.id
+          console.log('✅ Created new changemaker for user:', changemakerId)
         }
-      } else {
-        changemakerId = existingChangemaker.id
       }
     }
 
@@ -551,7 +656,7 @@ export const createInitiative = async (initiative: Initiative): Promise<Initiati
     const mappedCategory = categoryMapping[initiative.category] || initiative.category;
     const finalCategory = validCategories.includes(mappedCategory) ? mappedCategory : 'infrastructure';
 
-    const initiativeData = {
+    const initiativeData: any = {
       changemaker_id: changemakerId,
       title: initiative.title,
       short_description: initiative.short_description,
@@ -568,12 +673,36 @@ export const createInitiative = async (initiative: Initiative): Promise<Initiati
       satellite_snapshots: initiative.satellite_snapshots || [],
     }
 
+    // Add opportunity_preferences only if provided (column may not exist in older schemas)
+    if (initiative.opportunity_preferences) {
+      initiativeData.opportunity_preferences = initiative.opportunity_preferences
+    }
+
     // Insert initiative
-    const { data: createdInitiative, error: initiativeError } = await supabase
+    let { data: createdInitiative, error: initiativeError } = await supabase
       .from('initiatives')
       .insert(initiativeData)
       .select()
       .single()
+
+    // If error is about unknown column (opportunity_preferences), retry without it
+    if (initiativeError && (initiativeError.message?.includes('opportunity_preferences') || initiativeError.code === '42703')) {
+      console.warn('⚠️ opportunity_preferences column not found, retrying without it. Run ADD_OPPORTUNITY_PREFERENCES.sql to enable this feature.')
+      const { opportunity_preferences, ...dataWithoutPrefs } = initiativeData
+      const retryResult = await supabase
+        .from('initiatives')
+        .insert(dataWithoutPrefs)
+        .select()
+        .single()
+      
+      if (retryResult.error) {
+        initiativeError = retryResult.error
+        createdInitiative = retryResult.data
+      } else {
+        initiativeError = null
+        createdInitiative = retryResult.data
+      }
+    }
 
     if (initiativeError) {
       console.error('Error creating initiative:', initiativeError)
@@ -582,6 +711,23 @@ export const createInitiative = async (initiative: Initiative): Promise<Initiati
       console.error('Error message:', initiativeError.message)
       console.error('Error details:', initiativeError.details)
       throw new Error(initiativeError.message || 'Failed to create initiative')
+    }
+
+    // Kick off satellite backfill in the background (non-blocking)
+    // This will populate historical satellite snapshots from Sentinel Hub
+    if (createdInitiative?.id) {
+      console.log('🚀 Initiative created successfully. Triggering satellite backfill...', {
+        initiativeId: createdInitiative.id,
+        title: createdInitiative.title,
+      });
+      // Use setTimeout to ensure this happens after the response is sent
+      setTimeout(() => {
+        triggerSatelliteBackfill(createdInitiative.id as string).catch(err => {
+          console.error('❌ Satellite backfill failed:', err);
+        });
+      }, 1000); // Small delay to ensure initiative is fully saved
+    } else {
+      console.warn('⚠️ Created initiative has no ID. Cannot trigger satellite backfill.');
     }
 
     // Insert milestones if any
@@ -604,11 +750,48 @@ export const createInitiative = async (initiative: Initiative): Promise<Initiati
       }
     }
 
-    // Fetch the complete initiative with milestones
-    return await fetchInitiativeById(createdInitiative.id)
-  } catch (error) {
+    // Fetch the complete initiative with milestones (with timeout)
+    console.log('📥 Fetching complete initiative with ID:', createdInitiative.id)
+    
+    try {
+      // Add timeout to prevent hanging
+      const fetchPromise = fetchInitiativeById(createdInitiative.id)
+      const timeoutPromise = new Promise<Initiative | null>((resolve) => {
+        setTimeout(() => {
+          console.warn('⏱️ fetchInitiativeById timeout after 10 seconds')
+          resolve(null)
+        }, 10000)
+      })
+      
+      const completeInitiative = await Promise.race([fetchPromise, timeoutPromise])
+      
+      if (!completeInitiative) {
+        console.warn('⚠️ fetchInitiativeById returned null or timed out, but initiative was created. Returning basic initiative data.')
+        // Return the initiative we just created even if fetch fails
+        return {
+          ...initiative,
+          id: createdInitiative.id,
+          created_at: createdInitiative.created_at,
+          updated_at: createdInitiative.updated_at,
+        } as Initiative
+      }
+      
+      console.log('✅ Complete initiative fetched successfully')
+      return completeInitiative
+    } catch (fetchError) {
+      console.error('⚠️ Error fetching complete initiative:', fetchError)
+      // Still return the basic initiative data since creation succeeded
+      return {
+        ...initiative,
+        id: createdInitiative.id,
+        created_at: createdInitiative.created_at,
+        updated_at: createdInitiative.updated_at,
+      } as Initiative
+    }
+  } catch (error: any) {
     console.error('Error in createInitiative:', error)
-    return null
+    // Throw error instead of returning null so calling code can handle it
+    throw new Error(error?.message || 'Failed to create initiative. Please try again.')
   }
 }
 

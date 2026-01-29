@@ -7,18 +7,22 @@ import ProjectOverview from './dashboard/ProjectOverview';
 import SatelliteTracker from './dashboard/SatelliteTracker';
 import AIAnalysis from './dashboard/AIAnalysis';
 import VolunteerManagement from './dashboard/VolunteerManagement';
+import OpportunitiesManagement from './dashboard/OpportunitiesManagement';
 import ProjectRendering from './dashboard/ProjectRendering';
 import Notifications from './dashboard/Notifications';
 import CreateInitiative from './dashboard/CreateInitiative';
+import Settings from './dashboard/Settings';
 
 type DashboardSection = 
   | 'overview' 
   | 'create-initiative'
   | 'satellite' 
   | 'ai-analysis' 
-  | 'volunteers' 
+  | 'volunteers'
+  | 'opportunities'
   | 'rendering' 
-  | 'notifications';
+  | 'notifications'
+  | 'settings';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -29,7 +33,7 @@ export default function Dashboard() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const section = params.get('section') as DashboardSection;
-    if (section && ['overview', 'create-initiative', 'satellite', 'ai-analysis', 'volunteers', 'rendering', 'notifications'].includes(section)) {
+    if (section && ['overview', 'create-initiative', 'satellite', 'ai-analysis', 'volunteers', 'opportunities', 'rendering', 'notifications', 'settings'].includes(section)) {
       setActiveSection(section);
     }
   }, []);
@@ -40,15 +44,6 @@ export default function Dashboard() {
       navigate('/login');
     }
   }, [user, loading, navigate]);
-
-  // Handle URL query parameter for section
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const section = params.get('section') as DashboardSection;
-    if (section && ['overview', 'create-initiative', 'satellite', 'ai-analysis', 'volunteers', 'rendering', 'notifications'].includes(section)) {
-      setActiveSection(section);
-    }
-  }, []);
 
   // Show loading while checking auth
   if (loading) {
@@ -106,8 +101,10 @@ export default function Dashboard() {
     { id: 'satellite' as DashboardSection, label: 'Satellite Tracker', icon: '🛰️' },
     { id: 'ai-analysis' as DashboardSection, label: 'AI Analysis', icon: '🤖' },
     { id: 'volunteers' as DashboardSection, label: 'Volunteers', icon: '👥' },
+    { id: 'opportunities' as DashboardSection, label: 'Opportunities', icon: '💼' },
     { id: 'rendering' as DashboardSection, label: 'Rendering Tool', icon: '🎨' },
     { id: 'notifications' as DashboardSection, label: 'Notifications', icon: '🔔' },
+    { id: 'settings' as DashboardSection, label: 'Settings', icon: '⚙️' },
   ];
 
   const renderActiveSection = () => {
@@ -122,10 +119,14 @@ export default function Dashboard() {
         return <AIAnalysis />;
       case 'volunteers':
         return <VolunteerManagement />;
+      case 'opportunities':
+        return <OpportunitiesManagement />;
       case 'rendering':
         return <ProjectRendering />;
       case 'notifications':
         return <Notifications />;
+      case 'settings':
+        return <Settings />;
       default:
         return <ProjectOverview onNavigateToCreate={() => setActiveSection('create-initiative')} />;
     }

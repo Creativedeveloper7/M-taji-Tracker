@@ -3,9 +3,13 @@ import { mockSatelliteService } from '../services/mockSatelliteService';
 import { satelliteService } from '../services/satelliteService';
 import { db } from '../lib/database';
 import { SatelliteSnapshot } from '../services/types';
+import { fetchSatelliteImageByDate } from '../services/sentinelService';
 
-// Use mock service by default, switch to real when ready
-const USE_MOCK = process.env.USE_MOCK_SATELLITE !== 'false';
+// Use mock service by default.
+// When SENTINEL_CLIENT_ID / SENTINEL_CLIENT_SECRET are configured and
+// USE_SENTINEL_HUB=true, the job will use real Sentinel Hub data instead.
+const USE_MOCK = process.env.USE_MOCK_SATELLITE === 'true';
+const USE_SENTINEL = process.env.USE_SENTINEL_HUB === 'true';
 const service = USE_MOCK ? mockSatelliteService : satelliteService;
 
 interface SnapshotWithMetadata extends SatelliteSnapshot {
@@ -61,11 +65,42 @@ class SatelliteMonitoringJob {
 
           // Capture new snapshot
           console.log(`📸 Capturing snapshot for: ${initiative.title}`);
-          const snapshot = await service.captureSnapshot(
-            lat,
-            lng,
-            500 // radius in meters
-          );
+
+          let snapshot: SatelliteSnapshot;
+
+          if (USE_SENTINEL) {
+            const today = new Date().toISOString().slice(0, 10);
+            try {
+              const sentinel = await fetchSatelliteImageByDate(
+                lat,
+                lng,
+                500,
+                today,
+                initiative.id
+              );
+
+              snapshot = {
+                date: sentinel.acquisitionDate,
+                imageUrl: sentinel.imageUrl,
+                cloudCoverage: 0,
+                bounds: sentinel.bounds,
+              };
+            } catch (sentinelError: any) {
+              console.error(
+                `❌ Sentinel Hub capture failed for ${initiative.title}:`,
+                sentinelError.message
+              );
+              // Fallback to existing service so the job still runs
+              snapshot = await service.captureSnapshot(lat, lng, 500);
+            }
+          } else {
+            // Existing Mapbox / mock implementation
+            snapshot = await service.captureSnapshot(
+              lat,
+              lng,
+              500 // radius in meters
+            );
+          }
 
           // Get existing snapshots
           const existingSnapshots: SnapshotWithMetadata[] = initiative.satellite_snapshots || [];

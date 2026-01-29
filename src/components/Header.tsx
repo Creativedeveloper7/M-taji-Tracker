@@ -27,12 +27,19 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
 
   // Get display name based on user type
   const getDisplayName = () => {
-    if (!userProfile) return user?.email || 'User'
+    if (!userProfile) {
+      return user?.email || 'User'
+    }
     
-    // First check completeProfile for type-specific data
+    // First check completeProfile for type-specific data (most accurate)
     if (completeProfile?.organization?.organization_name) {
       return completeProfile.organization.organization_name
     }
+    // For government accounts, prefer the representative's personal name
+    if (completeProfile?.government_entity?.representative?.name) {
+      return completeProfile.government_entity.representative.name
+    }
+    // Fallback to government entity name (e.g. "Ministry of Health")
     if (completeProfile?.government_entity?.entity_name) {
       return completeProfile.government_entity.entity_name
     }
@@ -41,7 +48,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
     }
     
     // Fallback to changemaker name (most reliable since it's created for all users)
-    if (completeProfile?.changemaker?.name) {
+    if (completeProfile?.changemaker?.name && completeProfile.changemaker.name !== userProfile.email) {
       return completeProfile.changemaker.name
     }
     
@@ -274,10 +281,10 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
                   className="flex items-center space-x-2 px-4 py-2 text-secondary hover:bg-overlay rounded-lg transition-colors duration-300"
                 >
                   <div className="w-8 h-8 rounded-full flex items-center justify-center font-semibold" style={{ backgroundColor: 'var(--accent-primary)', color: '#121212' }}>
-                    {userProfile?.email?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                    {getInitials()}
                   </div>
                   <span className="text-sm font-medium hidden xl:block">
-                    {userProfile?.email || user.email}
+                    {getDisplayName()}
                   </span>
                   <svg
                     className={`w-4 h-4 transition-transform duration-300 ${

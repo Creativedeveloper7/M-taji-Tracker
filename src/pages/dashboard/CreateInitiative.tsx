@@ -1,11 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { createInitiative } from '../../services/initiatives';
+import { createJobsForInitiative, NewJobInput } from '../../services/opportunitiesService';
 import { Initiative } from '../../types';
 import { supabase } from '../../lib/supabase';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import { kenyanCounties } from '../../data/kenyanCounties';
+
+// Fix for default marker icon
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
 
 type InputMethod = 'automated' | 'manual';
 
@@ -32,6 +44,12 @@ interface InitiativeFormData {
   documents: File[];
   images: File[];
   teamMembers: Array<{ name: string; role: string; email: string }>;
+  opportunities?: {
+    jobs: Array<{ title: string; jobType: string; description: string }>;
+    acceptProposals?: boolean;
+    acceptContentCreators?: boolean;
+    acceptAmbassadors?: boolean;
+  };
 }
 
 export default function CreateInitiative() {
@@ -56,10 +74,286 @@ export default function CreateInitiative() {
       teamMembers: [{ name: '', role: '', email: '' }],
       documents: [],
       images: [],
+      opportunities: {
+        jobs: [],
+        acceptProposals: true,
+        acceptContentCreators: true,
+        acceptAmbassadors: true,
+      },
     },
   });
 
   const TOTAL_STEPS = 6;
+
+  // LocationMapPicker Component
+  const LocationMapPicker = ({ 
+    coordinates, 
+    onCoordinatesChange, 
+    mapRef,
+    onAddressDetected 
+  }: { 
+    coordinates?: { lat: number; lng: number };
+    onCoordinatesChange: (coords: { lat: number; lng: number }) => void;
+    mapRef: React.MutableRefObject<L.Map | null>;
+    onAddressDetected?: (address: string) => void;
+  }) => {
+    const [mapType, setMapType] = useState<'street' | 'satellite'>('street');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+
+    // Map click handler
+    const MapClickHandler = () => {
+      useMapEvents({
+        click: (e) => {
+          if (!isDragging) {
+            const coords = { lat: e.latlng.lat, lng: e.latlng.lng };
+            onCoordinatesChange(coords);
+            reverseGeocode(coords.lat, coords.lng);
+          }
+        },
+      });
+      return null;
+    };
+
+    // Map controller to store map reference
+    const MapController = () => {
+      const map = useMap();
+      useEffect(() => {
+        mapRef.current = map;
+        return () => {
+          mapRef.current = null;
+        };
+      }, [map]);
+      return null;
+    };
+
+    // Reverse geocode to get address
+    const reverseGeocode = async (lat: number, lng: number) => {
+      const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+      if (!mapboxToken || mapboxToken === 'pk.your-token-here') return;
+
+      try {
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}&country=KE`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.features && data.features.length > 0 && onAddressDetected) {
+          onAddressDetected(data.features[0].place_name);
+        }
+      } catch (error) {
+        console.error('Reverse geocoding error:', error);
+      }
+    };
+
+    // Search places
+    const searchPlaces = async (query: string) => {
+      if (!query || query.length < 3) {
+        setSearchResults([]);
+        return;
+      }
+
+      const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+      if (!mapboxToken || mapboxToken === 'pk.your-token-here') return;
+
+      setIsSearching(true);
+      try {
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&country=KE&limit=5`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.features) {
+          setSearchResults(data.features);
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    // Handle place selection
+    const handlePlaceSelect = (feature: any) => {
+      const [lng, lat] = feature.center;
+      const coords = { lat, lng };
+      onCoordinatesChange(coords);
+      if (onAddressDetected) {
+        onAddressDetected(feature.place_name || feature.text);
+      }
+      setSearchQuery(feature.place_name || feature.text);
+      setSearchResults([]);
+      if (mapRef.current) {
+        mapRef.current.setView([lat, lng], 16, { animate: true, duration: 1.0 });
+      }
+    };
+
+    // Get current location
+    const getCurrentLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const coords = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            onCoordinatesChange(coords);
+            reverseGeocode(coords.lat, coords.lng);
+            if (mapRef.current) {
+              mapRef.current.setView([coords.lat, coords.lng], 16, {
+                animate: true,
+                duration: 1.0,
+              });
+            }
+          },
+          (error) => {
+            console.error('Error getting location:', error);
+            alert('Could not get your current location. Please click on the map to set the location.');
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      } else {
+        alert('Geolocation is not supported by your browser.');
+      }
+    };
+
+    // Debounced search
+    useEffect(() => {
+      const timeoutId = setTimeout(() => {
+        if (searchQuery) {
+          searchPlaces(searchQuery);
+        } else {
+          setSearchResults([]);
+        }
+      }, 300);
+      return () => clearTimeout(timeoutId);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchQuery]);
+
+    // Draggable marker component
+    const DraggableMarker = ({ position }: { position: [number, number] }) => {
+      const [markerPosition, setMarkerPosition] = useState(position);
+
+      useEffect(() => {
+        setMarkerPosition(position);
+      }, [position]);
+
+      const eventHandlers = {
+        dragend: (e: any) => {
+          const marker = e.target;
+          const newPosition = marker.getLatLng();
+          setMarkerPosition([newPosition.lat, newPosition.lng]);
+          onCoordinatesChange({ lat: newPosition.lat, lng: newPosition.lng });
+          reverseGeocode(newPosition.lat, newPosition.lng);
+          setIsDragging(false);
+        },
+        dragstart: () => {
+          setIsDragging(true);
+        },
+      };
+
+      return (
+        <Marker
+          position={markerPosition}
+          draggable={true}
+          eventHandlers={eventHandlers}
+        />
+      );
+    };
+
+    const mapCenter = coordinates 
+      ? [coordinates.lat, coordinates.lng] as [number, number]
+      : [-0.0236, 37.9062] as [number, number];
+
+    return (
+      <div className="space-y-3">
+        {/* Search and Controls */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex-1 relative min-w-[200px]">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary text-sm"
+              placeholder="Search for a place..."
+            />
+            {isSearching && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-mtaji-primary"></div>
+              </div>
+            )}
+            {searchResults.length > 0 && (
+              <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-white/20 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                {searchResults.map((feature, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => handlePlaceSelect(feature)}
+                    className="w-full text-left px-4 py-2 hover:bg-white/10 border-b border-white/10 last:border-b-0 transition-colors text-sm"
+                  >
+                    <div className="text-white">{feature.place_name || feature.text}</div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={getCurrentLocation}
+            className="px-4 py-2 bg-mtaji-primary hover:bg-mtaji-primary-dark rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
+          >
+            📍 Use My Location
+          </button>
+          <button
+            type="button"
+            onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
+            className="px-4 py-2 bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg text-sm transition-colors whitespace-nowrap"
+          >
+            {mapType === 'street' ? '🛰️ Satellite' : '🗺️ Street'}
+          </button>
+        </div>
+
+        {/* Map */}
+        <div className="border-2 border-white/20 rounded-lg overflow-hidden" style={{ height: '400px' }}>
+          <MapContainer
+            center={mapCenter}
+            zoom={coordinates ? 15 : 6}
+            style={{ height: '100%', width: '100%' }}
+            scrollWheelZoom={true}
+          >
+            <MapController />
+            {mapType === 'satellite' ? (
+              <TileLayer
+                attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
+                url={`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}@2x?access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''}`}
+              />
+            ) : (
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+            )}
+            <MapClickHandler />
+            {coordinates && (
+              <DraggableMarker position={[coordinates.lat, coordinates.lng]} />
+            )}
+          </MapContainer>
+        </div>
+
+        {/* Coordinate Display */}
+        {coordinates && (
+          <div className="p-3 bg-white/5 border border-white/10 rounded-lg">
+            <p className="text-xs text-mtaji-light-gray mb-1">Selected Coordinates:</p>
+            <p className="text-sm text-white font-mono">
+              {coordinates.lat.toFixed(8)}, {coordinates.lng.toFixed(8)}
+            </p>
+            <p className="text-xs text-mtaji-medium-gray mt-1">
+              💡 Click on map to set location, or drag the marker for precise positioning
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Auto-save functionality
   const autoSave = () => {
@@ -176,10 +470,51 @@ export default function CreateInitiative() {
   const { userProfile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+  const [coordinateInput, setCoordinateInput] = useState<string>('');
+  const mapRef = useRef<L.Map | null>(null);
+
+  // Watch coordinates from the form so we can keep the text field and map in sync
+  const watchedCoordinates = watch('location.coordinates');
+
+  // Keep the coordinate text field and map in sync when coordinates change
+  useEffect(() => {
+    if (
+      watchedCoordinates &&
+      typeof watchedCoordinates.lat === 'number' &&
+      typeof watchedCoordinates.lng === 'number'
+    ) {
+      const next = `${watchedCoordinates.lat}, ${watchedCoordinates.lng}`;
+      setCoordinateInput((prev) => (prev === next ? prev : next));
+
+      // Also recenter the map to these coordinates so the user sees a live preview
+      if (!isNaN(watchedCoordinates.lat) && !isNaN(watchedCoordinates.lng) && mapRef.current) {
+        try {
+          mapRef.current.setView(
+            [watchedCoordinates.lat, watchedCoordinates.lng],
+            mapRef.current.getZoom() || 15,
+            { animate: true, duration: 1.0 }
+          );
+        } catch (err) {
+          console.warn('Failed to recenter map for coordinates:', watchedCoordinates, err);
+        }
+      }
+    }
+  }, [watchedCoordinates?.lat, watchedCoordinates?.lng]);
 
   const onSubmit = async (data: InitiativeFormData) => {
+    // Prevent double submission
+    if (isSubmitting) {
+      console.warn('⚠️ Submission already in progress, ignoring duplicate submit');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError(null);
+    setSubmitSuccess(null);
+
+    // Timeout safeguard for the database publish step (set later, after uploads)
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     try {
       // Get or create changemaker for the user
@@ -268,6 +603,11 @@ export default function CreateInitiative() {
         payment_details: {
           method: 'mpesa',
         },
+        opportunity_preferences: {
+          acceptProposals: data.opportunities?.acceptProposals ?? true,
+          acceptContentCreators: data.opportunities?.acceptContentCreators ?? true,
+          acceptAmbassadors: data.opportunities?.acceptAmbassadors ?? true,
+        },
       };
 
       // Upload images if any
@@ -306,29 +646,126 @@ export default function CreateInitiative() {
         initiative.reference_images = imageUrls;
       }
 
-      // Create the initiative
-      const created = await createInitiative(initiative as Initiative);
-
-      if (created) {
-        localStorage.removeItem('draft_initiative');
-        // Trigger refresh event for ProjectOverview
-        window.dispatchEvent(new Event('initiatives-refresh'));
-        // Show success message and navigate to overview
-        alert('Initiative created successfully! Redirecting to overview...');
-        // Navigate back to dashboard overview
-        navigate('/dashboard?section=overview');
-      } else {
-        throw new Error('Failed to create initiative');
+      // Validate coordinates before creating
+      if (!data.location.coordinates || 
+          !data.location.coordinates.lat || 
+          !data.location.coordinates.lng ||
+          isNaN(data.location.coordinates.lat) || 
+          isNaN(data.location.coordinates.lng)) {
+        throw new Error('Please set a valid location on the map. Click on the map or use "Use My Location" button.');
       }
+
+      // Validate coordinates are not default
+      if (data.location.coordinates.lat === -0.0236 && data.location.coordinates.lng === 37.9062) {
+        throw new Error('Please set a specific location on the map. The default location cannot be used.');
+      }
+
+      console.log('🚀 Creating initiative with data:', {
+        title: initiative.title,
+        coordinates: initiative.location?.coordinates,
+        changemakerId
+      });
+
+      // Create the initiative (with its own timeout, excluding file upload time)
+      console.log('🚀 Calling createInitiative...');
+
+      timeoutId = setTimeout(() => {
+        console.error('⏱️ Submission timeout after 30 seconds (database publish)');
+        setIsSubmitting(false);
+        setSubmitError('Submission timed out while publishing to the server. Please try again or check your internet connection.');
+      }, 30000);
+
+      let created: Initiative | null = null;
+      try {
+        created = await createInitiative(initiative as Initiative);
+        console.log('📦 createInitiative returned:', created);
+      } catch (createError: any) {
+        console.error('❌ createInitiative threw an error:', createError);
+        console.error('Error stack:', createError?.stack);
+        throw createError; // Re-throw to be caught by outer catch
+      }
+
+      if (!created) {
+        console.error('❌ createInitiative returned null/undefined');
+        throw new Error('Failed to create initiative. Please check the console for details.');
+      }
+
+      console.log('✅ Initiative created successfully:', created);
+
+      // Save any job opportunities defined in the form
+      try {
+        const jobs = data.opportunities?.jobs || [];
+        console.log('📋 Jobs from form:', jobs);
+        if (jobs.length > 0) {
+          const jobInputs: NewJobInput[] = jobs
+            .map(job => ({
+              title: job.title?.trim() || '',
+              job_type: job.jobType?.trim() || '',
+              description: job.description?.trim() || '',
+            }))
+            .filter(job => job.title.length > 0); // Only keep jobs with a title
+          
+          console.log('💼 Filtered job inputs:', jobInputs);
+          
+          if (jobInputs.length > 0) {
+            await createJobsForInitiative(created.id, jobInputs);
+            console.log('✅ Saved', jobInputs.length, 'job opportunities for initiative:', created.id);
+          } else {
+            console.log('⚠️ No valid jobs to save (all had empty titles)');
+          }
+        } else {
+          console.log('ℹ️ No jobs provided in form data');
+        }
+      } catch (jobError: any) {
+        console.error('⚠️ Failed to save job opportunities (initiative was still created):', jobError);
+        console.error('Job error details:', jobError?.message, jobError?.stack);
+      }
+
+      localStorage.removeItem('draft_initiative');
+      
+      // Trigger refresh event for ProjectOverview
+      window.dispatchEvent(new Event('initiatives-refresh'));
+      
+      // Clear timeout since we succeeded
+      if (timeoutId) clearTimeout(timeoutId);
+
+      // Show a clear on-screen success message before navigation
+      setSubmitSuccess('Initiative published successfully!');
+
+      // Give the user a brief moment to see the message, then navigate
+      setTimeout(() => {
+        console.log('🔄 Navigating to dashboard overview...');
+        navigate('/dashboard?section=overview');
+      }, 1200);
+      
     } catch (error: any) {
-      console.error('Error creating initiative:', error);
-      setSubmitError(error.message || 'Failed to create initiative. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+      // Clear timeout on error
+      if (timeoutId) clearTimeout(timeoutId);
+      
+      console.error('❌ Error creating initiative:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        stack: error?.stack,
+        name: error?.name
+      });
+      const errorMessage = error?.message || 'Failed to create initiative. Please try again.';
+      setSubmitError(errorMessage);
+      setIsSubmitting(false); // Reset immediately on error
     }
   };
 
   const nextStep = () => {
+    // Validate location coordinates on step 2
+    if (currentStep === 2) {
+      const coords = watch('location.coordinates');
+      if (!coords || !coords.lat || !coords.lng || 
+          isNaN(coords.lat) || isNaN(coords.lng) ||
+          coords.lat === -0.0236 && coords.lng === 37.9062) {
+        alert('Please set a location on the map by clicking on it or using "Use My Location". The default location cannot be used.');
+        return;
+      }
+    }
+    
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(currentStep + 1);
       autoSave();
@@ -484,7 +921,41 @@ export default function CreateInitiative() {
 
       {/* Manual Form Entry */}
       {(inputMethod === 'manual' || extractedData) && (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(async (data) => {
+          // handleSubmit from react-hook-form handles validation
+          // If validation passes, it calls our onSubmit
+          await onSubmit(data);
+        })} className="space-y-6">
+          {/* Error / Success Display */}
+          {submitError && (
+            <div className="bg-red-500/20 border border-red-500 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-red-400 text-xl">⚠️</span>
+                <div className="flex-1">
+                  <p className="text-red-400 font-semibold mb-1">Error Publishing Initiative</p>
+                  <p className="text-red-300 text-sm">{submitError}</p>
+                  <button
+                    type="button"
+                    onClick={() => setSubmitError(null)}
+                    className="mt-2 text-sm text-red-300 hover:text-red-200 underline"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {submitSuccess && (
+            <div className="bg-emerald-500/20 border border-emerald-500 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-emerald-400 text-xl">✅</span>
+                <div className="flex-1">
+                  <p className="text-emerald-400 font-semibold mb-1">Initiative Published</p>
+                  <p className="text-emerald-300 text-sm">{submitSuccess}</p>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Progress Steps */}
           <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
@@ -608,36 +1079,81 @@ export default function CreateInitiative() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm text-mtaji-light-gray mb-2">Latitude</label>
-                      <input
-                        {...register('location.coordinates.lat', { valueAsNumber: true })}
-                        type="number"
-                        step="any"
-                        className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
-                        placeholder="e.g., -1.2921"
-                        onChange={autoSave}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-mtaji-light-gray mb-2">Longitude</label>
-                      <input
-                        {...register('location.coordinates.lng', { valueAsNumber: true })}
-                        type="number"
-                        step="any"
-                        className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
-                        placeholder="e.g., 36.8219"
-                        onChange={autoSave}
-                      />
-                    </div>
+                  {/* Coordinate Input - Single Field */}
+                  <div>
+                    <label className="block text-sm text-mtaji-light-gray mb-2">
+                      Coordinates (Latitude, Longitude)
+                      <span className="text-xs text-mtaji-medium-gray ml-2">
+                        (Paste coordinates like: -1.2921, 36.8219 or click on map)
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      value={coordinateInput}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setCoordinateInput(value);
+
+                        const trimmed = value.trim();
+                        // Support formats like:
+                        // "1.24960, 36.65751"
+                        // "1.24960° S, 36.65751° E"
+                        // "-1.24960 S 36.65751 E"
+                        const match = trimmed.match(
+                          /^(-?\d+\.?\d*)[^0-9NnSsEeWw]*([NnSs])?[,\s]+(-?\d+\.?\d*)[^0-9NnSsEeWw]*([EeWw])?$/
+                        );
+
+                        if (match) {
+                          let lat = parseFloat(match[1]);
+                          let lng = parseFloat(match[3]);
+                          const latHem = match[2]?.toUpperCase();
+                          const lngHem = match[4]?.toUpperCase();
+
+                          // Apply hemisphere: S/W = negative, N/E = positive
+                          if (latHem === 'S' && lat > 0) lat = -lat;
+                          if (latHem === 'N' && lat < 0) lat = -lat;
+                          if (lngHem === 'W' && lng > 0) lng = -lng;
+                          if (lngHem === 'E' && lng < 0) lng = -lng;
+
+                          if (
+                            !isNaN(lat) &&
+                            !isNaN(lng) &&
+                            lat >= -90 &&
+                            lat <= 90 &&
+                            lng >= -180 &&
+                            lng <= 180
+                          ) {
+                            setValue('location.coordinates', { lat, lng }, { shouldValidate: true });
+                            autoSave();
+                            if (mapRef.current) {
+                              mapRef.current.setView([lat, lng], 15, { animate: true, duration: 1.0 });
+                            }
+                          }
+                        }
+                      }}
+                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                      placeholder='e.g., -1.2921, 36.8219 or "1.24960° S, 36.65751° E"'
+                    />
+                    <p className="text-xs text-mtaji-medium-gray mt-1">
+                      💡 Tip: Copy coordinates from Google Maps (right-click → coordinates) or use the map below
+                    </p>
                   </div>
 
-                  <div className="h-64 bg-gray-900 rounded-lg flex items-center justify-center text-mtaji-light-gray">
-                    Map Picker (Integration needed)
-                    <br />
-                    Click to select location on map
-                  </div>
+                  {/* Map Picker */}
+                  <LocationMapPicker
+                    coordinates={watch('location.coordinates')}
+                    onCoordinatesChange={(coords) => {
+                      setValue('location.coordinates', coords, { shouldValidate: true });
+                      autoSave();
+                    }}
+                    mapRef={mapRef}
+                    onAddressDetected={(address) => {
+                      if (!watch('location.address')) {
+                        setValue('location.address', address);
+                        autoSave();
+                      }
+                    }}
+                  />
                 </div>
               </motion.div>
             )}
@@ -824,7 +1340,7 @@ export default function CreateInitiative() {
                 exit={{ opacity: 0, x: -20 }}
                 className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
               >
-                <h3 className="text-2xl font-semibold mb-6">Success Metrics & Team</h3>
+                <h3 className="text-2xl font-semibold mb-6">Success Metrics, Team & Opportunities</h3>
                 
                 <div className="space-y-4">
                   <div>
@@ -906,6 +1422,138 @@ export default function CreateInitiative() {
                       className="text-sm text-mtaji-primary hover:underline"
                     >
                       + Add Team Member
+                    </button>
+                  </div>
+
+                  {/* Opportunities: Preferences */}
+                  <div className="mt-6 border-t border-white/10 pt-4">
+                    <h4 className="text-lg font-semibold mb-2">Opportunities Preferences</h4>
+                    <p className="text-xs text-mtaji-medium-gray mb-3">
+                      Select which types of opportunities you want to receive for this initiative.
+                    </p>
+                    <div className="space-y-2 mb-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={watch('opportunities.acceptProposals') ?? true}
+                          onChange={(e) => {
+                            setValue('opportunities.acceptProposals', e.target.checked);
+                            autoSave();
+                          }}
+                          className="w-4 h-4 rounded border-white/20 bg-white/5 text-mtaji-primary focus:ring-mtaji-primary"
+                        />
+                        <span className="text-sm text-white">Accept Proposals</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={watch('opportunities.acceptContentCreators') ?? true}
+                          onChange={(e) => {
+                            setValue('opportunities.acceptContentCreators', e.target.checked);
+                            autoSave();
+                          }}
+                          className="w-4 h-4 rounded border-white/20 bg-white/5 text-mtaji-primary focus:ring-mtaji-primary"
+                        />
+                        <span className="text-sm text-white">Accept Content Creator Applications</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={watch('opportunities.acceptAmbassadors') ?? true}
+                          onChange={(e) => {
+                            setValue('opportunities.acceptAmbassadors', e.target.checked);
+                            autoSave();
+                          }}
+                          className="w-4 h-4 rounded border-white/20 bg-white/5 text-mtaji-primary focus:ring-mtaji-primary"
+                        />
+                        <span className="text-sm text-white">Accept Project Ambassador Applications</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Opportunities: Jobs */}
+                  <div className="mt-6 border-t border-white/10 pt-4">
+                    <h4 className="text-lg font-semibold mb-2">Opportunities – Jobs</h4>
+                    <p className="text-xs text-mtaji-medium-gray mb-3">
+                      Add any roles or jobs you want to advertise for this initiative. These will appear on the Opportunities tab for guests.
+                    </p>
+                    {(watch('opportunities.jobs') || []).map((job: any, index: number) => (
+                      <div key={index} className="mb-3 border border-white/15 rounded-lg p-3 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-mtaji-medium-gray">Job #{index + 1}</span>
+                          {index > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const jobs = (watch('opportunities.jobs') || []) as any[];
+                                setValue('opportunities.jobs', jobs.filter((_, i) => i !== index));
+                                autoSave();
+                              }}
+                              className="text-xs text-red-400 hover:text-red-300"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-mtaji-light-gray mb-1">Job Title</label>
+                            <input
+                              type="text"
+                              value={job?.title || ''}
+                              onChange={(e) => {
+                                const jobs = (watch('opportunities.jobs') || []) as any[];
+                                jobs[index] = { ...jobs[index], title: e.target.value };
+                                setValue('opportunities.jobs', jobs);
+                                autoSave();
+                              }}
+                              className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                              placeholder="e.g., Site Supervisor"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-mtaji-light-gray mb-1">Type</label>
+                            <input
+                              type="text"
+                              value={job?.jobType || ''}
+                              onChange={(e) => {
+                                const jobs = (watch('opportunities.jobs') || []) as any[];
+                                jobs[index] = { ...jobs[index], jobType: e.target.value };
+                                setValue('opportunities.jobs', jobs);
+                                autoSave();
+                              }}
+                              className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                              placeholder="e.g., Full-time, Part-time, Contract"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-mtaji-light-gray mb-1">Short Description</label>
+                          <textarea
+                            value={job?.description || ''}
+                            onChange={(e) => {
+                              const jobs = (watch('opportunities.jobs') || []) as any[];
+                              jobs[index] = { ...jobs[index], description: e.target.value };
+                              setValue('opportunities.jobs', jobs);
+                              autoSave();
+                            }}
+                            rows={2}
+                            className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary resize-none"
+                            placeholder="Briefly describe what this role involves..."
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentJobs = watch('opportunities.jobs') || [];
+                        setValue('opportunities.jobs', [...currentJobs, { title: '', jobType: '', description: '' }], { shouldValidate: false });
+                        autoSave();
+                      }}
+                      className="mt-1 text-sm text-mtaji-primary hover:underline"
+                    >
+                      + Add Job Opportunity
                     </button>
                   </div>
                 </div>
@@ -1206,7 +1854,15 @@ export default function CreateInitiative() {
                 Back to Edit
               </button>
               <button
-                onClick={handleSubmit(onSubmit)}
+                type="button"
+                onClick={async () => {
+                  const formData = watch();
+                  try {
+                    await onSubmit(formData);
+                  } catch (error) {
+                    console.error('Preview submit error:', error);
+                  }
+                }}
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-2 bg-mtaji-primary hover:bg-mtaji-primary-dark rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >

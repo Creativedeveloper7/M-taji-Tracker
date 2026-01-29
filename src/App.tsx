@@ -15,6 +15,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import AuthCallback from './pages/AuthCallback'
 import InitiativeDetail from './pages/InitiativeDetail'
+import InitiativeOpportunities from './pages/InitiativeOpportunities'
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
               <Route path="/map" element={<Home />} />
               <Route path="/initiatives" element={<Initiatives />} />
               <Route path="/initiatives/:id" element={<InitiativeDetail />} />
+              <Route path="/initiatives/:id/opportunities" element={<InitiativeOpportunities />} />
               <Route path="/political-figures" element={<PoliticalFigures />} />
               <Route path="/political-figures/register" element={<PoliticalFigureRegister />} />
               <Route path="/political-figures/:id" element={<PoliticalFigureProfile />} />
