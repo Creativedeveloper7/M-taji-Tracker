@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "overrides": {
+    "esbuild": "0.27.2"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -27,7 +30,7 @@
     "astro": "^5.4.1",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
-    "esbuild": "^0.25.0",
+    "esbuild": "0.27.2",
     "express": "^4.18.2",
     "framer-motion": "^12.27.0",
     "leaflet": "^1.9.4",
