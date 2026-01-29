@@ -110,14 +110,6 @@ const Initiatives = () => {
     stalled: 'bg-gray-400',
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
-      minimumFractionDigits: 0,
-    }).format(amount)
-  }
-
   const handleCreateInitiative = () => {
     // Navigate to home page where the form can be opened
     navigate('/')

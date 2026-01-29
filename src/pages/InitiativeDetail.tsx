@@ -138,14 +138,6 @@ export default function InitiativeDetail() {
     stalled: 'bg-gray-400',
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
   const mapCenter: [number, number] = initiative.location?.coordinates
     ? [initiative.location.coordinates.lat, initiative.location.coordinates.lng]
     : [-0.0236, 37.9062];

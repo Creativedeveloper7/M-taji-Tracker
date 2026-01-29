@@ -38,7 +38,6 @@ const Step3Location = () => {
     address?: string
   }>({})
   const mapRef = useRef<L.Map | null>(null)
-  const markerRef = useRef<L.Marker | null>(null)
 
   const county = watch('location.county')
   const coordinates = watch('location.coordinates')
@@ -73,7 +72,7 @@ const Step3Location = () => {
     })
   }
 
-  // Draggable marker component
+  // Draggable marker component (used in map below)
   const DraggableMarker = ({ position, onDragEnd }: { position: [number, number], onDragEnd: (lat: number, lng: number) => void }) => {
     const [markerPosition, setMarkerPosition] = useState(position)
     
@@ -288,7 +287,7 @@ const Step3Location = () => {
     return () => clearTimeout(timeoutId)
   }, [searchQuery])
 
-  // Handle place selection from search
+  // Handle place selection from search (used when search results dropdown is wired)
   const handlePlaceSelect = (feature: any) => {
     const [lng, lat] = feature.center
     const coords = { lat, lng }
@@ -313,6 +312,7 @@ const Step3Location = () => {
   // Handle input change and detect coordinates
   const handleSpecificAreaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
+    setSearchQuery(value)
     const detectedCoords = extractCoordinates(value)
     
     if (detectedCoords) {
@@ -484,6 +484,24 @@ const Step3Location = () => {
         {errors.location?.specific_area && (
           <p className="mt-1 text-sm text-red-500">{errors.location.specific_area.message}</p>
         )}
+        {isSearching && (
+          <p className="mt-1 text-sm text-gray-500">Searching...</p>
+        )}
+        {searchResults.length > 0 && (
+          <ul className="mt-2 border border-gray-200 rounded-lg divide-y divide-gray-100 bg-white shadow-sm max-h-48 overflow-auto">
+            {searchResults.map((feature: any) => (
+              <li key={feature.id}>
+                <button
+                  type="button"
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => handlePlaceSelect(feature)}
+                >
+                  {feature.place_name || feature.text}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div>
@@ -571,9 +589,9 @@ const Step3Location = () => {
               }}
             />
             {coordinates && (
-              <Marker
+              <DraggableMarker
                 position={[coordinates.lat, coordinates.lng]}
-                icon={createCustomIcon(categoryColors[category || 'agriculture'])}
+                onDragEnd={(lat, lng) => setValue('location.coordinates', { lat, lng }, { shouldValidate: true })}
               />
             )}
             {polygonPoints.length > 0 && (

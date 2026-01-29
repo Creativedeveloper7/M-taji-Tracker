@@ -9,7 +9,6 @@ import { Initiative } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { kenyanCounties } from '../../data/kenyanCounties';
 
 // Fix for default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;

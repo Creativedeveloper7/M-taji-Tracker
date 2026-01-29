@@ -20,7 +20,7 @@ const TOTAL_STEPS = 7
 
 const InitiativeForm = ({ onClose, onSubmit }: InitiativeFormProps) => {
   const [currentStep, setCurrentStep] = useState(1)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const methods = useForm<Partial<Initiative>>({
@@ -220,8 +220,8 @@ const InitiativeForm = ({ onClose, onSubmit }: InitiativeFormProps) => {
       localStorage.removeItem('initiative-draft')
       
       // Call onSubmit and wait for it to complete (handle both sync and async)
-      const result = onSubmit(initiative)
-      if (result && typeof result.then === 'function') {
+      const result = onSubmit(initiative) as void | Promise<void>
+      if (result instanceof Promise) {
         await result
       }
       

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { UserProfile, Organization, GovernmentEntity } from '../../types/auth';
+import { UserProfile } from '../../types/auth';
 import { kenyanCounties } from '../../data/kenyanCounties';
 import { kenyanMinistries } from '../../data/kenyanMinistries';
 
@@ -31,14 +31,14 @@ type SettingsFormData = {
   entity_type?: string;
   ministry?: string;
   department?: string;
-  registration_number?: string;
+  gov_registration_number?: string;
   official_email?: string;
   official_phone?: string;
-  physical_address?: string;
-  website_url?: string;
+  gov_physical_address?: string;
+  gov_website_url?: string;
   jurisdiction_level?: string;
   jurisdiction_area?: string;
-  annual_budget?: number;
+  gov_annual_budget?: number;
   budget_year?: string;
 
   // Government representative (read-only in settings, captured at signup)
@@ -119,7 +119,10 @@ export default function Settings() {
           official_phone: gov.official_phone || '',
           jurisdiction_level: gov.jurisdiction_level,
           jurisdiction_area: gov.jurisdiction_area || '',
-          annual_budget: gov.annual_budget || undefined,
+          gov_registration_number: gov.registration_number || '',
+          gov_physical_address: gov.physical_address || '',
+          gov_website_url: gov.website_url || '',
+          gov_annual_budget: gov.annual_budget || undefined,
           budget_year: gov.budget_year || '',
           representative_name: gov.representative?.name || '',
           representative_title: gov.representative?.title || '',
@@ -181,14 +184,14 @@ export default function Settings() {
             entity_type: data.entity_type,
             ministry: data.ministry || null,
             department: data.department || null,
-            registration_number: data.registration_number || null,
+            registration_number: data.gov_registration_number || null,
             official_email: data.official_email,
             official_phone: data.official_phone || null,
-            physical_address: data.physical_address || null,
-            website_url: data.website_url || null,
+            physical_address: data.gov_physical_address || null,
+            website_url: data.gov_website_url || null,
             jurisdiction_level: data.jurisdiction_level,
             jurisdiction_area: data.jurisdiction_area || null,
-            annual_budget: data.annual_budget || null,
+            annual_budget: data.gov_annual_budget || null,
             budget_year: data.budget_year || null,
           })
           .eq('user_profile_id', userProfile.id);
@@ -582,7 +585,7 @@ export default function Settings() {
                     <label className="block text-sm font-medium mb-2 text-primary">Registration Number</label>
                     <input
                       type="text"
-                      {...register('registration_number')}
+                      {...register('gov_registration_number')}
                       className="w-full bg-overlay border border-subtle rounded-lg px-4 py-3 text-primary focus:outline-none focus:border-accent-primary"
                       placeholder="Official registration number"
                     />
@@ -638,7 +641,7 @@ export default function Settings() {
                 <div>
                   <label className="block text-sm font-medium mb-2 text-primary">Physical Address</label>
                   <textarea
-                    {...register('physical_address')}
+                    {...register('gov_physical_address')}
                     rows={3}
                     className="w-full bg-overlay border border-subtle rounded-lg px-4 py-3 text-primary focus:outline-none focus:border-accent-primary"
                   />
@@ -648,7 +651,7 @@ export default function Settings() {
                   <label className="block text-sm font-medium mb-2 text-primary">Website URL</label>
                   <input
                     type="url"
-                    {...register('website_url')}
+                    {...register('gov_website_url')}
                     className="w-full bg-overlay border border-subtle rounded-lg px-4 py-3 text-primary focus:outline-none focus:border-accent-primary"
                     placeholder="https://www.entity.go.ke"
                   />
@@ -684,7 +687,7 @@ export default function Settings() {
                     <label className="block text-sm font-medium mb-2 text-primary">Annual Budget (KES)</label>
                     <input
                       type="number"
-                      {...register('annual_budget', { valueAsNumber: true })}
+                      {...register('gov_annual_budget', { valueAsNumber: true })}
                       className="w-full bg-overlay border border-subtle rounded-lg px-4 py-3 text-primary focus:outline-none focus:border-accent-primary"
                       placeholder="0"
                     />
