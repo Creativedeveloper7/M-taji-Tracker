@@ -154,6 +154,26 @@ export default function InitiativeDetail() {
   const totalMilestones = initiative.milestones?.length || 0;
   const milestoneProgress = totalMilestones > 0 ? (completedMilestones / totalMilestones) * 100 : 0;
 
+  const handleShare = async () => {
+    try {
+      const shareUrl = window.location.href;
+      const title = initiative.title;
+      const text = `${initiative.title} in ${initiative.location.county} County`;
+
+      if (navigator.share) {
+        await navigator.share({ title, text, url: shareUrl });
+      } else if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('Link copied to clipboard. You can now share it anywhere.');
+      } else {
+        // Fallback: show prompt with URL
+        window.prompt('Share this initiative link:', shareUrl);
+      }
+    } catch (err) {
+      console.error('Error sharing initiative:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen pt-16 bg-white dark:bg-gray-900">
       <Header onCreateInitiative={() => navigate('/map')} />
@@ -216,22 +236,6 @@ export default function InitiativeDetail() {
                 className="h-full bg-mtaji-primary transition-all duration-500 rounded-full"
                 style={{ width: `${progressPercentage}%` }}
               />
-            </div>
-          </div>
-
-          {/* Financial Info */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Raised</p>
-              <p className="text-xl font-heading font-bold text-mtaji-primary">
-                {formatCurrency(initiative.raised_amount)}
-              </p>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Target</p>
-              <p className="text-xl font-heading font-bold text-gray-700 dark:text-gray-300">
-                {formatCurrency(initiative.target_amount)}
-              </p>
             </div>
           </div>
         </div>
@@ -444,43 +448,154 @@ export default function InitiativeDetail() {
                 </svg>
                 Opportunities
               </button>
-              <button className="w-full bg-mtaji-accent text-white font-heading font-semibold py-3 rounded-xl hover:bg-mtaji-primary-light transition-all duration-300 shadow-lg hover:shadow-xl">
+              <button
+                onClick={handleShare}
+                className="w-full bg-mtaji-accent text-white font-heading font-semibold py-3 rounded-xl hover:bg-mtaji-primary-light transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4m0 0L8 6m4-4v16"
+                  />
+                </svg>
                 Share Initiative
               </button>
-            </div>
 
-            {/* Project Info */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-heading font-bold text-mtaji-primary mb-4">Project Information</h3>
-              <div className="space-y-3 text-sm">
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Duration:</span>
-                  <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                    {initiative.project_duration || 'Not specified'}
-                  </span>
-                </div>
-                {initiative.expected_completion && (
-                  <div>
-                    <span className="text-gray-600 dark:text-gray-400">Expected Completion:</span>
-                    <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                      {new Date(initiative.expected_completion).toLocaleDateString()}
-                    </span>
-                  </div>
-                )}
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Created:</span>
-                  <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                    {new Date(initiative.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Last Updated:</span>
-                  <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                    {new Date(initiative.updated_at).toLocaleDateString()}
-                  </span>
-                </div>
+              {/* Social media links */}
+              <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-center gap-4">
+                {/* X / Twitter */}
+                <a
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(initiative.title)}&url=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-black transition-colors"
+                  aria-label="Share on X (Twitter)"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 3H21L14.326 10.6 22 21h-5.5l-4.3-5.9L7.1 21H4L11.066 12.9 4 3h5.5l3.9 5.3L18.244 3z" />
+                  </svg>
+                </a>
+                {/* Facebook */}
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-[#1877F2] transition-colors"
+                  aria-label="Share on Facebook"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22 12.07C22 6.51 17.52 2 12 2S2 6.51 2 12.07C2 17.1 5.66 21.2 10.44 22v-7.03H7.9v-2.9h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.48h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22C18.34 21.2 22 17.1 22 12.07z" />
+                  </svg>
+                </a>
+                {/* WhatsApp */}
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(initiative.title + ' - ' + window.location.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-[#25D366] transition-colors"
+                  aria-label="Share on WhatsApp"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.52 3.48A11.78 11.78 0 0 0 12.01 0C5.73 0 .74 4.99.74 11.25c0 1.98.52 3.9 1.51 5.6L0 24l7.33-2.2a11.9 11.9 0 0 0 4.68.95h.01c6.27 0 11.26-4.99 11.26-11.25 0-2.99-1.17-5.8-3.26-7.97zM12.02 21.2h-.01a9.8 9.8 0 0 1-4.47-1.09l-.32-.17-4.35 1.31 1.41-4.22-.21-.34A9.33 9.33 0 0 1 2.2 11.25C2.2 6.6 6.37 2.8 12 2.8c2.6 0 5.04 1.01 6.88 2.85a9.4 9.4 0 0 1 2.84 6.6c0 5.65-4.17 9.95-9.7 9.95zm5.34-7.27c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.9 1.12-.17.2-.33.22-.62.07-.29-.15-1.22-.48-2.33-1.54-.86-.8-1.44-1.79-1.61-2.09-.17-.29-.02-.45.13-.6.14-.14.29-.34.44-.51.15-.17.2-.29.3-.48.1-.2.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.43 0 1.43 1.03 2.8 1.17 2.99.14.19 2.03 3.23 4.93 4.53.69.3 1.23.48 1.65.62.69.22 1.32.19 1.82.12.55-.08 1.7-.69 1.94-1.35.24-.66.24-1.22.17-1.35-.07-.12-.26-.2-.55-.35z" />
+                  </svg>
+                </a>
+                {/* Instagram */}
+                <a
+                  href={`https://www.instagram.com/?url=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-[#E1306C] transition-colors"
+                  aria-label="Share on Instagram"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm0 2h10c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3zm11 1a1 1 0 100 2 1 1 0 000-2zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z" />
+                  </svg>
+                </a>
+                {/* Web link (copy URL) */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const url = window.location.href;
+                      if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(url);
+                        alert('Link copied to clipboard.');
+                      } else {
+                        window.prompt('Copy this link:', url);
+                      }
+                    } catch (e) {
+                      console.error('Failed to copy link:', e);
+                    }
+                  }}
+                  className="text-gray-500 hover:text-mtaji-primary transition-colors"
+                  aria-label="Copy initiative link"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10.59 13.41a1.5 1.5 0 010-2.12l3-3a1.5 1.5 0 112.12 2.12l-3 3a1.5 1.5 0 01-2.12 0z" />
+                    <path d="M9 16a4 4 0 010-8h1a1 1 0 110 2H9a2 2 0 100 4h1a1 1 0 110 2H9zM15 18h-1a1 1 0 110-2h1a2 2 0 000-4h-1a1 1 0 110-2h1a4 4 0 010 8z" />
+                  </svg>
+                </button>
               </div>
             </div>
+
+        {/* Project Info */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-heading font-bold text-mtaji-primary mb-4">Project Information</h3>
+          <div className="space-y-3 text-sm">
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">Ministry / Department:</span>
+              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
+                Ministry of Community Development &amp; Social Services
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">Account Holder Location:</span>
+              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
+                Nairobi, Kenya
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">People Benefiting:</span>
+              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
+                Approx. 5,000 community members
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">People Employed on Initiative:</span>
+              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
+                24 full-time &amp; part-time staff
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">Duration:</span>
+              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
+                {initiative.project_duration || 'Not specified'}
+              </span>
+            </div>
+            {initiative.expected_completion && (
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Expected Completion:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
+                  {new Date(initiative.expected_completion).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">Created:</span>
+              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
+                {new Date(initiative.created_at).toLocaleDateString()}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">Last Updated:</span>
+              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
+                {new Date(initiative.updated_at).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+        </div>
           </div>
         </div>
       </div>

@@ -214,7 +214,7 @@ const Initiatives = () => {
             )}
           </div>
         ) : !loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-col gap-6">
             {filteredInitiatives.map((initiative) => {
               const progressPercentage = initiative.target_amount > 0 
                 ? (initiative.raised_amount / initiative.target_amount) * 100 
@@ -292,22 +292,6 @@ const Initiatives = () => {
                           className="h-full transition-all duration-500 rounded-full"
                           style={{ width: `${progressPercentage}%`, backgroundColor: 'var(--accent-primary)' }}
                         />
-                      </div>
-                    </div>
-
-                    {/* Financial Info */}
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-overlay rounded-lg p-2">
-                        <p className="text-xs text-muted mb-1">Raised</p>
-                        <p className="text-sm font-heading font-bold text-accent-primary">
-                          {formatCurrency(initiative.raised_amount)}
-                        </p>
-                      </div>
-                      <div className="bg-overlay rounded-lg p-2">
-                        <p className="text-xs text-muted mb-1">Target</p>
-                        <p className="text-sm font-heading font-bold text-primary">
-                          {formatCurrency(initiative.target_amount)}
-                        </p>
                       </div>
                     </div>
 

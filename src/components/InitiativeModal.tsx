@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Initiative } from '../types'
 import { SatelliteMonitor } from './SatelliteMonitor'
 import VolunteerForm from './VolunteerForm'
@@ -79,6 +80,7 @@ const formatDescription = (description: string): string[] => {
 }
 
 const InitiativeModal = ({ initiative, onClose }: InitiativeModalProps) => {
+  const navigate = useNavigate()
   const [showSatelliteMonitor, setShowSatelliteMonitor] = useState(false)
   const [showVolunteerForm, setShowVolunteerForm] = useState(false)
   
@@ -214,7 +216,13 @@ const InitiativeModal = ({ initiative, onClose }: InitiativeModalProps) => {
             </svg>
             Volunteer
           </button>
-          <button className="btn-secondary w-full">
+          <button
+            className="btn-secondary w-full"
+            onClick={() => {
+              onClose()
+              navigate(`/initiatives/${initiative.id}`)
+            }}
+          >
             View Details
           </button>
         </div>
