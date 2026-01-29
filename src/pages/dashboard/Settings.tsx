@@ -320,7 +320,7 @@ export default function Settings() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-heading font-black mb-2 text-primary">Settings</h1>
+        <h1 className="text-2xl sm:text-3xl font-heading font-black mb-2 text-primary">Settings</h1>
         <p className="text-secondary">Manage your account settings and profile information</p>
       </div>
 
@@ -345,13 +345,13 @@ export default function Settings() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-subtle">
-        <nav className="flex space-x-8">
+      <div className="border-b border-subtle overflow-x-auto">
+        <nav className="flex space-x-4 sm:space-x-8 min-w-max sm:min-w-0 px-1">
           {(['profile', 'password', 'notifications'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm transition-colors flex-shrink-0 ${
                 activeTab === tab
                   ? 'border-accent-primary text-accent-primary'
                   : 'border-transparent text-secondary hover:text-primary hover:border-subtle'

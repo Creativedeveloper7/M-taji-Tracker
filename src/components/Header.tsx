@@ -125,7 +125,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-secondary backdrop-blur-md transition-all duration-300 border-b border-subtle">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-secondary/95 dark:bg-secondary/95 backdrop-blur-md transition-all duration-300 border-b border-subtle">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo - Left */}

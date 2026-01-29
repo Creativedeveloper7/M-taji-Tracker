@@ -101,7 +101,7 @@ export default function InitiativeDetail() {
     return (
       <div className="min-h-screen pt-16 bg-white dark:bg-gray-900">
         <Header onCreateInitiative={() => navigate('/map')} />
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
             <p className="font-semibold mb-2">Error</p>
             <p>{error || 'Initiative not found'}</p>
@@ -170,7 +170,7 @@ export default function InitiativeDetail() {
     <div className="min-h-screen pt-16 bg-white dark:bg-gray-900">
       <Header onCreateInitiative={() => navigate('/map')} />
       
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Back Button */}
         <Link
           to="/initiatives"
@@ -456,7 +456,7 @@ export default function InitiativeDetail() {
               </button>
 
               {/* Social media links */}
-              <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-center gap-4">
+              <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
                 {/* X / Twitter */}
                 <a
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(initiative.title)}&url=${encodeURIComponent(window.location.href)}`}
@@ -549,7 +549,7 @@ export default function InitiativeDetail() {
               </span>
             </div>
             <div>
-              <span className="text-gray-600 dark:text-gray-400">People Benefiting:</span>
+              <span className="text-gray-600 dark:text-gray-400">Lives Impacted:</span>
               <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
                 Approx. 5,000 community members
               </span>
@@ -557,7 +557,7 @@ export default function InitiativeDetail() {
             <div>
               <span className="text-gray-600 dark:text-gray-400">People Employed on Initiative:</span>
               <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                24 full-time &amp; part-time staff
+                500
               </span>
             </div>
             <div>
@@ -578,12 +578,6 @@ export default function InitiativeDetail() {
               <span className="text-gray-600 dark:text-gray-400">Created:</span>
               <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
                 {new Date(initiative.created_at).toLocaleDateString()}
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-600 dark:text-gray-400">Last Updated:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                {new Date(initiative.updated_at).toLocaleDateString()}
               </span>
             </div>
           </div>

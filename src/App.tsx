@@ -21,7 +21,7 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <div className="min-h-screen bg-primary" style={{ opacity: 1 }}>
+        <div className="min-h-screen min-w-0 bg-primary overflow-x-hidden" style={{ opacity: 1 }}>
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<LandingPage />} />

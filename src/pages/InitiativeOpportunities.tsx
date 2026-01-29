@@ -234,7 +234,7 @@ export default function InitiativeOpportunities() {
     return (
       <div className="min-h-screen pt-16 bg-white dark:bg-gray-900">
         <Header onCreateInitiative={() => navigate('/map')} />
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
             <p className="font-semibold mb-2">Error</p>
             <p>{error || 'Initiative not found'}</p>
@@ -254,7 +254,7 @@ export default function InitiativeOpportunities() {
     <div className="min-h-screen pt-16 bg-white dark:bg-gray-900">
       <Header onCreateInitiative={() => navigate('/map')} />
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <Link
           to={`/initiatives/${initiative.id}`}
           className="inline-flex items-center gap-2 text-mtaji-primary hover:text-mtaji-primary-dark mb-6 transition-colors"
@@ -278,7 +278,7 @@ export default function InitiativeOpportunities() {
         </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-            <div className="border-b border-gray-200 dark:border-gray-700 px-6 pt-4">
+            <div className="border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 pt-4">
               <div className="flex flex-wrap gap-2">
                 {[
                   { id: 'jobs', label: 'Jobs' },
@@ -318,7 +318,7 @@ export default function InitiativeOpportunities() {
             </div>
           )}
 
-          <div className="p-6 space-y-6">
+          <div className="p-4 sm:p-6 space-y-6">
             {activeTab === 'jobs' && (
               <div className="space-y-4">
                 <h2 className="text-xl font-heading font-bold text-mtaji-primary">

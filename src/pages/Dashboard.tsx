@@ -133,12 +133,12 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-primary text-primary">
+    <div className="min-h-screen bg-primary text-primary pt-16">
       <Header onCreateInitiative={() => {}} />
       
-      <div className="flex">
-        {/* Sidebar Navigation */}
-        <aside className="w-64 bg-secondary border-r border-subtle min-h-[calc(100vh-80px)] p-4">
+      <div className="flex flex-col lg:flex-row">
+        {/* Sidebar Navigation - hidden on mobile */}
+        <aside className="hidden lg:block w-64 flex-shrink-0 bg-secondary border-r border-subtle min-h-[calc(100vh-4rem)] p-4">
           {/* User Info */}
           <div className="mb-6 pb-6 border-b border-divider">
             <h2 className="text-xl font-heading font-black mb-2 text-primary">Dashboard</h2>
@@ -191,7 +191,27 @@ export default function Dashboard() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 min-w-0 p-4 sm:p-6 overflow-y-auto">
+          {/* Mobile section switcher - horizontal scroll tabs */}
+          <div className="lg:hidden mb-4 -mx-4 sm:-mx-6 px-4 sm:px-6 overflow-x-auto border-b border-subtle pb-3">
+            <div className="flex gap-2 min-w-max">
+              {dashboardSections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id)}
+                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    activeSection === section.id
+                      ? 'text-primary'
+                      : 'text-secondary hover:bg-overlay hover:text-primary'
+                  }`}
+                  style={activeSection === section.id ? { backgroundColor: 'var(--accent-primary)', color: '#121212' } : {}}
+                >
+                  <span>{section.icon}</span>
+                  <span>{section.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <motion.div
             key={activeSection}
             initial={{ opacity: 0, y: 20 }}

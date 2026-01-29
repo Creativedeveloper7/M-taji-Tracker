@@ -2,28 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light theme (default) */
 :root {
   /* Background Colors */
-  --bg-primary: #121212;
-  --bg-secondary: #1A1A1A;
-  --bg-overlay: #0E0E0E;
+  --bg-primary: #f8faf8;
+  --bg-secondary: #ffffff;
+  --bg-overlay: #f0f4f0;
 
   /* Text Colors */
-  --text-primary: #FFFFFF;
-  --text-secondary: #B3B3B3;
-  --text-muted: #8A8A8A;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
 
   /* Accent Colors */
-  --accent-primary: #F2C300;
-  --accent-secondary: #D9AD00;
+  --accent-primary: #00A859;
+  --accent-secondary: #008C4A;
 
   /* Border Colors */
-  --border-subtle: #2A2A2A;
-  --divider: #242424;
+  --border-subtle: #e5e7eb;
+  --divider: #d1d5db;
 
-  /* Legacy colors for backward compatibility (will be phased out) */
-  --color-primary: #ffd500;
-  --color-primary-dark: #ffd900;
+  /* Legacy colors for backward compatibility */
+  --color-primary: #00A859;
+  --color-primary-dark: #008C4A;
   --color-primary-light: #E6F9F0;
   --color-accent: #FF6B2C;
   --color-purple: #1A0B2E;
@@ -32,18 +33,48 @@
   --color-light-gray: #E5E7EB;
   --color-medium-gray: #6B7280;
   --color-dark-gray: #1F2937;
-  
-  /* Timing Functions */
+
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
+/* Dark theme (when .dark is on <html>) */
+.dark {
+  --bg-primary: #121212;
+  --bg-secondary: #1a1a1a;
+  --bg-overlay: #0e0e0e;
+
+  --text-primary: #f9fafb;
+  --text-secondary: #b3b3b3;
+  --text-muted: #8a8a8a;
+
+  --accent-primary: #F2C300;
+  --accent-secondary: #D9AD00;
+
+  --border-subtle: #2a2a2a;
+  --divider: #242424;
+
+  --color-primary: #ffd500;
+  --color-primary-dark: #ffd900;
+  --color-primary-light: #1a2e1a;
+  --color-accent: #FF6B2C;
+  --color-off-white: #1a1a1a;
+  --color-light-gray: #2a2a2a;
+  --color-medium-gray: #9ca3af;
+  --color-dark-gray: #e5e7eb;
+}
+
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
   body {
     @apply font-sans antialiased;
     background-color: var(--bg-primary);
     color: var(--text-primary);
+    overflow-x: hidden;
+    min-height: 100vh;
   }
   
   h1, h2, h3, h4, h5, h6 {

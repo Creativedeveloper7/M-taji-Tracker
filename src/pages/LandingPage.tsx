@@ -82,18 +82,18 @@ export default function LandingPage() {
           />
         </div>
 
-        {/* Floating Orbs */}
+        {/* Floating Orbs - smaller/hidden on mobile to avoid overflow */}
         <motion.div
           animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-20 right-20 w-64 h-64 rounded-full blur-3xl opacity-20 z-[2]"
+          className="absolute top-10 right-4 sm:top-20 sm:right-20 w-32 h-32 sm:w-64 sm:h-64 rounded-full blur-3xl opacity-20 z-[2]"
           style={{ backgroundColor: 'var(--accent-primary)' }}
         />
 
         <motion.div
           animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute bottom-20 left-20 w-96 h-96 rounded-full blur-3xl opacity-15 z-[2]"
+          className="absolute bottom-10 left-4 sm:bottom-20 sm:left-20 w-40 h-40 sm:w-96 sm:h-96 rounded-full blur-3xl opacity-15 z-[2]"
           style={{ backgroundColor: 'var(--accent-primary)' }}
         />
 
@@ -227,10 +227,10 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="text-center mb-20"
           >
-            <h2 className="text-5xl font-heading font-black mb-6 text-primary">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-black mb-6 text-primary">
               The <span className="text-accent-primary">Transparency</span> Revolution
             </h2>
-            <p className="text-xl text-secondary max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg lg:text-xl text-secondary max-w-3xl mx-auto">
               Powered by satellite imagery and AI-driven analysis.
             </p>
           </motion.div>
@@ -276,7 +276,7 @@ export default function LandingPage() {
       {/* ====================================================================== */}
       <section className="py-section bg-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 text-center">
-          <h2 className="text-5xl font-heading font-black mb-20 text-primary">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-black mb-12 sm:mb-20 text-primary">
             How It <span className="text-accent-primary">Works</span>
           </h2>
 

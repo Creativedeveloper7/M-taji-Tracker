@@ -119,13 +119,13 @@ const Initiatives = () => {
     <div className="min-h-screen pt-16 bg-primary">
       <Header onCreateInitiative={handleCreateInitiative} />
       
-      <div className="container mx-auto px-6 py-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-heading font-bold text-accent-primary mb-2">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-4xl font-heading font-bold text-accent-primary mb-2">
               {orgTypeFilter !== 'all' ? `${orgTypeFilter} Initiatives` : 'All Initiatives'}
             </h1>
-            <p className="text-secondary">
+            <p className="text-sm sm:text-base text-secondary">
               {orgTypeFilter !== 'all' 
                 ? `Discover and explore ${orgTypeFilter} initiatives across Kenya`
                 : 'Discover and explore all published initiatives across Kenya'}
@@ -173,12 +173,12 @@ const Initiatives = () => {
                 className="w-full px-4 py-2 bg-overlay border border-subtle rounded-lg text-primary placeholder-muted focus:outline-none focus:border-accent-primary transition-colors"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {['all', 'published', 'active', 'completed', 'stalled'].map((status) => (
                 <button
                   key={status}
                   onClick={() => setFilter(status)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 ${
                     filter === status
                       ? 'text-primary'
                       : 'bg-secondary text-secondary hover:text-primary border border-subtle'
@@ -206,7 +206,7 @@ const Initiatives = () => {
             )}
           </div>
         ) : !loading ? (
-          <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredInitiatives.map((initiative) => {
               const progressPercentage = initiative.target_amount > 0 
                 ? (initiative.raised_amount / initiative.target_amount) * 100 

@@ -1,0 +1,13 @@
+# Render blueprint: one Web Service that builds the Vite app and runs the Express server.
+# Visiting the root URL (/) will serve the React app; /api/* and /health are the API.
+services:
+  - type: web
+    name: m-taji-tracker
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run server:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: true

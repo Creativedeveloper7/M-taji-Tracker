@@ -4,6 +4,7 @@
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import fs from 'fs';
 import express from 'express';
 import cors from 'cors';
 import { satelliteMonitoringJob } from './jobs/satelliteMonitoring';
@@ -103,6 +104,33 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/api/satellite', satelliteRoutes);
 app.use('/api/political', politicalRoutes);
+
+// Serve the built Vite app (React SPA) when dist exists (e.g. on Render after "npm run build")
+const distPath = join(projectRoot, 'dist');
+const distIndexPath = join(distPath, 'index.html');
+const hasDist = fs.existsSync(distIndexPath);
+
+if (hasDist) {
+  app.use(express.static(distPath, { index: false }));
+  // Root: always serve the app so we never return "Cannot GET /"
+  app.get('/', (_req, res) => {
+    res.sendFile(distIndexPath, (err) => {
+      if (err) res.status(500).send('Error loading app.');
+    });
+  });
+  // SPA fallback: serve index.html for any other non-API GET so client-side routing works
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    res.sendFile(distIndexPath, (err) => {
+      if (err) res.status(404).send('Not found.');
+    });
+  });
+} else {
+  // No dist (e.g. local dev): just respond so we never return "Cannot GET /"
+  app.get('/', (_req, res) => {
+    res.send('Backend running. To serve the app here, run: npm run build then restart the server.');
+  });
+}
 
 // Manual trigger endpoint for testing
 app.post('/api/jobs/satellite-monitoring/run', async (req, res) => {
