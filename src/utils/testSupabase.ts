@@ -70,7 +70,7 @@ export const testSupabaseConnection = async () => {
     console.log(`   Found ${initiatives?.length || 0} initiative(s)`)
     if (initiatives && initiatives.length > 0) {
       console.log('   Sample initiatives:')
-      initiatives.forEach((init, idx) => {
+      initiatives.forEach((init: { title: string; status: string }, idx: number) => {
         console.log(`     ${idx + 1}. ${init.title} (${init.status})`)
       })
     }

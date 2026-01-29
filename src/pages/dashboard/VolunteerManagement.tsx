@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getAllVolunteerApplications, VolunteerApplication, updateVolunteerApplicationStatus } from '../../services/volunteerService';
 import { fetchInitiatives } from '../../services/initiatives';
 
@@ -72,15 +72,15 @@ export default function VolunteerManagement() {
     loadVolunteers();
   }, [filterStatus]);
 
-  const filteredVolunteers = volunteers.filter(volunteer => {
+  const filteredVolunteers = volunteers.filter((volunteer: Volunteer) => {
     if (searchQuery && !volunteer.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
         !volunteer.email.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    if (filterSkill !== 'all' && !volunteer.skills.some(s => s.toLowerCase().includes(filterSkill.toLowerCase()))) return false;
+    if (filterSkill !== 'all' && !volunteer.skills.some((s: string) => s.toLowerCase().includes(filterSkill.toLowerCase()))) return false;
     return true;
   });
 
-  const totalHours = volunteers.reduce((sum, v) => sum + v.hoursContributed, 0);
-  const totalTasks = volunteers.reduce((sum, v) => sum + v.tasksCompleted, 0);
+  const totalHours = volunteers.reduce((sum: number, v: Volunteer) => sum + v.hoursContributed, 0);
+  const totalTasks = volunteers.reduce((sum: number, v: Volunteer) => sum + v.tasksCompleted, 0);
 
   const handleStatusUpdate = async (volunteerId: string, newStatus: 'approved' | 'rejected' | 'active' | 'completed') => {
     try {
@@ -147,7 +147,7 @@ export default function VolunteerManagement() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               placeholder="Search volunteers..."
               className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
             />
@@ -168,7 +168,7 @@ export default function VolunteerManagement() {
           <div>
             <select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilterStatus(e.target.value)}
               className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-mtaji-primary bg-gray-800"
             >
               <option value="all">All Status</option>
@@ -210,7 +210,7 @@ export default function VolunteerManagement() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredVolunteers.map((volunteer) => (
+            {filteredVolunteers.map((volunteer: Volunteer) => (
               <div
                 key={volunteer.id}
                 className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-colors"
@@ -248,7 +248,7 @@ export default function VolunteerManagement() {
                     )}
                     {volunteer.skills && volunteer.skills.length > 0 && (
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        {volunteer.skills.map((skill, idx) => (
+                        {volunteer.skills.map((skill: string, idx: number) => (
                           <span
                             key={idx}
                             className="px-2 py-1 bg-mtaji-primary/20 text-mtaji-primary rounded text-xs"

@@ -828,7 +828,7 @@ export default function Settings() {
                 <input
                   type="password"
                   {...register('confirm_password', {
-                    validate: (value) =>
+                    validate: (value: string | undefined) =>
                       value === watch('new_password') || 'Passwords do not match',
                   })}
                   className="w-full bg-overlay border border-subtle rounded-lg px-4 py-3 text-primary focus:outline-none focus:border-accent-primary"

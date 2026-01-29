@@ -333,7 +333,7 @@ export const fetchInitiatives = async (): Promise<Initiative[]> => {
     
     // Debug: Log location data for each initiative (only in dev mode)
     if (import.meta.env.DEV) {
-      initiatives.forEach((init, index) => {
+      initiatives.forEach((init: SupabaseInitiative, index: number) => {
         const rawLocation = init.location
         const rawCoords = rawLocation?.coordinates
         console.log(`=== Initiative ${index + 1} (${init.title}) ===`)
@@ -454,8 +454,8 @@ export const fetchUserInitiatives = async (changemakerId: string): Promise<Initi
     }
 
     // Convert and combine
-    const result = initiatives.map(initiative =>
-      convertToInitiative(initiative as SupabaseInitiative, milestonesByInitiative.get(initiative.id) || [])
+    const result = initiatives.map((initiative: SupabaseInitiative) =>
+      convertToInitiative(initiative, milestonesByInitiative.get(initiative.id) || [])
     );
 
     console.log(`Successfully loaded ${result.length} user initiatives`);

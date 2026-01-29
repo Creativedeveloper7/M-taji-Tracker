@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "build:check": "tsc --noEmit",
     "preview": "vite preview",
     "astro": "astro",
     "server": "tsx server/index.ts",

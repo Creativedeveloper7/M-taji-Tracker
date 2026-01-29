@@ -21,12 +21,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
-  "exclude": [
-    "src/pages/dashboard/Settings.tsx",
-    "src/pages/dashboard/VolunteerManagement.tsx",
-    "src/utils/testSupabase.ts",
-    "src/utils/testMapbox.ts",
-    "src/utils/markerStyles.ts"
-  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
