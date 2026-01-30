@@ -9,6 +9,7 @@ import { Initiative } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { PURE_SATELLITE_TILE_URL, PURE_SATELLITE_ATTRIBUTION } from '../../utils/mapTiles';
 
 // Fix for default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -322,8 +323,8 @@ export default function CreateInitiative() {
             <MapController />
             {mapType === 'satellite' ? (
               <TileLayer
-                attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
-                url={`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}@2x?access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''}`}
+                attribution={PURE_SATELLITE_ATTRIBUTION}
+                url={PURE_SATELLITE_TILE_URL}
               />
             ) : (
               <TileLayer

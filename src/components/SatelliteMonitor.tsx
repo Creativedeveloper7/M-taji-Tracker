@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, ImageOverlay, Marker, Popup, useMap } from 'react-leaflet';
 import L, { LatLngBounds } from 'leaflet';
 import { satelliteService, SatelliteSnapshot } from '../services/satelliteService';
+import { PURE_SATELLITE_TILE_URL, PURE_SATELLITE_ATTRIBUTION } from '../utils/mapTiles';
 
 // Fix for default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -67,6 +68,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
   const [comparisonIndex, setComparisonIndex] = useState(0);
   const [mapStyle, setMapStyle] = useState<'satellite' | 'terrain' | 'default'>('satellite');
   const [sliderPosition, setSliderPosition] = useState(50); // For slider comparison mode
+  const [hasRealSnapshots, setHasRealSnapshots] = useState(false); // True if using stored snapshots from backend
 
   useEffect(() => {
     if (isOpen) {
@@ -136,6 +138,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
         // Sort by date ascending to ensure timeline order
         const sorted = [...storedSnapshots].sort((a, b) => a.date.localeCompare(b.date));
         setSnapshots(sorted);
+        setHasRealSnapshots(true); // These are real historical snapshots
 
         if (sorted.length > 0) {
           setCurrentIndex(sorted.length - 1); // latest as "after"
@@ -170,8 +173,9 @@ export const SatelliteMonitor: React.FC<Props> = ({
         15 // interval in days (every 2 weeks for better coverage)
       );
 
-      console.log(`✅ Generated ${data.length} client-side satellite snapshots`);
+      console.log(`✅ Generated ${data.length} client-side satellite snapshots (note: Mapbox shows current imagery only)`);
       setSnapshots(data);
+      setHasRealSnapshots(false); // Client-generated snapshots are NOT real historical data
 
       if (data.length > 0) {
         setCurrentIndex(data.length - 1); // most recent
@@ -221,9 +225,9 @@ export const SatelliteMonitor: React.FC<Props> = ({
               Track physical progress over time
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              {storedSnapshots && storedSnapshots.length > 0
-                ? 'Using stored satellite snapshots (can include true historical imagery).'
-                : 'Using live Mapbox satellite imagery as a fallback (current imagery only).'}
+              {hasRealSnapshots
+                ? '📸 Using stored satellite snapshots with historical data.'
+                : '🛰️ Using live satellite imagery (ESRI World Imagery). No overlay applied.'}
             </p>
           </div>
           <div className="flex gap-3">
@@ -369,8 +373,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
                   >
                     {mapStyle === 'satellite' ? (
                       <TileLayer
-                        url={`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}@2x?access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''}`}
-                        attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        url={PURE_SATELLITE_TILE_URL}
+                        attribution={PURE_SATELLITE_ATTRIBUTION}
                       />
                     ) : mapStyle === 'terrain' ? (
                       <TileLayer
@@ -383,7 +387,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
                         attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                       />
                     )}
-                    {currentSnapshot && (
+                    {/* Only show ImageOverlay for real historical snapshots (from Sentinel Hub) */}
+                    {hasRealSnapshots && currentSnapshot && (
                       <ImageOverlay
                         key={`snapshot-${currentIndex}-${currentSnapshot.date}`}
                         url={currentSnapshot.imageUrl}
@@ -433,8 +438,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
                     >
                       {mapStyle === 'satellite' ? (
                         <TileLayer
-                          url={`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}@2x?access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''}`}
-                          attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
+                          url={PURE_SATELLITE_TILE_URL}
+                          attribution={PURE_SATELLITE_ATTRIBUTION}
                         />
                       ) : mapStyle === 'terrain' ? (
                         <TileLayer
@@ -447,7 +452,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
                         />
                       )}
-                      {comparisonSnapshot && comparisonSnapshot.imageUrl && (
+                      {hasRealSnapshots && comparisonSnapshot && comparisonSnapshot.imageUrl && (
                         <ImageOverlay
                           key={`comparison-overlay-${comparisonIndex}-${comparisonSnapshot.date}-${mapStyle}-${comparisonSnapshot.imageUrl}`}
                           url={comparisonSnapshot.imageUrl}
@@ -500,8 +505,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
                     >
                       {mapStyle === 'satellite' ? (
                         <TileLayer
-                          url={`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}@2x?access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''}`}
-                          attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
+                          url={PURE_SATELLITE_TILE_URL}
+                          attribution={PURE_SATELLITE_ATTRIBUTION}
                         />
                       ) : mapStyle === 'terrain' ? (
                         <TileLayer
@@ -514,7 +519,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
                         />
                       )}
-                      {currentSnapshot && (
+                      {hasRealSnapshots && currentSnapshot && (
                         <ImageOverlay
                           key={`current-overlay-${currentIndex}`}
                           url={currentSnapshot.imageUrl}
@@ -596,8 +601,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
                     >
                       {mapStyle === 'satellite' ? (
                         <TileLayer
-                          url={`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}@2x?access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''}`}
-                          attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
+                          url={PURE_SATELLITE_TILE_URL}
+                          attribution={PURE_SATELLITE_ATTRIBUTION}
                         />
                       ) : mapStyle === 'terrain' ? (
                         <TileLayer
@@ -610,7 +615,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
                         />
                       )}
-                      {comparisonSnapshot && comparisonSnapshot.imageUrl && (
+                      {hasRealSnapshots && comparisonSnapshot && comparisonSnapshot.imageUrl && (
                         <ImageOverlay
                           key={`slider-before-overlay-${comparisonIndex}-${comparisonSnapshot.date}-${mapStyle}-${comparisonSnapshot.imageUrl}`}
                           url={comparisonSnapshot.imageUrl}
@@ -658,8 +663,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
                     >
                       {mapStyle === 'satellite' ? (
                         <TileLayer
-                          url={`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}@2x?access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''}`}
-                          attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
+                          url={PURE_SATELLITE_TILE_URL}
+                          attribution={PURE_SATELLITE_ATTRIBUTION}
                         />
                       ) : mapStyle === 'terrain' ? (
                         <TileLayer
@@ -672,7 +677,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
                         />
                       )}
-                      {currentSnapshot && currentSnapshot.imageUrl && (
+                      {hasRealSnapshots && currentSnapshot && currentSnapshot.imageUrl && (
                         <ImageOverlay
                           key={`slider-after-overlay-${currentIndex}-${currentSnapshot.date}-${mapStyle}`}
                           url={currentSnapshot.imageUrl}

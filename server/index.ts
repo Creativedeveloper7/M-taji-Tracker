@@ -3,7 +3,7 @@
 
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname, join, resolve } from 'path';
 import fs from 'fs';
 import express from 'express';
 import cors from 'cors';
@@ -106,30 +106,52 @@ app.use('/api/satellite', satelliteRoutes);
 app.use('/api/political', politicalRoutes);
 
 // Serve the built Vite app (React SPA) when dist exists (e.g. on Render after "npm run build")
-const distPath = join(projectRoot, 'dist');
-const distIndexPath = join(distPath, 'index.html');
-const hasDist = fs.existsSync(distIndexPath);
+// Resolve dist from both __dirname-relative and cwd (Render may run from repo root)
+const distCandidates = [
+  resolve(projectRoot, 'dist'),
+  resolve(process.cwd(), 'dist'),
+];
+let distPath = '';
+let distIndexPath = '';
+for (const candidate of distCandidates) {
+  const indexPath = join(candidate, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    distPath = resolve(candidate);
+    distIndexPath = resolve(candidate, 'index.html');
+    break;
+  }
+}
+const hasDist = !!distPath;
 
 if (hasDist) {
-  app.use(express.static(distPath, { index: false }));
-  // Root: always serve the app so we never return "Cannot GET /"
+  // Serve /assets/* (JS, CSS) explicitly so they are never mistaken for SPA routes
+  const assetsPath = resolve(distPath, 'assets');
+  if (fs.existsSync(assetsPath)) {
+    app.use('/assets', express.static(assetsPath, { maxAge: '1y' }));
+  }
+  // Serve other static files from dist (favicon, etc.)
+  app.use(express.static(distPath, { index: false, maxAge: '1y' }));
+  // Root: serve index.html
   app.get('/', (_req, res) => {
-    res.sendFile(distIndexPath, (err) => {
+    res.sendFile('index.html', { root: distPath }, (err) => {
       if (err) res.status(500).send('Error loading app.');
     });
   });
-  // SPA fallback: serve index.html for any other non-API GET so client-side routing works
+  // SPA fallback: serve index.html for non-API GET (only hits when static didn't find a file)
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/')) return next();
-    res.sendFile(distIndexPath, (err) => {
+    res.sendFile('index.html', { root: distPath }, (err) => {
       if (err) res.status(404).send('Not found.');
     });
   });
+  console.log('📂 Serving static app from:', distPath);
 } else {
-  // No dist (e.g. local dev): just respond so we never return "Cannot GET /"
+  // No dist: respond at / so we never return "Cannot GET /"
   app.get('/', (_req, res) => {
     res.send('Backend running. To serve the app here, run: npm run build then restart the server.');
   });
+  console.log('⚠️ No dist/ found. Build command must include: npm run build');
+  console.log('   Checked:', distCandidates.map((p) => join(p, 'index.html')).join(', '));
 }
 
 // Manual trigger endpoint for testing

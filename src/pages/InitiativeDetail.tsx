@@ -5,6 +5,7 @@ import L from 'leaflet';
 import { Initiative } from '../types';
 import { fetchInitiativeById } from '../services/initiatives';
 import { SatelliteMonitor } from '../components/SatelliteMonitor';
+import { PURE_SATELLITE_TILE_URL, PURE_SATELLITE_ATTRIBUTION } from '../utils/mapTiles';
 import VolunteerForm from '../components/VolunteerForm';
 import Header from '../components/Header';
 
@@ -389,8 +390,8 @@ export default function InitiativeDetail() {
                 >
                   {mapStyle === 'satellite' ? (
                     <TileLayer
-                      attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                      url={`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}@2x?access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''}`}
+                      attribution={PURE_SATELLITE_ATTRIBUTION}
+                      url={PURE_SATELLITE_TILE_URL}
                     />
                   ) : mapStyle === 'terrain' ? (
                     <TileLayer

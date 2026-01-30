@@ -3,6 +3,7 @@ import { useFormContext } from 'react-hook-form'
 import { MapContainer, TileLayer, Marker, useMapEvents, Polygon, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { Initiative } from '../../types'
+import { PURE_SATELLITE_TILE_URL, PURE_SATELLITE_ATTRIBUTION } from '../../utils/mapTiles'
 import { kenyanCounties, getConstituencies } from '../../data/kenyanCounties'
 
 // Fix for default marker icon
@@ -568,10 +569,17 @@ const Step3Location = () => {
             key={`map-${coordinates?.lat}-${coordinates?.lng}`} // Force re-render when coordinates change
           >
             <MapController />
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
+            {mapType === 'satellite' ? (
+              <TileLayer
+                attribution={PURE_SATELLITE_ATTRIBUTION}
+                url={PURE_SATELLITE_TILE_URL}
+              />
+            ) : (
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+            )}
             <MapClickHandler
               mapMode={mapMode}
               isDrawing={isDrawing}
