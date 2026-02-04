@@ -610,14 +610,40 @@ export default function CreateInitiative() {
         },
       };
 
-      // Upload images if any
+      // Upload images if any (with validation and progress tracking)
       if (data.images && data.images.length > 0) {
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB per image
+        const MAX_IMAGES = 10; // Maximum number of images
         const imageUrls: string[] = [];
-        for (const image of data.images) {
+        
+        // Validate images first
+        const validImages = data.images.filter((image, index) => {
+          if (index >= MAX_IMAGES) {
+            console.warn(`Skipping image ${index + 1}: Maximum ${MAX_IMAGES} images allowed`);
+            return false;
+          }
+          if (image.size > MAX_FILE_SIZE) {
+            console.warn(`Skipping ${image.name}: File size ${(image.size / 1024 / 1024).toFixed(2)}MB exceeds 5MB limit`);
+            return false;
+          }
+          return true;
+        });
+
+        if (validImages.length === 0 && data.images.length > 0) {
+          throw new Error('All images exceed the 5MB size limit. Please compress your images and try again.');
+        }
+
+        console.log(`Uploading ${validImages.length} images...`);
+        
+        // Upload images one by one with individual error handling
+        for (let i = 0; i < validImages.length; i++) {
+          const image = validImages[i];
           try {
+            console.log(`Uploading image ${i + 1}/${validImages.length}: ${image.name}`);
+            
             // Sanitize filename - remove special characters
             const sanitizedName = image.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-            const fileName = `${changemakerId}/${Date.now()}_${sanitizedName}`;
+            const fileName = `${changemakerId}/${Date.now()}_${i}_${sanitizedName}`;
             
             const { data: uploadData, error: uploadError } = await supabase.storage
               .from('initiative-images')
@@ -627,7 +653,7 @@ export default function CreateInitiative() {
               });
 
             if (uploadError) {
-              console.error('Error uploading image:', uploadError);
+              console.error(`Error uploading image ${i + 1}:`, uploadError);
               // Continue with other images even if one fails
               continue;
             }
@@ -637,12 +663,15 @@ export default function CreateInitiative() {
                 .from('initiative-images')
                 .getPublicUrl(uploadData.path);
               imageUrls.push(publicUrl);
+              console.log(`Successfully uploaded image ${i + 1}/${validImages.length}`);
             }
           } catch (imgError) {
-            console.error('Error processing image:', imgError);
+            console.error(`Error processing image ${i + 1}:`, imgError);
             // Continue with other images
           }
         }
+        
+        console.log(`Uploaded ${imageUrls.length}/${validImages.length} images successfully`);
         initiative.reference_images = imageUrls;
       }
 
@@ -666,14 +695,19 @@ export default function CreateInitiative() {
         changemakerId
       });
 
-      // Create the initiative (with its own timeout, excluding file upload time)
+      // Create the initiative (with extended timeout for image uploads)
       console.log('🚀 Calling createInitiative...');
+      
+      // Calculate timeout based on number of images (30s base + 15s per image)
+      const imageCount = data.images?.length || 0;
+      const timeoutMs = 30000 + (imageCount * 15000); // 30s + 15s per image
+      console.log(`Setting timeout to ${timeoutMs / 1000}s for ${imageCount} images`);
 
       timeoutId = setTimeout(() => {
-        console.error('⏱️ Submission timeout after 30 seconds (database publish)');
+        console.error(`⏱️ Submission timeout after ${timeoutMs / 1000} seconds`);
         setIsSubmitting(false);
-        setSubmitError('Submission timed out while publishing to the server. Please try again or check your internet connection.');
-      }, 30000);
+        setSubmitError('Submission timed out. This may be due to slow internet or large images. Please try again with smaller/fewer images or check your connection.');
+      }, timeoutMs);
 
       let created: Initiative | null = null;
       try {
@@ -1681,24 +1715,53 @@ export default function CreateInitiative() {
                           ))}
                         </div>
                         {/* Add More Images Button */}
-                        <label className="block border-2 border-dashed border-white/20 rounded-lg p-4 text-center cursor-pointer hover:border-mtaji-primary transition-colors">
-                          <span className="text-mtaji-primary hover:underline">Add More Images</span>
-                          <input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              if (e.target.files) {
-                                const newFiles = Array.from(e.target.files);
-                                const currentImages = (watch('images') as File[]) || [];
-                                const allImages = [...currentImages, ...newFiles];
-                                setValue('images', allImages);
-                                autoSave();
-                              }
-                            }}
-                          />
-                        </label>
+                        {((watch('images') as File[]) || []).length < 10 && (
+                          <label className="block border-2 border-dashed border-white/20 rounded-lg p-4 text-center cursor-pointer hover:border-mtaji-primary transition-colors">
+                            <span className="text-mtaji-primary hover:underline">Add More Images</span>
+                            <input
+                              type="file"
+                              multiple
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                if (e.target.files) {
+                                  const newFiles = Array.from(e.target.files);
+                                  const currentImages = (watch('images') as File[]) || [];
+                                  
+                                  // Validate file sizes
+                                  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+                                  const validFiles: File[] = [];
+                                  const oversizedFiles: string[] = [];
+                                  
+                                  newFiles.forEach(file => {
+                                    if (file.size > MAX_SIZE) {
+                                      oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
+                                    } else {
+                                      validFiles.push(file);
+                                    }
+                                  });
+                                  
+                                  if (oversizedFiles.length > 0) {
+                                    alert(`The following files exceed the 5MB limit and were skipped:\n${oversizedFiles.join('\n')}`);
+                                  }
+                                  
+                                  // Limit to 10 images total
+                                  const allImages = [...currentImages, ...validFiles].slice(0, 10);
+                                  if (currentImages.length + validFiles.length > 10) {
+                                    alert('Maximum 10 images allowed. Some images were not added.');
+                                  }
+                                  
+                                  setValue('images', allImages);
+                                  autoSave();
+                                }
+                              }}
+                            />
+                          </label>
+                        )}
+                        {/* Image count and size info */}
+                        <p className="text-xs text-mtaji-medium-gray mt-2">
+                          {((watch('images') as File[]) || []).length}/10 images • Max 5MB each
+                        </p>
                       </div>
                     ) : (
                       <div className="border-2 border-dashed border-white/20 rounded-lg p-6 text-center">
@@ -1713,14 +1776,38 @@ export default function CreateInitiative() {
                             onChange={(e) => {
                               if (e.target.files) {
                                 const files = Array.from(e.target.files);
-                                setValue('images', files);
+                                
+                                // Validate file sizes
+                                const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+                                const validFiles: File[] = [];
+                                const oversizedFiles: string[] = [];
+                                
+                                files.forEach(file => {
+                                  if (file.size > MAX_SIZE) {
+                                    oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
+                                  } else {
+                                    validFiles.push(file);
+                                  }
+                                });
+                                
+                                if (oversizedFiles.length > 0) {
+                                  alert(`The following files exceed the 5MB limit and were skipped:\n${oversizedFiles.join('\n')}`);
+                                }
+                                
+                                // Limit to 10 images
+                                const limitedFiles = validFiles.slice(0, 10);
+                                if (validFiles.length > 10) {
+                                  alert('Maximum 10 images allowed. Only the first 10 were added.');
+                                }
+                                
+                                setValue('images', limitedFiles);
                                 autoSave();
                               }
                             }}
                           />
                         </label>
                         <p className="text-xs text-mtaji-medium-gray mt-2">
-                          PNG, JPG, JPEG (Max 5MB each)
+                          PNG, JPG, JPEG • Max 5MB each • Up to 10 images
                         </p>
                       </div>
                     )}

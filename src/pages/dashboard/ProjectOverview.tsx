@@ -32,6 +32,12 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
   const [error, setError] = useState<string | null>(null);
   const { userProfile } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
+  
+  // Delete modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [initiativeToDelete, setInitiativeToDelete] = useState<DisplayInitiative | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Fetch user's initiatives from database
   useEffect(() => {
@@ -133,6 +139,91 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
   // Refresh function to be called after creating new initiatives
   const refreshInitiatives = () => {
     setRefreshKey(prev => prev + 1);
+  };
+
+  // Open delete confirmation modal
+  const openDeleteModal = (initiative: DisplayInitiative) => {
+    setInitiativeToDelete(initiative);
+    setDeleteError(null);
+    setDeleteModalOpen(true);
+  };
+
+  // Close delete modal
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setInitiativeToDelete(null);
+    setDeleteError(null);
+  };
+
+  // Delete initiative
+  const handleDeleteInitiative = async () => {
+    if (!initiativeToDelete) return;
+
+    try {
+      setIsDeleting(true);
+      setDeleteError(null);
+
+      // Delete related data first (milestones, job applications, etc.)
+      // Milestones
+      const { error: milestonesError } = await supabase
+        .from('milestones')
+        .delete()
+        .eq('initiative_id', initiativeToDelete.id);
+      
+      if (milestonesError) {
+        console.warn('Error deleting milestones:', milestonesError);
+      }
+
+      // Job opportunities
+      const { error: jobsError } = await supabase
+        .from('job_opportunities')
+        .delete()
+        .eq('initiative_id', initiativeToDelete.id);
+      
+      if (jobsError) {
+        console.warn('Error deleting job opportunities:', jobsError);
+      }
+
+      // Volunteer applications
+      const { error: volunteersError } = await supabase
+        .from('volunteer_applications')
+        .delete()
+        .eq('initiative_id', initiativeToDelete.id);
+      
+      if (volunteersError) {
+        console.warn('Error deleting volunteer applications:', volunteersError);
+      }
+
+      // Blog links (set to null, don't delete blogs)
+      const { error: blogsError } = await supabase
+        .from('blogs')
+        .update({ initiative_id: null, initiative_name: null })
+        .eq('initiative_id', initiativeToDelete.id);
+      
+      if (blogsError) {
+        console.warn('Error unlinking blogs:', blogsError);
+      }
+
+      // Finally, delete the initiative
+      const { error: deleteError } = await supabase
+        .from('initiatives')
+        .delete()
+        .eq('id', initiativeToDelete.id);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      // Remove from local state
+      setInitiatives(prev => prev.filter(i => i.id !== initiativeToDelete.id));
+      closeDeleteModal();
+      
+    } catch (err: any) {
+      console.error('Error deleting initiative:', err);
+      setDeleteError(err.message || 'Failed to delete initiative. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Expose refresh function to parent if needed
@@ -427,14 +518,21 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
-                  <button className="flex-1 bg-mtaji-primary hover:bg-mtaji-primary-dark rounded-lg px-4 py-2 text-sm font-semibold transition-colors">
+                  <a 
+                    href={`/initiatives/${initiative.id}`}
+                    className="flex-1 bg-mtaji-primary hover:bg-mtaji-primary-dark rounded-lg px-4 py-2 text-sm font-semibold transition-colors text-center"
+                  >
                     View
-                  </button>
+                  </a>
                   <button className="px-4 py-2 bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg text-sm transition-colors">
                     Edit
                   </button>
-                  <button className="px-4 py-2 bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg text-sm transition-colors">
-                    Share
+                  <button 
+                    onClick={() => openDeleteModal(initiative)}
+                    className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 rounded-lg text-sm transition-colors"
+                    title="Delete initiative"
+                  >
+                    🗑️
                   </button>
                 </div>
               </div>
@@ -442,6 +540,113 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
           ))
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && initiativeToDelete && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black/70 transition-opacity"
+              onClick={closeDeleteModal}
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative bg-gray-900 border border-white/20 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all w-full max-w-md mx-auto"
+            >
+              {/* Header */}
+              <div className="px-6 py-4 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-white">Delete Initiative</h3>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-4">
+                <p className="text-mtaji-light-gray mb-4">
+                  Are you sure you want to delete <strong className="text-white">"{initiativeToDelete.name}"</strong>?
+                </p>
+                
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-4">
+                  <p className="text-red-400 text-sm font-medium mb-2">⚠️ This action cannot be undone</p>
+                  <p className="text-red-300/70 text-sm">
+                    Deleting this initiative will also remove:
+                  </p>
+                  <ul className="text-red-300/70 text-sm mt-2 space-y-1 ml-4">
+                    <li>• All milestones and progress data</li>
+                    <li>• All job opportunities</li>
+                    <li>• All volunteer applications</li>
+                    <li>• Satellite monitoring history</li>
+                  </ul>
+                </div>
+
+                {deleteError && (
+                  <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 mb-4">
+                    <p className="text-red-400 text-sm">{deleteError}</p>
+                  </div>
+                )}
+
+                {/* Confirmation input */}
+                <p className="text-mtaji-light-gray text-sm mb-2">
+                  Type <strong className="text-white">DELETE</strong> to confirm:
+                </p>
+                <input
+                  type="text"
+                  id="delete-confirm-input"
+                  placeholder="Type DELETE"
+                  className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-mtaji-medium-gray focus:outline-none focus:border-red-500"
+                />
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 border-t border-white/10 flex gap-3 justify-end">
+                <button
+                  onClick={closeDeleteModal}
+                  disabled={isDeleting}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const input = document.getElementById('delete-confirm-input') as HTMLInputElement;
+                    if (input?.value === 'DELETE') {
+                      handleDeleteInitiative();
+                    } else {
+                      setDeleteError('Please type DELETE to confirm');
+                    }
+                  }}
+                  disabled={isDeleting}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Delete Initiative
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

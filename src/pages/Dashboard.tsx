@@ -12,6 +12,7 @@ import ProjectRendering from './dashboard/ProjectRendering';
 import Notifications from './dashboard/Notifications';
 import CreateInitiative from './dashboard/CreateInitiative';
 import Settings from './dashboard/Settings';
+import BlogManagement from './dashboard/BlogManagement';
 
 type DashboardSection = 
   | 'overview' 
@@ -21,6 +22,7 @@ type DashboardSection =
   | 'volunteers'
   | 'opportunities'
   | 'rendering' 
+  | 'blog-management'
   | 'notifications'
   | 'settings';
 
@@ -33,7 +35,7 @@ export default function Dashboard() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const section = params.get('section') as DashboardSection;
-    if (section && ['overview', 'create-initiative', 'satellite', 'ai-analysis', 'volunteers', 'opportunities', 'rendering', 'notifications', 'settings'].includes(section)) {
+    if (section && ['overview', 'create-initiative', 'satellite', 'ai-analysis', 'volunteers', 'opportunities', 'rendering', 'blog-management', 'notifications', 'settings'].includes(section)) {
       setActiveSection(section);
     }
   }, []);
@@ -103,6 +105,7 @@ export default function Dashboard() {
     { id: 'volunteers' as DashboardSection, label: 'Volunteers', icon: '👥' },
     { id: 'opportunities' as DashboardSection, label: 'Opportunities', icon: '💼' },
     { id: 'rendering' as DashboardSection, label: 'Rendering Tool', icon: '🎨' },
+    { id: 'blog-management' as DashboardSection, label: 'Blog Posts', icon: '✍️' },
     { id: 'notifications' as DashboardSection, label: 'Notifications', icon: '🔔' },
     { id: 'settings' as DashboardSection, label: 'Settings', icon: '⚙️' },
   ];
@@ -123,6 +126,8 @@ export default function Dashboard() {
         return <OpportunitiesManagement />;
       case 'rendering':
         return <ProjectRendering />;
+      case 'blog-management':
+        return <BlogManagement />;
       case 'notifications':
         return <Notifications />;
       case 'settings':

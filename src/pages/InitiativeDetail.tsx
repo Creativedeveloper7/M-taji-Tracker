@@ -8,6 +8,18 @@ import { SatelliteMonitor } from '../components/SatelliteMonitor';
 import { PURE_SATELLITE_TILE_URL, PURE_SATELLITE_ATTRIBUTION } from '../utils/mapTiles';
 import VolunteerForm from '../components/VolunteerForm';
 import Header from '../components/Header';
+import { supabase } from '../lib/supabase';
+
+// Related blog interface
+interface RelatedBlog {
+  id: string;
+  title: string;
+  excerpt: string;
+  image_url: string;
+  published_at: string;
+  read_time: string;
+  category: string;
+}
 
 // Fix for default marker icon in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -54,6 +66,7 @@ export default function InitiativeDetail() {
   const [showSatelliteMonitor, setShowSatelliteMonitor] = useState(false);
   const [showVolunteerForm, setShowVolunteerForm] = useState(false);
   const [mapStyle, setMapStyle] = useState<MapStyle>('satellite');
+  const [relatedBlogs, setRelatedBlogs] = useState<RelatedBlog[]>([]);
 
   useEffect(() => {
     const loadInitiative = async () => {
@@ -82,6 +95,30 @@ export default function InitiativeDetail() {
     };
 
     loadInitiative();
+  }, [id]);
+
+  // Fetch related blogs for this initiative
+  useEffect(() => {
+    const fetchRelatedBlogs = async () => {
+      if (!id) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('blogs')
+          .select('id, title, excerpt, image_url, published_at, read_time, category')
+          .eq('initiative_id', id)
+          .eq('status', 'published')
+          .order('published_at', { ascending: false })
+          .limit(6);
+
+        if (error) throw error;
+        setRelatedBlogs(data || []);
+      } catch (err) {
+        console.error('Error fetching related blogs:', err);
+      }
+    };
+
+    fetchRelatedBlogs();
   }, [id]);
 
   if (loading) {
@@ -586,6 +623,68 @@ export default function InitiativeDetail() {
           </div>
         </div>
       </div>
+
+      {/* Related Blogs Section */}
+      {relatedBlogs.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Related Blog Posts
+            </h2>
+            <Link
+              to="/blog"
+              className="text-mtaji-primary hover:text-mtaji-primary/80 font-medium flex items-center gap-1"
+            >
+              View All Blogs
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {relatedBlogs.map((blog) => (
+              <Link
+                key={blog.id}
+                to={`/blog/${blog.id}`}
+                className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group"
+              >
+                {/* Blog Image */}
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={blog.image_url || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&auto=format&fit=crop&q=60'}
+                    alt={blog.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <span className="absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-semibold bg-mtaji-primary/90 text-white">
+                    {blog.category}
+                  </span>
+                </div>
+
+                {/* Blog Content */}
+                <div className="p-5">
+                  <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mb-2">
+                    <span>{blog.published_at ? new Date(blog.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}</span>
+                    <span>•</span>
+                    <span>{blog.read_time || '5 min read'}</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-mtaji-primary transition-colors">
+                    {blog.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
+                    {blog.excerpt}
+                  </p>
+                  <div className="mt-4 flex items-center text-mtaji-primary font-medium text-sm">
+                    Read More
+                    <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Satellite Monitor Modal */}
       {showSatelliteMonitor && initiative.location?.coordinates && (

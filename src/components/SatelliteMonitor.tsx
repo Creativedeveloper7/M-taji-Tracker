@@ -70,6 +70,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
   const [sliderPosition, setSliderPosition] = useState(50); // For slider comparison mode
   const [hasRealSnapshots, setHasRealSnapshots] = useState(false); // True if using stored snapshots from backend
   const [isBackfilling, setIsBackfilling] = useState(false); // True when fetching real data from GEE
+  const [showHistoricalOverlay, setShowHistoricalOverlay] = useState(true); // Toggle GEE overlay vs sharp ESRI
 
   useEffect(() => {
     if (isOpen) {
@@ -265,12 +266,26 @@ export const SatelliteMonitor: React.FC<Props> = ({
             <p className="text-sm text-gray-600 mt-1">
               Track physical progress over time
             </p>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
               <p className="text-xs text-gray-500">
                 {hasRealSnapshots
-                  ? '📸 Using stored satellite snapshots with historical data.'
+                  ? showHistoricalOverlay 
+                    ? '📸 Showing GEE historical data (10m resolution)'
+                    : '🛰️ Showing high-res ESRI imagery (current)'
                   : '🛰️ Using live satellite imagery. Click "Fetch Real Data" for historical comparisons.'}
               </p>
+              {hasRealSnapshots && (
+                <button
+                  onClick={() => setShowHistoricalOverlay(!showHistoricalOverlay)}
+                  className={`text-xs px-3 py-1 rounded-full transition-colors ${
+                    showHistoricalOverlay 
+                      ? 'bg-orange-500 text-white hover:bg-orange-600' 
+                      : 'bg-green-500 text-white hover:bg-green-600'
+                  }`}
+                >
+                  {showHistoricalOverlay ? 'Show Sharp ESRI' : 'Show Historical'}
+                </button>
+              )}
               {!hasRealSnapshots && !isBackfilling && (
                 <button
                   onClick={fetchRealSatelliteData}
@@ -447,8 +462,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
                         attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                       />
                     )}
-                    {/* Only show ImageOverlay for real historical snapshots (from Sentinel Hub) */}
-                    {hasRealSnapshots && currentSnapshot && (
+                    {/* Only show ImageOverlay when toggle is on and we have real snapshots */}
+                    {hasRealSnapshots && showHistoricalOverlay && currentSnapshot && (
                       <ImageOverlay
                         key={`snapshot-${currentIndex}-${currentSnapshot.date}`}
                         url={currentSnapshot.imageUrl}
@@ -456,7 +471,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           [currentSnapshot.bounds.south, currentSnapshot.bounds.west],
                           [currentSnapshot.bounds.north, currentSnapshot.bounds.east]
                         )}
-                        opacity={0.85}
+                        opacity={0.9}
                         zIndex={100}
                       />
                     )}
@@ -512,7 +527,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
                         />
                       )}
-                      {hasRealSnapshots && comparisonSnapshot && comparisonSnapshot.imageUrl && (
+                      {hasRealSnapshots && showHistoricalOverlay && comparisonSnapshot && comparisonSnapshot.imageUrl && (
                         <ImageOverlay
                           key={`comparison-overlay-${comparisonIndex}-${comparisonSnapshot.date}-${mapStyle}-${comparisonSnapshot.imageUrl}`}
                           url={comparisonSnapshot.imageUrl}
@@ -520,7 +535,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                             [comparisonSnapshot.bounds.south, comparisonSnapshot.bounds.west],
                             [comparisonSnapshot.bounds.north, comparisonSnapshot.bounds.east]
                           )}
-                          opacity={0.75}
+                          opacity={0.9}
                           zIndex={100}
                         />
                       )}
@@ -579,7 +594,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
                         />
                       )}
-                      {hasRealSnapshots && currentSnapshot && (
+                      {hasRealSnapshots && showHistoricalOverlay && currentSnapshot && (
                         <ImageOverlay
                           key={`current-overlay-${currentIndex}`}
                           url={currentSnapshot.imageUrl}
@@ -587,7 +602,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                             [currentSnapshot.bounds.south, currentSnapshot.bounds.west],
                             [currentSnapshot.bounds.north, currentSnapshot.bounds.east]
                           )}
-                          opacity={0.85}
+                          opacity={0.9}
                           zIndex={100}
                         />
                       )}
@@ -675,7 +690,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
                         />
                       )}
-                      {hasRealSnapshots && comparisonSnapshot && comparisonSnapshot.imageUrl && (
+                      {hasRealSnapshots && showHistoricalOverlay && comparisonSnapshot && comparisonSnapshot.imageUrl && (
                         <ImageOverlay
                           key={`slider-before-overlay-${comparisonIndex}-${comparisonSnapshot.date}-${mapStyle}-${comparisonSnapshot.imageUrl}`}
                           url={comparisonSnapshot.imageUrl}
@@ -737,7 +752,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>'
                         />
                       )}
-                      {hasRealSnapshots && currentSnapshot && currentSnapshot.imageUrl && (
+                      {hasRealSnapshots && showHistoricalOverlay && currentSnapshot && currentSnapshot.imageUrl && (
                         <ImageOverlay
                           key={`slider-after-overlay-${currentIndex}-${currentSnapshot.date}-${mapStyle}`}
                           url={currentSnapshot.imageUrl}

@@ -71,6 +71,7 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
   const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Initiatives', href: '/initiatives', hasDropdown: true },
+    { label: 'Blog', href: '/blog' },
   ]
 
   const dropdownOptions = [
