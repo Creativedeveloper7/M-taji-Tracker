@@ -3,13 +3,38 @@ import { satelliteService } from '../services/satelliteService';
 import { mockSatelliteService } from '../services/mockSatelliteService';
 import { db } from '../lib/database';
 import { fetchSatelliteImageByDate } from '../services/sentinelService';
+import { 
+  captureGEESnapshot, 
+  getGEEHistoricalSnapshots, 
+  fetchGEEImage,
+  checkGEEStatus 
+} from '../services/googleEarthEngineService';
 import { SatelliteSnapshot } from '../services/types';
 
 const router = Router();
 
-// Use mock for most on-demand endpoints, real service only when explicitly requested
+// Service selection: GEE > Sentinel > Mock
+const USE_GEE = process.env.USE_GEE === 'true';
+const USE_SENTINEL = process.env.USE_SENTINEL_HUB === 'true';
 const USE_MOCK = process.env.USE_MOCK_SATELLITE !== 'false'; // Default to true
-const service = USE_MOCK ? mockSatelliteService : satelliteService;
+
+// Determine which service to use
+const getServiceName = () => {
+  if (USE_GEE) return 'google-earth-engine';
+  if (USE_SENTINEL) return 'sentinel-hub';
+  return 'mock';
+};
+
+const service = USE_MOCK && !USE_GEE && !USE_SENTINEL ? mockSatelliteService : satelliteService;
+
+console.log(`🛰️ Satellite service configured: ${getServiceName()}`);
+if (USE_GEE) {
+  console.log('   ✅ Google Earth Engine enabled');
+} else if (USE_SENTINEL) {
+  console.log('   ✅ Sentinel Hub enabled');
+} else {
+  console.log('   ⚠️ Using mock/fallback service');
+}
 
 /**
  * POST /api/satellite/snapshot
@@ -45,12 +70,18 @@ router.post('/snapshot', async (req, res) => {
       });
     }
 
-    const snapshot = await service.captureSnapshot(lat, lng, radiusMeters, date);
+    let snapshot;
+    
+    if (USE_GEE) {
+      snapshot = await captureGEESnapshot(lat, lng, radiusMeters, date);
+    } else {
+      snapshot = await service.captureSnapshot(lat, lng, radiusMeters, date);
+    }
     
     res.json({
       success: true,
       data: snapshot,
-      service: USE_MOCK ? 'mock' : 'google-earth-engine'
+      service: getServiceName()
     });
   } catch (error: any) {
     console.error('Error capturing satellite snapshot:', error);
@@ -106,20 +137,33 @@ router.post('/historical', async (req, res) => {
       });
     }
 
-    const snapshots = await service.getHistoricalSnapshots(
-      lat,
-      lng,
-      radiusMeters,
-      startDate,
-      endDate,
-      intervalDays
-    );
+    let snapshots;
+    
+    if (USE_GEE) {
+      snapshots = await getGEEHistoricalSnapshots(
+        lat,
+        lng,
+        radiusMeters,
+        startDate,
+        endDate,
+        intervalDays
+      );
+    } else {
+      snapshots = await service.getHistoricalSnapshots(
+        lat,
+        lng,
+        radiusMeters,
+        startDate,
+        endDate,
+        intervalDays
+      );
+    }
 
     res.json({
       success: true,
       data: snapshots,
       count: snapshots.length,
-      service: USE_MOCK ? 'mock' : 'google-earth-engine'
+      service: getServiceName()
     });
   } catch (error: any) {
     console.error('Error fetching historical snapshots:', error);
@@ -134,11 +178,27 @@ router.post('/historical', async (req, res) => {
  * GET /api/satellite/status
  * Get the status of the satellite service
  */
-router.get('/status', (req, res) => {
+router.get('/status', async (req, res) => {
+  let geeStatus: { configured: boolean; authenticated: boolean; error?: string } = { 
+    configured: false, 
+    authenticated: false 
+  };
+  
+  if (USE_GEE) {
+    geeStatus = await checkGEEStatus();
+  }
+  
   res.json({
-    service: USE_MOCK ? 'mock' : 'google-earth-engine',
+    service: getServiceName(),
     status: 'operational',
-    mockMode: USE_MOCK
+    gee: {
+      enabled: USE_GEE,
+      ...geeStatus
+    },
+    sentinel: {
+      enabled: USE_SENTINEL
+    },
+    mockMode: !USE_GEE && !USE_SENTINEL
   });
 });
 
@@ -159,11 +219,12 @@ router.get('/status', (req, res) => {
 router.post('/backfill-initiative', async (req, res) => {
   try {
     console.log('📥 Received backfill request:', req.body);
-    const { initiativeId, startDate, endDate, intervalDays = 15 } = req.body as {
+    const { initiativeId, startDate, endDate, intervalDays = 15, forceRefresh = false } = req.body as {
       initiativeId?: string;
       startDate?: string;
       endDate?: string;
       intervalDays?: number;
+      forceRefresh?: boolean; // If true, clears existing snapshots and re-fetches all
     };
 
     if (!initiativeId) {
@@ -221,24 +282,30 @@ router.post('/backfill-initiative', async (req, res) => {
     }
 
     const existing: SatelliteSnapshot[] = initiative.satellite_snapshots || [];
-    const snapshots: SatelliteSnapshot[] = [...existing];
     
-    console.log(`📊 Found ${existing.length} existing snapshots. Generating historical data from ${start.toISOString().split('T')[0]} to ${end.toISOString().split('T')[0]}...`);
+    // If forceRefresh is true, start with empty array to re-fetch all snapshots
+    const snapshots: SatelliteSnapshot[] = forceRefresh ? [] : [...existing];
+    
+    if (forceRefresh) {
+      console.log(`🔄 Force refresh enabled - clearing ${existing.length} existing snapshots`);
+    }
+    console.log(`📊 ${forceRefresh ? 'Re-fetching' : `Found ${existing.length} existing snapshots. Generating`} historical data from ${start.toISOString().split('T')[0]} to ${end.toISOString().split('T')[0]}...`);
 
     let created = 0;
     let skipped = 0;
     let errors = 0;
     const cursor = new Date(start);
-    const useSentinel = process.env.USE_SENTINEL_HUB === 'true';
     
-    console.log(`🔧 Using ${useSentinel ? 'Sentinel Hub' : 'Mock/Mapbox'} service for snapshots`);
+    // Determine which service to use: GEE > Sentinel > Mock
+    const serviceToUse = USE_GEE ? 'gee' : USE_SENTINEL ? 'sentinel' : 'mock';
+    console.log(`🔧 Using ${serviceToUse.toUpperCase()} service for backfill snapshots`);
 
     while (cursor <= end) {
       const dateStr = cursor.toISOString().split('T')[0];
 
-      // Skip if we already have a snapshot for this date
+      // Skip if we already have a snapshot for this date (unless forceRefresh)
       const already = snapshots.some(s => s.date === dateStr);
-      if (already) {
+      if (already && !forceRefresh) {
         skipped++;
         cursor.setDate(cursor.getDate() + Number(intervalDays || 15));
         continue;
@@ -246,17 +313,24 @@ router.post('/backfill-initiative', async (req, res) => {
       
       try {
         console.log(`📸 Fetching snapshot for ${dateStr}...`);
-        // Prefer Sentinel Hub when enabled
-        if (useSentinel) {
+        
+        if (serviceToUse === 'gee') {
+          // Use Google Earth Engine
+          const snap = await captureGEESnapshot(lat, lng, 500, dateStr, initiativeId);
+          snapshots.push(snap);
+          console.log(`✅ Fetched GEE snapshot for ${dateStr}`);
+        } else if (serviceToUse === 'sentinel') {
+          // Use Sentinel Hub
           const snap = await fetchSatelliteImageByDate(lat, lng, 500, dateStr, initiativeId, 7);
           snapshots.push({
-            date: snap.date || dateStr,
+            date: snap.acquisitionDate || dateStr,
             imageUrl: snap.imageUrl,
             cloudCoverage: 0,
             bounds: snap.bounds,
           } as SatelliteSnapshot);
           console.log(`✅ Fetched Sentinel snapshot for ${dateStr}`);
         } else {
+          // Use mock service
           const snap = await service.captureSnapshot(lat, lng, 500, dateStr);
           snapshots.push(snap);
           console.log(`✅ Fetched mock snapshot for ${dateStr}`);

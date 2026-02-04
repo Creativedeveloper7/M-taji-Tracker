@@ -69,12 +69,53 @@ export const SatelliteMonitor: React.FC<Props> = ({
   const [mapStyle, setMapStyle] = useState<'satellite' | 'terrain' | 'default'>('satellite');
   const [sliderPosition, setSliderPosition] = useState(50); // For slider comparison mode
   const [hasRealSnapshots, setHasRealSnapshots] = useState(false); // True if using stored snapshots from backend
+  const [isBackfilling, setIsBackfilling] = useState(false); // True when fetching real data from GEE
 
   useEffect(() => {
     if (isOpen) {
       loadSnapshots();
     }
   }, [isOpen, initiativeId, location.lat, location.lng, startDate]);
+
+  // Function to fetch real satellite data from GEE backend
+  const fetchRealSatelliteData = async () => {
+    setIsBackfilling(true);
+    setError(null);
+    
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      console.log('🛰️ Requesting GEE backfill for initiative:', initiativeId);
+      
+      const response = await fetch(`${backendUrl}/api/satellite/backfill-initiative`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          initiativeId,
+          intervalDays: 30, // Monthly snapshots
+          forceRefresh: true, // Always fetch fresh high-resolution images
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch satellite data');
+      }
+
+      const result = await response.json();
+      console.log('✅ GEE backfill completed:', result);
+
+      // Reload the page to get the new snapshots from the initiative
+      // (The snapshots are stored on the initiative record)
+      window.location.reload();
+    } catch (err: any) {
+      console.error('❌ Failed to fetch real satellite data:', err);
+      setError(`Failed to fetch satellite data: ${err.message}`);
+    } finally {
+      setIsBackfilling(false);
+    }
+  };
 
   // Keyboard navigation
   useEffect(() => {
@@ -224,11 +265,30 @@ export const SatelliteMonitor: React.FC<Props> = ({
             <p className="text-sm text-gray-600 mt-1">
               Track physical progress over time
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              {hasRealSnapshots
-                ? '📸 Using stored satellite snapshots with historical data.'
-                : '🛰️ Using live satellite imagery (ESRI World Imagery). No overlay applied.'}
-            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-xs text-gray-500">
+                {hasRealSnapshots
+                  ? '📸 Using stored satellite snapshots with historical data.'
+                  : '🛰️ Using live satellite imagery. Click "Fetch Real Data" for historical comparisons.'}
+              </p>
+              {!hasRealSnapshots && !isBackfilling && (
+                <button
+                  onClick={fetchRealSatelliteData}
+                  className="text-xs bg-mtaji-accent text-white px-3 py-1 rounded-full hover:bg-mtaji-accent/90 transition-colors"
+                >
+                  Fetch Real Data
+                </button>
+              )}
+              {isBackfilling && (
+                <span className="text-xs text-mtaji-accent flex items-center gap-1">
+                  <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Fetching from Google Earth Engine...
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex gap-3">
             <button
