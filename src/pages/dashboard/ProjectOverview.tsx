@@ -273,13 +273,13 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-heading font-black mb-2">Project Overview</h2>
-            <p className="text-mtaji-light-gray">Manage and track all your initiatives</p>
+            <p className="text-gray-800 dark:text-gray-400">Manage and track all your initiatives</p>
           </div>
         </div>
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mtaji-primary mx-auto mb-4"></div>
-            <p className="text-mtaji-light-gray">Loading your initiatives...</p>
+            <p className="text-gray-800 dark:text-gray-400">Loading your initiatives...</p>
           </div>
         </div>
       </div>
@@ -292,12 +292,12 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-heading font-black mb-2">Project Overview</h2>
-            <p className="text-mtaji-light-gray">Manage and track all your initiatives</p>
+            <p className="text-gray-800 dark:text-gray-400">Manage and track all your initiatives</p>
           </div>
         </div>
         <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-6 text-center">
           <p className="text-red-400 font-semibold mb-2">Error</p>
-          <p className="text-mtaji-light-gray">{error}</p>
+          <p className="text-gray-800 dark:text-gray-400">{error}</p>
         </div>
       </div>
     );
@@ -309,7 +309,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-heading font-black mb-2">Project Overview</h2>
-          <p className="text-mtaji-light-gray">Manage and track all your initiatives</p>
+          <p className="text-gray-800 dark:text-gray-400">Manage and track all your initiatives</p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -340,7 +340,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
         >
-          <div className="text-sm text-mtaji-light-gray mb-2">Total Projects</div>
+          <div className="text-sm text-gray-800 dark:text-gray-400 mb-2">Total Projects</div>
           <div className="text-3xl font-bold text-mtaji-primary">{totalProjects}</div>
         </motion.div>
         
@@ -350,8 +350,8 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
           transition={{ delay: 0.1 }}
           className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
         >
-          <div className="text-sm text-mtaji-light-gray mb-2">Active Projects</div>
-          <div className="text-3xl font-bold text-green-400">{activeProjects}</div>
+          <div className="text-sm text-gray-800 dark:text-gray-400 mb-2">Active Projects</div>
+          <div className="text-3xl font-bold text-amber-500">{activeProjects}</div>
         </motion.div>
         
         <motion.div
@@ -360,7 +360,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
           transition={{ delay: 0.2 }}
           className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
         >
-          <div className="text-sm text-mtaji-light-gray mb-2">Active Volunteers</div>
+          <div className="text-sm text-gray-800 dark:text-gray-400 mb-2">Active Volunteers</div>
           <div className="text-3xl font-bold text-mtaji-primary">{totalVolunteers}</div>
         </motion.div>
         
@@ -370,7 +370,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
           transition={{ delay: 0.3 }}
           className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
         >
-          <div className="text-sm text-mtaji-light-gray mb-2">Completion Rate</div>
+          <div className="text-sm text-gray-800 dark:text-gray-400 mb-2">Completion Rate</div>
           <div className="text-3xl font-bold text-mtaji-primary">{completionRate.toFixed(1)}%</div>
         </motion.div>
       </div>
@@ -380,7 +380,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div>
-            <label className="block text-sm text-mtaji-light-gray mb-2">Search Projects</label>
+            <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">Search Projects</label>
             <input
               type="text"
               value={searchQuery}
@@ -392,7 +392,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
 
           {/* Status Filter */}
           <div>
-            <label className="block text-sm text-mtaji-light-gray mb-2">Status</label>
+            <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">Status</label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -410,7 +410,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
 
           {/* Category Filter */}
           <div>
-            <label className="block text-sm text-mtaji-light-gray mb-2">Category</label>
+            <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">Category</label>
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
@@ -432,7 +432,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredInitiatives.length === 0 ? (
           <div className="col-span-full text-center py-12">
-            <p className="text-mtaji-light-gray text-lg">No projects found</p>
+            <p className="text-gray-800 dark:text-gray-400 text-lg">No projects found</p>
             <p className="text-mtaji-medium-gray text-sm mt-2">
               {initiatives.length === 0 
                 ? 'Create your first project to get started'
@@ -467,7 +467,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
                 {/* Status Badge */}
                 <div className="flex items-center justify-between mb-3">
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    initiative.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                    initiative.status === 'active' ? 'bg-amber-500/20 text-amber-500' :
                     initiative.status === 'completed' ? 'bg-blue-500/20 text-blue-400' :
                     'bg-yellow-500/20 text-yellow-400'
                   }`}>
@@ -476,21 +476,21 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
                      initiative.originalStatus === 'stalled' ? 'Stalled' :
                      initiative.status.charAt(0).toUpperCase() + initiative.status.slice(1)}
                   </span>
-                  <span className="text-xs text-mtaji-light-gray capitalize">{initiative.category}</span>
+                  <span className="text-xs text-gray-800 dark:text-gray-400 capitalize">{initiative.category}</span>
                 </div>
 
                 {/* Project Name */}
                 <h3 className="text-xl font-bold mb-2">{initiative.name}</h3>
                 
                 {/* Description */}
-                <p className="text-sm text-mtaji-light-gray mb-4 line-clamp-2">
+                <p className="text-sm text-gray-800 dark:text-gray-400 mb-4 line-clamp-2">
                   {initiative.description}
                 </p>
 
                 {/* Progress Bar */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between text-xs mb-2">
-                    <span className="text-mtaji-light-gray">Progress</span>
+                    <span className="text-gray-800 dark:text-gray-400">Progress</span>
                     <span className="text-mtaji-primary font-semibold">{initiative.progress}%</span>
                   </div>
                   <div className="w-full bg-white/10 rounded-full h-2">
@@ -502,7 +502,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
                 </div>
 
                 {/* Location & Volunteers */}
-                <div className="flex items-center justify-between text-xs text-mtaji-light-gray mb-4">
+                <div className="flex items-center justify-between text-xs text-gray-800 dark:text-gray-400 mb-4">
                   <span className="flex items-center gap-1">
                     📍 {initiative.location}
                   </span>
@@ -572,7 +572,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
 
               {/* Content */}
               <div className="px-6 py-4">
-                <p className="text-mtaji-light-gray mb-4">
+                <p className="text-gray-800 dark:text-gray-400 mb-4">
                   Are you sure you want to delete <strong className="text-white">"{initiativeToDelete.name}"</strong>?
                 </p>
                 
@@ -596,7 +596,7 @@ export default function ProjectOverview({ onNavigateToCreate }: ProjectOverviewP
                 )}
 
                 {/* Confirmation input */}
-                <p className="text-mtaji-light-gray text-sm mb-2">
+                <p className="text-gray-800 dark:text-gray-400 text-sm mb-2">
                   Type <strong className="text-white">DELETE</strong> to confirm:
                 </p>
                 <input

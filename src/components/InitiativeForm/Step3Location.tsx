@@ -216,14 +216,14 @@ const Step3Location = () => {
           
           // County detection - Mapbox might use different IDs
           if (id.includes('district') || id.includes('region') || id.includes('admin')) {
-            const matchedCounty = kenyanCounties.find(c => 
+              const matchedCounty = kenyanCounties.find(c => 
               c.toLowerCase() === text.toLowerCase() ||
               text.toLowerCase().includes(c.toLowerCase()) ||
               c.toLowerCase().includes(text.toLowerCase())
-            )
-            if (matchedCounty) {
+              )
+              if (matchedCounty) {
               details.county = matchedCounty
-              setValue('location.county', matchedCounty, { shouldValidate: true })
+                setValue('location.county', matchedCounty, { shouldValidate: true })
             }
           }
           
@@ -399,12 +399,12 @@ const Step3Location = () => {
     <div className="space-y-6">
       <div>
         <h3 className="text-xl font-heading font-bold text-mtaji-primary mb-2">Location & Mapping</h3>
-        <p className="text-gray-600 text-sm">Specify where your initiative will take place</p>
+        <p className="text-gray-800 dark:text-gray-400 text-sm">Specify where your initiative will take place</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-gray-900 dark:text-gray-300 mb-2">
             County <span className="text-red-500">*</span>
           </label>
           <select
@@ -426,7 +426,7 @@ const Step3Location = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-gray-900 dark:text-gray-300 mb-2">
             Constituency <span className="text-red-500">*</span>
           </label>
           <select
@@ -450,7 +450,7 @@ const Step3Location = () => {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <label className="block text-sm font-semibold text-gray-900 dark:text-gray-300 mb-2">
           Specific Area Description <span className="text-red-500">*</span>
           <span className="text-xs text-gray-500 font-normal ml-2">
             (Enter location name or paste GPS coordinates like: -0.023600, 37.906200)
@@ -467,18 +467,18 @@ const Step3Location = () => {
             }}
             className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-mtaji-accent transition-all duration-300 ${
               errors.location?.specific_area ? 'border-red-500' : 
-              coordinateDetected ? 'border-green-500 bg-green-50' : 'border-gray-200'
+              coordinateDetected ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'border-gray-200'
             }`}
             placeholder="e.g., Kibera Slums, Mathare Valley, or -0.023600, 37.906200"
           />
           {coordinateDetected && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <span className="text-green-600 text-sm font-medium">📍 GPS Detected</span>
+              <span className="text-amber-600 dark:text-amber-400 text-sm font-medium">📍 GPS Detected</span>
             </div>
           )}
         </div>
         {coordinateDetected && (
-          <p className="mt-1 text-sm text-green-600">
+          <p className="mt-1 text-sm text-amber-600 dark:text-amber-400">
             ✓ GPS coordinates detected! Map has been updated.
           </p>
         )}
@@ -494,7 +494,7 @@ const Step3Location = () => {
               <li key={feature.id}>
                 <button
                   type="button"
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-50"
                   onClick={() => handlePlaceSelect(feature)}
                 >
                   {feature.place_name || feature.text}
@@ -507,14 +507,14 @@ const Step3Location = () => {
 
       <div>
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-          <label className="block text-sm font-semibold text-gray-700">
+          <label className="block text-sm font-semibold text-gray-900 dark:text-gray-300">
             Map Location <span className="text-red-500">*</span>
           </label>
           <div className="flex items-center space-x-2 flex-wrap">
             <button
               type="button"
               onClick={getCurrentLocation}
-              className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 text-sm bg-gray-100 text-gray-900 dark:text-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
               title="Use your device's GPS location"
             >
               📍 My Location
@@ -522,7 +522,7 @@ const Step3Location = () => {
             <button
               type="button"
               onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
-              className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 text-sm bg-gray-100 text-gray-900 dark:text-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
               title="Toggle between street map and satellite view"
             >
               {mapType === 'street' ? '🛰️ Satellite' : '🗺️ Street'}
@@ -537,7 +537,7 @@ const Step3Location = () => {
                 className={`px-3 py-1 text-sm rounded-lg transition-colors ${
                   mapMode === 'pin'
                     ? 'bg-mtaji-accent text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 text-gray-900 dark:text-gray-300 hover:bg-gray-200'
                 }`}
               >
                 📌 Pin
@@ -552,7 +552,7 @@ const Step3Location = () => {
                 className={`px-3 py-1 text-sm rounded-lg transition-colors ${
                   mapMode === 'polygon'
                     ? 'bg-mtaji-accent text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 text-gray-900 dark:text-gray-300 hover:bg-gray-200'
                 }`}
               >
                 🔷 Polygon
@@ -575,10 +575,10 @@ const Step3Location = () => {
                 url={PURE_SATELLITE_TILE_URL}
               />
             ) : (
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
             )}
             <MapClickHandler
               mapMode={mapMode}
@@ -615,7 +615,7 @@ const Step3Location = () => {
           </MapContainer>
         </div>
         {mapMode === 'polygon' && (
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-800 dark:text-gray-400">
             Click on the map to add points to your polygon. Click "Pin" mode to switch back.
           </p>
         )}
@@ -623,7 +623,7 @@ const Step3Location = () => {
           <div className="mt-2 p-3 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
-                <p className="text-sm font-semibold text-gray-700">Coordinates:</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-300">Coordinates:</p>
                 <p className="text-sm text-mtaji-primary font-mono">
                   {coordinates.lat.toFixed(8)}, {coordinates.lng.toFixed(8)}
                 </p>
@@ -634,7 +634,7 @@ const Step3Location = () => {
               {locationDetails.ward && (
                 <div className="text-right">
                   <p className="text-xs text-gray-500">Detected Location:</p>
-                  <p className="text-sm font-medium text-gray-700">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-300">
                     {locationDetails.ward}
                     {locationDetails.county && `, ${locationDetails.county}`}
                   </p>

@@ -56,7 +56,7 @@ export default function Notifications() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-heading font-black mb-2">Notifications</h2>
-          <p className="text-mtaji-light-gray">
+          <p className="text-gray-800 dark:text-gray-400">
             {unreadCount > 0 ? `${unreadCount} unread notifications` : 'All caught up!'}
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function Notifications() {
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
               filterType === 'all'
                 ? 'bg-mtaji-primary text-white'
-                : 'bg-white/10 text-mtaji-light-gray hover:bg-white/15'
+                : 'bg-white/10 text-gray-800 dark:text-gray-400 hover:bg-white/15'
             }`}
           >
             All
@@ -99,7 +99,7 @@ export default function Notifications() {
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
               filterType === 'milestone'
                 ? 'bg-mtaji-primary text-white'
-                : 'bg-white/10 text-mtaji-light-gray hover:bg-white/15'
+                : 'bg-white/10 text-gray-800 dark:text-gray-400 hover:bg-white/15'
             }`}
           >
             Milestones
@@ -109,7 +109,7 @@ export default function Notifications() {
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
               filterType === 'satellite'
                 ? 'bg-mtaji-primary text-white'
-                : 'bg-white/10 text-mtaji-light-gray hover:bg-white/15'
+                : 'bg-white/10 text-gray-800 dark:text-gray-400 hover:bg-white/15'
             }`}
           >
             Satellite Updates
@@ -119,7 +119,7 @@ export default function Notifications() {
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
               filterType === 'volunteer'
                 ? 'bg-mtaji-primary text-white'
-                : 'bg-white/10 text-mtaji-light-gray hover:bg-white/15'
+                : 'bg-white/10 text-gray-800 dark:text-gray-400 hover:bg-white/15'
             }`}
           >
             Volunteers
@@ -129,7 +129,7 @@ export default function Notifications() {
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
               filterType === 'alert'
                 ? 'bg-mtaji-primary text-white'
-                : 'bg-white/10 text-mtaji-light-gray hover:bg-white/15'
+                : 'bg-white/10 text-gray-800 dark:text-gray-400 hover:bg-white/15'
             }`}
           >
             Alerts
@@ -142,7 +142,7 @@ export default function Notifications() {
         {filteredNotifications.length === 0 ? (
           <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-12 text-center">
             <div className="text-6xl mb-4">🔔</div>
-            <p className="text-mtaji-light-gray text-lg">No notifications</p>
+            <p className="text-gray-800 dark:text-gray-400 text-lg">No notifications</p>
             <p className="text-mtaji-medium-gray text-sm mt-2">
               You'll see updates about your projects here
             </p>
@@ -175,7 +175,7 @@ export default function Notifications() {
                       <span className="w-2 h-2 bg-mtaji-primary rounded-full"></span>
                     )}
                   </div>
-                  <p className="text-sm text-mtaji-light-gray mb-2">{notification.message}</p>
+                  <p className="text-sm text-gray-800 dark:text-gray-400 mb-2">{notification.message}</p>
                   <p className="text-xs text-mtaji-medium-gray">
                     {new Date(notification.timestamp).toLocaleString()}
                   </p>

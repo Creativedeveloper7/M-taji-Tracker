@@ -155,7 +155,7 @@ export default function LandingPage() {
               }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/initiatives')}
-              className="px-8 py-4 bg-gradient-to-r from-mtaji-primary to-mtaji-primary-dark rounded-lg font-heading font-bold text-lg text-white shadow-green"
+              className="px-8 py-4 bg-gradient-to-r from-mtaji-primary to-mtaji-primary-dark rounded-lg font-heading font-bold text-lg text-white shadow-gold"
             >
               🛰️ Track a Project →
             </motion.button>

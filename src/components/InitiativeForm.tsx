@@ -126,98 +126,98 @@ const InitiativeForm = ({ onClose, onSubmit }: InitiativeFormProps) => {
     setSubmitError(null)
 
     try {
-      // Validate location and coordinates before submitting
-      const location = data.location
-      const coordinates = location?.coordinates
-      
-      // Check if coordinates are set and not default
-      const hasValidCoordinates = coordinates && 
-        typeof coordinates.lat === 'number' && 
-        typeof coordinates.lng === 'number' &&
-        !isNaN(coordinates.lat) && 
-        !isNaN(coordinates.lng) &&
-        !(coordinates.lat === -0.0236 && coordinates.lng === 37.9062) // Not default Kenya center
-      
-      if (!hasValidCoordinates) {
-        console.error('❌ Cannot submit: Invalid or missing coordinates!', {
-          location,
-          coordinates,
-          hasLocation: !!location,
-          hasCoordinates: !!coordinates
-        })
+    // Validate location and coordinates before submitting
+    const location = data.location
+    const coordinates = location?.coordinates
+    
+    // Check if coordinates are set and not default
+    const hasValidCoordinates = coordinates && 
+      typeof coordinates.lat === 'number' && 
+      typeof coordinates.lng === 'number' &&
+      !isNaN(coordinates.lat) && 
+      !isNaN(coordinates.lng) &&
+      !(coordinates.lat === -0.0236 && coordinates.lng === 37.9062) // Not default Kenya center
+    
+    if (!hasValidCoordinates) {
+      console.error('❌ Cannot submit: Invalid or missing coordinates!', {
+        location,
+        coordinates,
+        hasLocation: !!location,
+        hasCoordinates: !!coordinates
+      })
         setSubmitError('Please set a location on the map by clicking on it. The default location cannot be used.')
         setIsSubmitting(false)
-        return
-      }
-      
-      console.log('✅ Submitting initiative with coordinates:', {
-        lat: coordinates.lat,
-        lng: coordinates.lng,
-        county: location.county,
-        constituency: location.constituency
-      })
-      
-      const initiative: Initiative = {
-        id: `init-${Date.now()}`,
+      return
+    }
+    
+    console.log('✅ Submitting initiative with coordinates:', {
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+      county: location.county,
+      constituency: location.constituency
+    })
+    
+    const initiative: Initiative = {
+      id: `init-${Date.now()}`,
         changemaker_id: 'user-1', // Will be replaced by createInitiative function
-        title: data.title || '',
-        description: data.description || '',
-        category: data.category || 'agriculture',
-        organization_type: data.organization_type,
-        target_amount: data.target_amount || 0,
-        raised_amount: 0,
-        location: {
-          county: location.county || '',
-          constituency: location.constituency || '',
-          specific_area: location.specific_area || '',
-          coordinates: {
-            lat: coordinates.lat,
-            lng: coordinates.lng
-          },
-          ...(location.geofence && { geofence: location.geofence })
+      title: data.title || '',
+      description: data.description || '',
+      category: data.category || 'agriculture',
+      organization_type: data.organization_type,
+      target_amount: data.target_amount || 0,
+      raised_amount: 0,
+      location: {
+        county: location.county || '',
+        constituency: location.constituency || '',
+        specific_area: location.specific_area || '',
+        coordinates: {
+          lat: coordinates.lat,
+          lng: coordinates.lng
         },
-        project_duration: data.project_duration || '',
-        expected_completion: data.expected_completion || '',
-        milestones: data.milestones || [],
-        reference_images: data.reference_images || [],
-        status: 'published',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        payment_details: data.payment_details || {
-          method: 'mpesa',
-        },
-        satellite_snapshots: [], // Initialize empty array
-      }
+        ...(location.geofence && { geofence: location.geofence })
+      },
+      project_duration: data.project_duration || '',
+      expected_completion: data.expected_completion || '',
+      milestones: data.milestones || [],
+      reference_images: data.reference_images || [],
+      status: 'published',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      payment_details: data.payment_details || {
+        method: 'mpesa',
+      },
+      satellite_snapshots: [], // Initialize empty array
+    }
 
-      // Capture initial satellite snapshot if status is 'published'
-      if (initiative.status === 'published') {
-        try {
-          console.log('📸 Capturing initial satellite snapshot...')
-          const snapshot = await satelliteService.captureSnapshot(
-            coordinates.lat,
-            coordinates.lng,
-            500 // radius in meters
-          )
-          
-          // Add snapshot with metadata
-          initiative.satellite_snapshots = [{
-            ...snapshot,
-            captured_at: new Date().toISOString(),
-            ai_analysis: {
-              status: 'baseline',
-              notes: 'Initial project state captured'
-            }
-          }]
-          
-          console.log('✅ Satellite snapshot captured successfully:', snapshot)
-        } catch (error) {
-          console.error('⚠️ Failed to capture satellite snapshot:', error)
-          // Continue with initiative creation even if snapshot fails
-          // Don't block the form submission
-        }
+    // Capture initial satellite snapshot if status is 'published'
+    if (initiative.status === 'published') {
+      try {
+        console.log('📸 Capturing initial satellite snapshot...')
+        const snapshot = await satelliteService.captureSnapshot(
+          coordinates.lat,
+          coordinates.lng,
+          500 // radius in meters
+        )
+        
+        // Add snapshot with metadata
+        initiative.satellite_snapshots = [{
+          ...snapshot,
+          captured_at: new Date().toISOString(),
+          ai_analysis: {
+            status: 'baseline',
+            notes: 'Initial project state captured'
+          }
+        }]
+        
+        console.log('✅ Satellite snapshot captured successfully:', snapshot)
+      } catch (error) {
+        console.error('⚠️ Failed to capture satellite snapshot:', error)
+        // Continue with initiative creation even if snapshot fails
+        // Don't block the form submission
       }
+    }
 
-      localStorage.removeItem('initiative-draft')
+    localStorage.removeItem('initiative-draft')
       
       // Call onSubmit and wait for it to complete (handle both sync and async)
       const result = onSubmit(initiative) as void | Promise<void>
@@ -226,7 +226,7 @@ const InitiativeForm = ({ onClose, onSubmit }: InitiativeFormProps) => {
       }
       
       // Only close if submission was successful
-      onClose()
+    onClose()
     } catch (error: any) {
       console.error('Error submitting initiative:', error)
       setSubmitError(error?.message || 'Failed to publish initiative. Please try again.')
@@ -298,7 +298,7 @@ const InitiativeForm = ({ onClose, onSubmit }: InitiativeFormProps) => {
             <h2 className="text-2xl font-heading font-bold text-mtaji-primary">Create New Initiative</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors duration-300"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors duration-300"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

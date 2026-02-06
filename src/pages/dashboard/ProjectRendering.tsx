@@ -41,7 +41,7 @@ export default function ProjectRendering() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Current State Upload */}
           <div>
-            <label className="block text-sm text-mtaji-light-gray mb-2">
+            <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
               Upload Current State Image
             </label>
             <div className="border-2 border-dashed border-white/20 rounded-lg p-6 text-center">
@@ -52,7 +52,7 @@ export default function ProjectRendering() {
                     alt="Current state"
                     className="max-h-48 mx-auto rounded"
                   />
-                  <p className="text-sm text-mtaji-light-gray">{currentImage.name}</p>
+                  <p className="text-sm text-gray-800 dark:text-gray-400">{currentImage.name}</p>
                   <button
                     onClick={() => setCurrentImage(null)}
                     className="text-sm text-red-400 hover:underline"
@@ -72,7 +72,7 @@ export default function ProjectRendering() {
                       className="hidden"
                     />
                   </label>
-                  <p className="text-xs text-mtaji-light-gray mt-2">
+                  <p className="text-xs text-gray-800 dark:text-gray-400 mt-2">
                     PNG, JPG up to 10MB
                   </p>
                 </div>
@@ -82,14 +82,14 @@ export default function ProjectRendering() {
 
           {/* Proposal Document Upload */}
           <div>
-            <label className="block text-sm text-mtaji-light-gray mb-2">
+            <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
               Upload Proposal Document (PDF/Images)
             </label>
             <div className="border-2 border-dashed border-white/20 rounded-lg p-6 text-center">
               {proposalDocument ? (
                 <div className="space-y-2">
                   <div className="text-4xl">📄</div>
-                  <p className="text-sm text-mtaji-light-gray">{proposalDocument.name}</p>
+                  <p className="text-sm text-gray-800 dark:text-gray-400">{proposalDocument.name}</p>
                   <button
                     onClick={() => setProposalDocument(null)}
                     className="text-sm text-red-400 hover:underline"
@@ -109,7 +109,7 @@ export default function ProjectRendering() {
                       className="hidden"
                     />
                   </label>
-                  <p className="text-xs text-mtaji-light-gray mt-2">
+                  <p className="text-xs text-gray-800 dark:text-gray-400 mt-2">
                     PDF or images with project plans
                   </p>
                 </div>
@@ -121,7 +121,7 @@ export default function ProjectRendering() {
         {/* Rendering Options */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-mtaji-light-gray mb-2">Rendering Mode</label>
+            <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">Rendering Mode</label>
             <select
               value={renderingMode}
               onChange={(e) => setRenderingMode(e.target.value as '2d' | '3d')}
@@ -150,8 +150,8 @@ export default function ProjectRendering() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Before */}
           <div>
-            <h4 className="text-sm text-mtaji-light-gray mb-2">Before (Current State)</h4>
-            <div className="h-64 bg-gray-900 rounded-lg flex items-center justify-center text-mtaji-light-gray">
+            <h4 className="text-sm text-gray-800 dark:text-gray-400 mb-2">Before (Current State)</h4>
+            <div className="h-64 bg-gray-900 rounded-lg flex items-center justify-center text-gray-800 dark:text-gray-400">
               {currentImage ? (
                 <img
                   src={URL.createObjectURL(currentImage)}
@@ -166,8 +166,8 @@ export default function ProjectRendering() {
 
           {/* After */}
           <div>
-            <h4 className="text-sm text-mtaji-light-gray mb-2">After (AI Projection)</h4>
-            <div className="h-64 bg-gray-900 rounded-lg flex items-center justify-center text-mtaji-light-gray">
+            <h4 className="text-sm text-gray-800 dark:text-gray-400 mb-2">After (AI Projection)</h4>
+            <div className="h-64 bg-gray-900 rounded-lg flex items-center justify-center text-gray-800 dark:text-gray-400">
               AI-generated projection will appear here
             </div>
           </div>
@@ -175,8 +175,8 @@ export default function ProjectRendering() {
 
         {/* Comparison Slider */}
         <div className="mt-6">
-          <h4 className="text-sm text-mtaji-light-gray mb-2">Interactive Comparison</h4>
-          <div className="h-96 bg-gray-900 rounded-lg flex items-center justify-center text-mtaji-light-gray">
+          <h4 className="text-sm text-gray-800 dark:text-gray-400 mb-2">Interactive Comparison</h4>
+          <div className="h-96 bg-gray-900 rounded-lg flex items-center justify-center text-gray-800 dark:text-gray-400">
             Slider comparison view (Implementation needed)
           </div>
         </div>

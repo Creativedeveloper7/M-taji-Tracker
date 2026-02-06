@@ -8,12 +8,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (or PUBLIC_ prefix)');
 }
 
-// Create client with optimized settings for better connection handling
+// Create client with settings that persist auth across page reloads
 export const supabase = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
-        persistSession: false,
-        autoRefreshToken: false,
+        // Persist the user's session so they stay logged in on refresh
+        persistSession: true,
+        autoRefreshToken: true,
       },
       db: {
         schema: 'public',

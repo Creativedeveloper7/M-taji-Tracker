@@ -272,7 +272,7 @@ export default function InitiativeOpportunities() {
           <p className="text-gray-600 dark:text-gray-300 mb-1">
             {initiative.title}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-700 dark:text-gray-400">
             Connect with this initiative as a contributor, volunteer, ambassador, partner or content creator.
           </p>
         </div>
@@ -313,7 +313,7 @@ export default function InitiativeOpportunities() {
             </div>
 
           {simpleFormStatus && (
-            <div className="mx-6 mt-4 p-3 bg-emerald-500/10 border border-emerald-500 text-emerald-500 rounded-lg text-sm">
+            <div className="mx-6 mt-4 p-3 bg-amber-500/10 border border-amber-500 text-amber-600 dark:text-amber-400 rounded-lg text-sm">
               {simpleFormStatus}
             </div>
           )}
@@ -324,12 +324,12 @@ export default function InitiativeOpportunities() {
                 <h2 className="text-xl font-heading font-bold text-mtaji-primary">
                   Jobs for this Initiative
                 </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-800 dark:text-gray-400">
                   Select a role you are interested in and submit your application.
                 </p>
 
                 {jobsLoading && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Loading jobs...</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-400">Loading jobs...</p>
                 )}
 
                 {jobsError && (
@@ -337,7 +337,7 @@ export default function InitiativeOpportunities() {
                 )}
 
                 {!jobsLoading && jobs.length === 0 && !jobsError && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-700 dark:text-gray-400">
                     No jobs have been posted for this initiative yet.
                   </p>
                 )}
@@ -357,10 +357,10 @@ export default function InitiativeOpportunities() {
                       >
                         <p className="font-semibold text-gray-900 dark:text-gray-100">{job.title}</p>
                         {job.job_type && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{job.job_type}</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-400">{job.job_type}</p>
                         )}
                         {job.description && (
-                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 line-clamp-3">
+                          <p className="mt-1 text-xs text-gray-700 dark:text-gray-400 line-clamp-3">
                             {job.description}
                           </p>
                         )}
@@ -379,7 +379,7 @@ export default function InitiativeOpportunities() {
                   <input type="hidden" name="job_id" value={selectedJobId || ''} />
                   <div className="grid md:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Full Name</label>
+                      <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Full Name</label>
                       <input
                         name="full_name"
                         required
@@ -387,7 +387,7 @@ export default function InitiativeOpportunities() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Email</label>
+                      <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Email</label>
                       <input
                         name="email"
                         type="email"
@@ -397,14 +397,14 @@ export default function InitiativeOpportunities() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Phone</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Phone</label>
                     <input
                       name="phone"
                       className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Experience / Why you are a good fit</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Experience / Why you are a good fit</label>
                     <textarea
                       name="motivation"
                       rows={4}
@@ -428,13 +428,13 @@ export default function InitiativeOpportunities() {
                 <h2 className="text-xl font-heading font-bold text-mtaji-primary">
                   Volunteer for this Initiative
                 </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-800 dark:text-gray-400">
                   Use the detailed volunteer application form to share your skills and availability.
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowVolunteerForm(true)}
-                  className="px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold"
+                  className="px-5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold"
                 >
                   Open Volunteer Application
                 </button>
@@ -450,12 +450,12 @@ export default function InitiativeOpportunities() {
                 <h2 className="text-xl font-heading font-bold text-mtaji-primary">
                   Project Ambassador Application
                 </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-800 dark:text-gray-400">
                   Help champion this initiative in your community, networks, and online.
                 </p>
                 <div className="grid md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Full Name</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Full Name</label>
                     <input
                       name="full_name"
                       required
@@ -463,7 +463,7 @@ export default function InitiativeOpportunities() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Email</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Email</label>
                     <input
                       name="email"
                       type="email"
@@ -473,7 +473,7 @@ export default function InitiativeOpportunities() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Social / Community Reach (links or description)</label>
+                  <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Social / Community Reach (links or description)</label>
                   <textarea
                     name="reach"
                     rows={3}
@@ -482,7 +482,7 @@ export default function InitiativeOpportunities() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Why would you like to be an ambassador for this initiative?</label>
+                  <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Why would you like to be an ambassador for this initiative?</label>
                   <textarea
                     name="motivation"
                     rows={4}
@@ -508,12 +508,12 @@ export default function InitiativeOpportunities() {
                 <h2 className="text-xl font-heading font-bold text-mtaji-primary">
                   Send a Project Proposal
                 </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-800 dark:text-gray-400">
                   Share a proposal or partnership idea with the initiative owner.
                 </p>
                 <div className="grid md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Your Name / Organization</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Your Name / Organization</label>
                     <input
                       name="name"
                       required
@@ -521,7 +521,7 @@ export default function InitiativeOpportunities() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Email</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Email</label>
                     <input
                       name="email"
                       type="email"
@@ -531,7 +531,7 @@ export default function InitiativeOpportunities() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Proposal Subject</label>
+                  <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Proposal Subject</label>
                   <input
                     name="subject"
                     required
@@ -539,7 +539,7 @@ export default function InitiativeOpportunities() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Proposal Details</label>
+                  <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Proposal Details</label>
                   <textarea
                     name="details"
                     rows={5}
@@ -548,7 +548,7 @@ export default function InitiativeOpportunities() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Links / Attachments (URLs)</label>
+                  <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Links / Attachments (URLs)</label>
                   <textarea
                     name="links"
                     rows={2}
@@ -575,12 +575,12 @@ export default function InitiativeOpportunities() {
                 <h2 className="text-xl font-heading font-bold text-mtaji-primary">
                   Content Creator Application
                 </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-800 dark:text-gray-400">
                   Apply to create photos, videos, articles or social content for this initiative.
                 </p>
                 <div className="grid md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Full Name</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Full Name</label>
                     <input
                       name="full_name"
                       required
@@ -588,7 +588,7 @@ export default function InitiativeOpportunities() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Email</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Email</label>
                     <input
                       name="email"
                       type="email"
@@ -598,7 +598,7 @@ export default function InitiativeOpportunities() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Content Type (photo, video, writing, social, etc.)</label>
+                  <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Content Type (photo, video, writing, social, etc.)</label>
                   <input
                     name="content_type"
                     required
@@ -606,7 +606,7 @@ export default function InitiativeOpportunities() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Portfolio / Samples (links)</label>
+                  <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">Portfolio / Samples (links)</label>
                   <textarea
                     name="portfolio"
                     rows={3}
@@ -616,7 +616,7 @@ export default function InitiativeOpportunities() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">How would you like to tell the story of this initiative?</label>
+                  <label className="block text-xs text-gray-700 dark:text-gray-500 mb-1">How would you like to tell the story of this initiative?</label>
                   <textarea
                     name="motivation"
                     rows={4}

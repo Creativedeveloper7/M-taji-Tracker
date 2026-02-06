@@ -53,7 +53,7 @@ export default function Dashboard() {
       <div className="min-h-screen bg-primary text-primary flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--accent-primary)' }}></div>
-          <p className="text-secondary">Loading dashboard...</p>
+          <p className="text-gray-800 dark:text-secondary font-medium">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -87,13 +87,13 @@ export default function Dashboard() {
   const getVerificationStatusColor = (status?: string) => {
     switch (status) {
       case 'verified':
-        return 'text-green-400';
+        return 'text-amber-500';
       case 'under_review':
         return 'text-accent-primary';
       case 'rejected':
         return 'text-red-400';
       default:
-        return 'text-secondary';
+        return 'text-gray-800 dark:text-secondary';
     }
   };
 
@@ -148,7 +148,7 @@ export default function Dashboard() {
           <div className="mb-6 pb-6 border-b border-divider">
             <h2 className="text-xl font-heading font-black mb-2 text-primary">Dashboard</h2>
             {userProfile && (
-              <p className="text-sm text-secondary">
+              <p className="text-sm text-gray-800 dark:text-secondary font-medium">
                 {getUserTypeDisplay(userProfile.user_type)}
               </p>
             )}
@@ -160,15 +160,15 @@ export default function Dashboard() {
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors font-semibold ${
                   activeSection === section.id
                     ? 'text-primary'
-                    : 'text-secondary hover:bg-overlay hover:text-primary'
+                    : 'text-gray-800 dark:text-secondary hover:bg-overlay hover:text-primary dark:hover:text-primary'
                 }`}
                 style={activeSection === section.id ? { backgroundColor: 'var(--accent-primary)', color: '#121212' } : {}}
               >
                 <span className="text-xl">{section.icon}</span>
-                <span className="font-semibold">{section.label}</span>
+                <span>{section.label}</span>
               </button>
             ))}
           </nav>
@@ -176,17 +176,17 @@ export default function Dashboard() {
           {/* Account Status (Bottom) */}
           {userProfile && (
             <div className="mt-8 pt-6 border-t border-divider">
-              <div className="text-xs text-muted mb-2">Account Status</div>
+              <div className="text-xs font-semibold text-gray-700 dark:text-muted mb-2 uppercase tracking-wide">Account Status</div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-secondary">Verification:</span>
+                  <span className="text-gray-800 dark:text-secondary font-medium">Verification:</span>
                   <span className={`font-semibold capitalize ${getVerificationStatusColor(userProfile.verification_status)}`}>
                     {userProfile.verification_status || 'Pending'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-secondary">Email:</span>
-                  <span className={user?.email_confirmed_at ? 'text-green-400' : 'text-accent-primary'}>
+                  <span className="text-gray-800 dark:text-secondary font-medium">Email:</span>
+                  <span className={user?.email_confirmed_at ? 'text-amber-500' : 'text-accent-primary'}>
                     {user?.email_confirmed_at ? '✓' : '⏳'}
                   </span>
                 </div>
@@ -204,10 +204,10 @@ export default function Dashboard() {
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
-                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                     activeSection === section.id
                       ? 'text-primary'
-                      : 'text-secondary hover:bg-overlay hover:text-primary'
+                      : 'text-gray-800 dark:text-secondary hover:bg-overlay hover:text-primary dark:hover:text-primary'
                   }`}
                   style={activeSection === section.id ? { backgroundColor: 'var(--accent-primary)', color: '#121212' } : {}}
                 >

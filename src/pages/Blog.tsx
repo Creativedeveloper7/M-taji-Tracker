@@ -145,7 +145,7 @@ const sampleKenyanBlogs: BlogPost[] = [
 
 // Category colors
 const categoryColors: Record<string, string> = {
-  'Impact Stories': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  'Impact Stories': 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
   'Transparency': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   'Technology': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
   'Youth': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
@@ -399,7 +399,7 @@ const Blog = () => {
                   disabled={currentPage === 1}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
                     currentPage === 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
+                      ? 'bg-gray-100 text-gray-600 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400'
                       : 'bg-secondary text-primary hover:bg-mtaji-accent hover:text-white'
                   }`}
                 >
@@ -444,7 +444,7 @@ const Blog = () => {
                   disabled={currentPage === totalPages}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
                     currentPage === totalPages
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
+                      ? 'bg-gray-100 text-gray-600 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400'
                       : 'bg-secondary text-primary hover:bg-mtaji-accent hover:text-white'
                   }`}
                 >

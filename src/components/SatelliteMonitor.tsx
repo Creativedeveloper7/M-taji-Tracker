@@ -263,11 +263,11 @@ export const SatelliteMonitor: React.FC<Props> = ({
             <h2 className="text-2xl font-heading font-bold text-mtaji-primary">
               Satellite Monitoring
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-800 dark:text-gray-400 mt-1">
               Track physical progress over time
             </p>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-700 dark:text-gray-500">
                 {hasRealSnapshots
                   ? showHistoricalOverlay 
                     ? '📸 Showing GEE historical data (10m resolution)'
@@ -280,7 +280,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                   className={`text-xs px-3 py-1 rounded-full transition-colors ${
                     showHistoricalOverlay 
                       ? 'bg-orange-500 text-white hover:bg-orange-600' 
-                      : 'bg-green-500 text-white hover:bg-green-600'
+                      : 'bg-amber-500 text-white hover:bg-amber-600'
                   }`}
                 >
                   {showHistoricalOverlay ? 'Show Sharp ESRI' : 'Show Historical'}
@@ -343,7 +343,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                 className={`px-2 py-1 rounded text-xs font-medium transition-all ${
                   mapStyle === 'satellite'
                     ? 'bg-white text-mtaji-primary shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    : 'text-gray-800 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                 }`}
                 title="Satellite"
               >
@@ -354,7 +354,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                 className={`px-2 py-1 rounded text-xs font-medium transition-all ${
                   mapStyle === 'terrain'
                     ? 'bg-white text-mtaji-primary shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    : 'text-gray-800 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                 }`}
                 title="Terrain"
               >
@@ -365,7 +365,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                 className={`px-2 py-1 rounded text-xs font-medium transition-all ${
                   mapStyle === 'default'
                     ? 'bg-white text-mtaji-primary shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    : 'text-gray-800 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                 }`}
                 title="Street"
               >
@@ -374,7 +374,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
             </div>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-2xl font-bold w-10 h-10 flex items-center justify-center"
+              className="text-gray-700 dark:text-gray-500 hover:text-gray-700 text-2xl font-bold w-10 h-10 flex items-center justify-center"
             >
               ×
             </button>
@@ -385,7 +385,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mtaji-accent mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading satellite imagery...</p>
+              <p className="text-gray-800 dark:text-gray-400">Loading satellite imagery...</p>
             </div>
           </div>
         ) : error ? (
@@ -404,8 +404,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="text-6xl mb-4">🛰️</div>
-              <p className="text-gray-600 text-lg mb-2">No satellite imagery available</p>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-800 dark:text-gray-400 text-lg mb-2">No satellite imagery available</p>
+              <p className="text-gray-700 dark:text-gray-500 text-sm">
                 Satellite imagery will be captured automatically when projects are registered
               </p>
               <button
@@ -426,14 +426,14 @@ export const SatelliteMonitor: React.FC<Props> = ({
                   {/* Date Display Overlay */}
                   {currentSnapshot && (
                     <div className="absolute top-4 left-4 z-[1000] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-gray-200">
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {new Date(currentSnapshot.date).toLocaleDateString('en-US', { 
                           year: 'numeric', 
                           month: 'long', 
                           day: 'numeric' 
                         })}
                       </p>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-gray-800 dark:text-gray-400">
                         Snapshot {currentIndex + 1} of {snapshots.length}
                       </p>
                     </div>
@@ -442,6 +442,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
                     key={`single-${mapStyle}-${currentIndex}`}
                     center={[location.lat, location.lng]}
                     zoom={17}
+                    maxZoom={19}
+                    minZoom={14}
                     style={{ height: '100%', width: '100%' }}
                     zoomControl={true}
                     scrollWheelZoom={true}
@@ -483,7 +485,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                       <Popup>
                         <div className="text-center">
                           <p className="font-semibold">Initiative Location</p>
-                          <p className="text-xs text-gray-600">
+                          <p className="text-xs text-gray-800 dark:text-gray-400">
                             {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
                           </p>
                         </div>
@@ -547,7 +549,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                         <Popup>
                           <div className="text-center">
                             <p className="font-semibold">Initiative Location</p>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-gray-800 dark:text-gray-400">
                               {comparisonSnapshot ? new Date(comparisonSnapshot.date).toLocaleDateString() : ''}
                             </p>
                           </div>
@@ -614,7 +616,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                         <Popup>
                           <div className="text-center">
                             <p className="font-semibold">Initiative Location</p>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-gray-800 dark:text-gray-400">
                               {currentSnapshot ? new Date(currentSnapshot.date).toLocaleDateString() : ''}
                             </p>
                           </div>
@@ -630,8 +632,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
                   {/* Date Display Overlay */}
                   <div className="absolute top-4 left-4 z-[2000] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-gray-200 flex gap-4">
                     <div>
-                      <p className="text-xs text-gray-600">Before</p>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-xs text-gray-800 dark:text-gray-400">Before</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {comparisonSnapshot ? new Date(comparisonSnapshot.date).toLocaleDateString('en-US', { 
                           year: 'numeric', 
                           month: 'short', 
@@ -641,8 +643,8 @@ export const SatelliteMonitor: React.FC<Props> = ({
                     </div>
                     <div className="w-px bg-gray-300"></div>
                     <div>
-                      <p className="text-xs text-gray-600">After</p>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-xs text-gray-800 dark:text-gray-400">After</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {currentSnapshot ? new Date(currentSnapshot.date).toLocaleDateString('en-US', { 
                           year: 'numeric', 
                           month: 'short', 
@@ -652,7 +654,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                     </div>
                     {currentSnapshot && comparisonSnapshot && (
                       <div className="pl-4 border-l border-gray-300">
-                        <p className="text-xs text-gray-600">Difference</p>
+                        <p className="text-xs text-gray-800 dark:text-gray-400">Difference</p>
                         <p className="text-sm font-semibold text-blue-600">
                           {Math.round((new Date(currentSnapshot.date).getTime() - new Date(comparisonSnapshot.date).getTime()) / (1000 * 60 * 60 * 24))} days
                         </p>
@@ -709,7 +711,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                         <Popup>
                           <div className="text-center">
                             <p className="font-semibold">Before</p>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-gray-800 dark:text-gray-400">
                               {comparisonSnapshot ? new Date(comparisonSnapshot.date).toLocaleDateString() : ''}
                             </p>
                           </div>
@@ -771,7 +773,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                         <Popup>
                           <div className="text-center">
                             <p className="font-semibold">After</p>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-gray-800 dark:text-gray-400">
                               {currentSnapshot ? new Date(currentSnapshot.date).toLocaleDateString() : ''}
                             </p>
                           </div>
@@ -827,7 +829,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           }) : 'No date'}
                         </span>
                       </label>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-500">
                         <span>Cloud:</span>
                         <span className="font-semibold">{currentSnapshot?.cloudCoverage.toFixed(1)}%</span>
                       </div>
@@ -858,11 +860,11 @@ export const SatelliteMonitor: React.FC<Props> = ({
                         className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-mtaji-accent"
                       />
                       {snapshots.length > 0 && (
-                        <div className="flex justify-between text-xs text-gray-500 mt-2">
+                        <div className="flex justify-between text-xs text-gray-700 dark:text-gray-500 mt-2">
                           <span className="font-medium">
                             {snapshots[0] ? new Date(snapshots[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                           </span>
-                          <span className="text-gray-400">
+                          <span className="text-gray-600 dark:text-gray-400">
                             Snapshot {currentIndex + 1} of {snapshots.length}
                           </span>
                           <span className="font-medium">
@@ -886,7 +888,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                           }) : 'Select date'}
                         </span>
                       </label>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-500">
                         <span>Cloud:</span>
                         <span className="font-semibold">{comparisonSnapshot?.cloudCoverage.toFixed(1)}%</span>
                       </div>
@@ -917,11 +919,11 @@ export const SatelliteMonitor: React.FC<Props> = ({
                         className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-mtaji-primary"
                       />
                       {snapshots.length > 0 && (
-                        <div className="flex justify-between text-xs text-gray-500 mt-2">
+                        <div className="flex justify-between text-xs text-gray-700 dark:text-gray-500 mt-2">
                           <span className="font-medium">
                             {snapshots[0] ? new Date(snapshots[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                           </span>
-                          <span className="text-gray-400">
+                          <span className="text-gray-600 dark:text-gray-400">
                             Snapshot {comparisonIndex + 1} of {snapshots.length}
                           </span>
                           <span className="font-medium">
@@ -969,7 +971,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
               ) : (
                 // Single view mode
                 <div className="mb-4">
-                  <div className="flex justify-between items-center text-sm text-gray-600 mb-2">
+                  <div className="flex justify-between items-center text-sm text-gray-800 dark:text-gray-400 mb-2">
                     <div className="flex items-center gap-4">
                       <span className="font-semibold text-lg">
                         {currentSnapshot ? new Date(currentSnapshot.date).toLocaleDateString('en-US', { 
@@ -984,7 +986,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                         <span className="text-xs">Cloud Coverage:</span>
                         <span className="font-semibold">{currentSnapshot?.cloudCoverage.toFixed(1)}%</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-500">
                         <span>💡</span>
                         <span>Arrow keys ← → to navigate, ESC to close</span>
                       </div>
@@ -1011,11 +1013,11 @@ export const SatelliteMonitor: React.FC<Props> = ({
                       className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-mtaji-accent"
                     />
                     {snapshots.length > 0 && (
-                      <div className="flex justify-between text-xs text-gray-500 mt-2">
+                      <div className="flex justify-between text-xs text-gray-700 dark:text-gray-500 mt-2">
                         <span className="font-medium">
                           {snapshots[0] ? new Date(snapshots[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                         </span>
-                        <span className="text-gray-400">
+                        <span className="text-gray-600 dark:text-gray-400">
                           Snapshot {currentIndex + 1} of {snapshots.length}
                         </span>
                         <span className="font-medium">
@@ -1033,7 +1035,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                   {(viewMode === 'comparison' || viewMode === 'slider') ? (
                     <>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-gray-600 w-24">After Image:</span>
+                        <span className="text-xs font-medium text-gray-800 dark:text-gray-400 w-24">After Image:</span>
                         <div className="flex gap-2 flex-wrap flex-1">
                           <button
                             onClick={() => setCurrentIndex(0)}
@@ -1058,7 +1060,7 @@ export const SatelliteMonitor: React.FC<Props> = ({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-gray-600 w-24">Before Image:</span>
+                        <span className="text-xs font-medium text-gray-800 dark:text-gray-400 w-24">Before Image:</span>
                         <div className="flex gap-2 flex-wrap flex-1">
                           <button
                             onClick={() => setComparisonIndex(0)}

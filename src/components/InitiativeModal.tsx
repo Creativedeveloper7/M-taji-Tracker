@@ -100,7 +100,7 @@ const InitiativeModal = ({ initiative, onClose }: InitiativeModalProps) => {
     draft: 'bg-gray-400',
     published: 'bg-blue-500',
     active: 'bg-mtaji-accent',
-    completed: 'bg-green-500',
+    completed: 'bg-amber-500',
     stalled: 'bg-gray-400',
   }
 

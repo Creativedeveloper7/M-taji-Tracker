@@ -153,7 +153,7 @@ export default function VolunteerForm({
           <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-4 flex items-center justify-between z-10">
             <div>
               <h2 className="text-2xl font-heading font-bold text-mtaji-primary">Volunteer Application</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{initiativeTitle}</p>
+              <p className="text-sm text-gray-800 dark:text-gray-400 mt-1">{initiativeTitle}</p>
             </div>
             <button
               onClick={onClose}
@@ -167,7 +167,7 @@ export default function VolunteerForm({
 
           {/* Success Message */}
           {submitSuccess && (
-            <div className="mx-6 mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+            <div className="mx-6 mt-4 p-4 bg-amber-100 border border-amber-500 text-amber-800 dark:text-amber-200 rounded-lg">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

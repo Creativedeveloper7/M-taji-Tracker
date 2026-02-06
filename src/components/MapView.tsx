@@ -196,9 +196,9 @@ const MapView = ({ onInitiativeSelect, customInitiatives = [] }: MapViewProps) =
                   <div className="mt-2 pt-2 border-t border-gray-200">
                     <p className="text-xs font-semibold text-gray-700">
                       Status: <span className={`${
-                        statusInfo === 'progress' ? 'text-green-600' :
+                        statusInfo === 'progress' ? 'text-amber-600 dark:text-amber-400' :
                         statusInfo === 'stalled' ? 'text-red-600' :
-                        statusInfo === 'completed' ? 'text-green-800' :
+                        statusInfo === 'completed' ? 'text-amber-700 dark:text-amber-400' :
                         'text-yellow-600'
                       }`}>
                         {statusInfo.charAt(0).toUpperCase() + statusInfo.slice(1)}

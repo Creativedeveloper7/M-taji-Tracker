@@ -295,7 +295,7 @@ export default function Settings() {
   const getVerificationStatusColor = () => {
     switch (userProfile?.verification_status) {
       case 'verified':
-        return 'text-green-400';
+        return 'text-amber-500';
       case 'under_review':
         return 'text-yellow-400';
       case 'rejected':
@@ -338,7 +338,7 @@ export default function Settings() {
         </div>
         <div className="bg-secondary border border-subtle rounded-lg p-4">
           <div className="text-sm text-secondary mb-1">Email Status</div>
-          <div className={`text-lg font-semibold ${user?.email_confirmed_at ? 'text-green-400' : 'text-yellow-400'}`}>
+          <div className={`text-lg font-semibold ${user?.email_confirmed_at ? 'text-amber-500' : 'text-amber-400'}`}>
             {user?.email_confirmed_at ? '✓ Verified' : '⏳ Pending'}
           </div>
         </div>
@@ -372,8 +372,8 @@ export default function Settings() {
         </div>
       )}
       {success && (
-        <div className="bg-green-500/20 border border-green-500 rounded-lg p-4">
-          <p className="text-green-400">{success}</p>
+        <div className="bg-amber-500/20 border border-amber-500 rounded-lg p-4">
+          <p className="text-amber-600 dark:text-amber-400">{success}</p>
         </div>
       )}
 

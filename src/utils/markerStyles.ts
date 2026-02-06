@@ -35,7 +35,7 @@ export function getMarkerStyle(initiative: Initiative): MarkerStyle {
   const snapshots = initiative.satellite_snapshots || []
   const latestSnapshot = snapshots.length > 0 ? snapshots[snapshots.length - 1] : null
 
-  let outlineColor = '#52B788' // Default: green (progress)
+  let outlineColor = '#D4A017' // Default: golden (progress)
   let pulseAnimation = false
   let status: MarkerStyle['status'] = 'baseline'
 
@@ -46,11 +46,11 @@ export function getMarkerStyle(initiative: Initiative): MarkerStyle {
         status = 'stalled'
         break
       case 'completed':
-        outlineColor = '#2D6A4F' // Dark green
+        outlineColor = '#B8860B' // Dark gold
         status = 'completed'
         break
       case 'progress':
-        outlineColor = '#52B788' // Bright green
+        outlineColor = '#D4A017' // Golden
         pulseAnimation = true
         status = 'progress'
         break

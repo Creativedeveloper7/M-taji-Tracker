@@ -1,39 +1,31 @@
 import { Router } from 'express';
-import { satelliteService } from '../services/satelliteService';
-import { mockSatelliteService } from '../services/mockSatelliteService';
 import { db } from '../lib/database';
-import { fetchSatelliteImageByDate } from '../services/sentinelService';
-import { 
-  captureGEESnapshot, 
-  getGEEHistoricalSnapshots, 
-  fetchGEEImage,
-  checkGEEStatus 
+import {
+  captureGEESnapshot,
+  getGEEHistoricalSnapshots,
+  checkGEEStatus,
 } from '../services/googleEarthEngineService';
 import { SatelliteSnapshot } from '../services/types';
 
 const router = Router();
 
-// Service selection: GEE > Sentinel > Mock
+// Satellite features use only Google Earth Engine
 const USE_GEE = process.env.USE_GEE === 'true';
-const USE_SENTINEL = process.env.USE_SENTINEL_HUB === 'true';
-const USE_MOCK = process.env.USE_MOCK_SATELLITE !== 'false'; // Default to true
 
-// Determine which service to use
-const getServiceName = () => {
-  if (USE_GEE) return 'google-earth-engine';
-  if (USE_SENTINEL) return 'sentinel-hub';
-  return 'mock';
+const requireGEE = (_req: any, res: any, next: any) => {
+  if (!USE_GEE) {
+    return res.status(503).json({
+      error: 'Satellite service requires Google Earth Engine. Set USE_GEE=true and configure GEE_PROJECT_ID and GEE_SERVICE_ACCOUNT_KEY.',
+    });
+  }
+  next();
 };
 
-const service = USE_MOCK && !USE_GEE && !USE_SENTINEL ? mockSatelliteService : satelliteService;
-
-console.log(`🛰️ Satellite service configured: ${getServiceName()}`);
+console.log('🛰️ Satellite service: Google Earth Engine only');
 if (USE_GEE) {
   console.log('   ✅ Google Earth Engine enabled');
-} else if (USE_SENTINEL) {
-  console.log('   ✅ Sentinel Hub enabled');
 } else {
-  console.log('   ⚠️ Using mock/fallback service');
+  console.log('   ⚠️ GEE disabled (USE_GEE not true). Satellite endpoints will return 503 until configured.');
 }
 
 /**
@@ -47,47 +39,40 @@ if (USE_GEE) {
  *   date?: string (ISO date string, optional)
  * }
  */
-router.post('/snapshot', async (req, res) => {
+router.post('/snapshot', requireGEE, async (req, res) => {
   try {
     const { lat, lng, radiusMeters = 500, date } = req.body;
 
-    // Validate inputs
     if (typeof lat !== 'number' || typeof lng !== 'number') {
-      return res.status(400).json({ 
-        error: 'Invalid coordinates. lat and lng must be numbers.' 
+      return res.status(400).json({
+        error: 'Invalid coordinates. lat and lng must be numbers.',
       });
     }
 
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      return res.status(400).json({ 
-        error: 'Coordinates out of range. lat must be -90 to 90, lng must be -180 to 180.' 
+      return res.status(400).json({
+        error: 'Coordinates out of range. lat must be -90 to 90, lng must be -180 to 180.',
       });
     }
 
     if (radiusMeters && (radiusMeters < 10 || radiusMeters > 10000)) {
-      return res.status(400).json({ 
-        error: 'Radius must be between 10 and 10000 meters.' 
+      return res.status(400).json({
+        error: 'Radius must be between 10 and 10000 meters.',
       });
     }
 
-    let snapshot;
-    
-    if (USE_GEE) {
-      snapshot = await captureGEESnapshot(lat, lng, radiusMeters, date);
-    } else {
-      snapshot = await service.captureSnapshot(lat, lng, radiusMeters, date);
-    }
-    
+    const snapshot = await captureGEESnapshot(lat, lng, radiusMeters, date);
+
     res.json({
       success: true,
       data: snapshot,
-      service: getServiceName()
+      service: 'google-earth-engine',
     });
   } catch (error: any) {
     console.error('Error capturing satellite snapshot:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to capture satellite snapshot',
-      message: error.message 
+      message: error.message,
     });
   }
 });
@@ -105,20 +90,19 @@ router.post('/snapshot', async (req, res) => {
  *   intervalDays?: number (default: 30)
  * }
  */
-router.post('/historical', async (req, res) => {
+router.post('/historical', requireGEE, async (req, res) => {
   try {
     const { lat, lng, radiusMeters = 500, startDate, endDate, intervalDays = 30 } = req.body;
 
-    // Validate inputs
     if (typeof lat !== 'number' || typeof lng !== 'number') {
-      return res.status(400).json({ 
-        error: 'Invalid coordinates. lat and lng must be numbers.' 
+      return res.status(400).json({
+        error: 'Invalid coordinates. lat and lng must be numbers.',
       });
     }
 
     if (!startDate || !endDate) {
-      return res.status(400).json({ 
-        error: 'startDate and endDate are required.' 
+      return res.status(400).json({
+        error: 'startDate and endDate are required.',
       });
     }
 
@@ -126,50 +110,37 @@ router.post('/historical', async (req, res) => {
     const end = new Date(endDate);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return res.status(400).json({ 
-        error: 'Invalid date format. Use ISO date strings.' 
+      return res.status(400).json({
+        error: 'Invalid date format. Use ISO date strings.',
       });
     }
 
     if (start > end) {
-      return res.status(400).json({ 
-        error: 'startDate must be before endDate.' 
+      return res.status(400).json({
+        error: 'startDate must be before endDate.',
       });
     }
 
-    let snapshots;
-    
-    if (USE_GEE) {
-      snapshots = await getGEEHistoricalSnapshots(
-        lat,
-        lng,
-        radiusMeters,
-        startDate,
-        endDate,
-        intervalDays
-      );
-    } else {
-      snapshots = await service.getHistoricalSnapshots(
-        lat,
-        lng,
-        radiusMeters,
-        startDate,
-        endDate,
-        intervalDays
-      );
-    }
+    const snapshots = await getGEEHistoricalSnapshots(
+      lat,
+      lng,
+      radiusMeters,
+      startDate,
+      endDate,
+      intervalDays
+    );
 
     res.json({
       success: true,
       data: snapshots,
       count: snapshots.length,
-      service: getServiceName()
+      service: 'google-earth-engine',
     });
   } catch (error: any) {
     console.error('Error fetching historical snapshots:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to fetch historical snapshots',
-      message: error.message 
+      message: error.message,
     });
   }
 });
@@ -189,34 +160,30 @@ router.get('/status', async (req, res) => {
   }
   
   res.json({
-    service: getServiceName(),
-    status: 'operational',
+    service: 'google-earth-engine',
+    status: USE_GEE ? 'operational' : 'disabled',
     gee: {
       enabled: USE_GEE,
-      ...geeStatus
+      ...geeStatus,
     },
-    sentinel: {
-      enabled: USE_SENTINEL
-    },
-    mockMode: !USE_GEE && !USE_SENTINEL
   });
 });
 
 /**
  * POST /api/satellite/backfill-initiative
  *
- * Populate / refresh satellite_snapshots for a single initiative using real data
- * (Sentinel Hub when enabled, otherwise falls back to existing service).
+ * Populate / refresh satellite_snapshots for a single initiative using Google Earth Engine.
  *
  * Body:
  * {
  *   initiativeId: string;            // required
- *   startDate?: string;             // optional ISO date, default: N months ago
- *   endDate?: string;               // optional ISO date, default: today
-   *   intervalDays?: number;          // optional, default: 30
+ *   startDate?: string;              // optional ISO date, default: N months ago
+ *   endDate?: string;                // optional ISO date, default: today
+ *   intervalDays?: number;           // optional, default: 15
+ *   forceRefresh?: boolean;          // optional, clear existing and re-fetch
  * }
  */
-router.post('/backfill-initiative', async (req, res) => {
+router.post('/backfill-initiative', requireGEE, async (req, res) => {
   try {
     console.log('📥 Received backfill request:', req.body);
     const { initiativeId, startDate, endDate, intervalDays = 15, forceRefresh = false } = req.body as {
@@ -295,51 +262,29 @@ router.post('/backfill-initiative', async (req, res) => {
     let skipped = 0;
     let errors = 0;
     const cursor = new Date(start);
-    
-    // Determine which service to use: GEE > Sentinel > Mock
-    const serviceToUse = USE_GEE ? 'gee' : USE_SENTINEL ? 'sentinel' : 'mock';
-    console.log(`🔧 Using ${serviceToUse.toUpperCase()} service for backfill snapshots`);
+    const radiusMeters = 300;
+
+    console.log('🔧 Using Google Earth Engine for backfill');
 
     while (cursor <= end) {
       const dateStr = cursor.toISOString().split('T')[0];
 
-      // Skip if we already have a snapshot for this date (unless forceRefresh)
       const already = snapshots.some(s => s.date === dateStr);
       if (already && !forceRefresh) {
         skipped++;
         cursor.setDate(cursor.getDate() + Number(intervalDays || 15));
         continue;
       }
-      
+
       try {
-        console.log(`📸 Fetching snapshot for ${dateStr}...`);
-        
-        if (serviceToUse === 'gee') {
-          // Use Google Earth Engine
-          const snap = await captureGEESnapshot(lat, lng, 500, dateStr, initiativeId);
-          snapshots.push(snap);
-          console.log(`✅ Fetched GEE snapshot for ${dateStr}`);
-        } else if (serviceToUse === 'sentinel') {
-          // Use Sentinel Hub
-          const snap = await fetchSatelliteImageByDate(lat, lng, 500, dateStr, initiativeId, 7);
-          snapshots.push({
-            date: snap.acquisitionDate || dateStr,
-            imageUrl: snap.imageUrl,
-            cloudCoverage: 0,
-            bounds: snap.bounds,
-          } as SatelliteSnapshot);
-          console.log(`✅ Fetched Sentinel snapshot for ${dateStr}`);
-        } else {
-          // Use mock service
-          const snap = await service.captureSnapshot(lat, lng, 500, dateStr);
-          snapshots.push(snap);
-          console.log(`✅ Fetched mock snapshot for ${dateStr}`);
-        }
+        console.log(`📸 Fetching GEE snapshot for ${dateStr}...`);
+        const snap = await captureGEESnapshot(lat, lng, radiusMeters, dateStr);
+        snapshots.push(snap);
+        console.log(`✅ Fetched GEE snapshot for ${dateStr}`);
         created++;
       } catch (err: any) {
         errors++;
         console.error(`❌ Error fetching snapshot for ${dateStr}:`, err.message || err);
-        // Continue with next date - don't fail the entire backfill
       }
 
       cursor.setDate(cursor.getDate() + Number(intervalDays || 15));

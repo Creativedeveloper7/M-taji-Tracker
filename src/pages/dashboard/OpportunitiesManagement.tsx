@@ -155,7 +155,7 @@ export default function OpportunitiesManagement() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'accepted':
-        return 'bg-green-500/20 text-green-400';
+        return 'bg-amber-500/20 text-amber-500';
       case 'pending':
         return 'bg-yellow-500/20 text-yellow-400';
       case 'rejected':
@@ -163,7 +163,7 @@ export default function OpportunitiesManagement() {
       case 'reviewed':
         return 'bg-blue-500/20 text-blue-400';
       default:
-        return 'bg-gray-500/20 text-gray-400';
+        return 'bg-gray-500/20 text-gray-700 dark:text-gray-400';
     }
   };
 
@@ -202,7 +202,7 @@ export default function OpportunitiesManagement() {
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
-          <div className="text-sm text-mtaji-light-gray mb-2">
+          <div className="text-sm text-gray-800 dark:text-gray-300 mb-2">
             Total {activeTab === 'jobs' ? 'Job Applications' : 
                    activeTab === 'ambassadors' ? 'Ambassador Applications' :
                    activeTab === 'proposals' ? 'Proposals' : 'Content Creator Applications'}
@@ -210,14 +210,14 @@ export default function OpportunitiesManagement() {
           <div className="text-3xl font-bold text-mtaji-primary">{getTotalCount()}</div>
         </div>
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
-          <div className="text-sm text-mtaji-light-gray mb-2">Pending Review</div>
+          <div className="text-sm text-gray-800 dark:text-gray-300 mb-2">Pending Review</div>
           <div className="text-3xl font-bold text-yellow-400">{getPendingCount()}</div>
         </div>
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
-          <div className="text-sm text-mtaji-light-gray mb-2">Accepted</div>
-          <div className="text-3xl font-bold text-green-400">
+          <div className="text-sm text-gray-800 dark:text-gray-300 mb-2">Accepted</div>
+          <div className="text-3xl font-bold text-amber-500">
             {filteredApplications.filter((app: any) => app.status === 'accepted').length}
-          </div>
+        </div>
         </div>
       </div>
 
@@ -231,7 +231,7 @@ export default function OpportunitiesManagement() {
               className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 activeTab === tab
                   ? 'bg-mtaji-primary text-black'
-                  : 'bg-white/5 text-mtaji-light-gray hover:bg-white/10'
+                  : 'bg-white/5 text-gray-800 dark:text-gray-300 hover:bg-white/10'
               }`}
             >
               {tab === 'jobs' ? '💼 Job Applications' :
@@ -240,9 +240,9 @@ export default function OpportunitiesManagement() {
             </button>
           ))}
         </div>
-      </div>
+        </div>
 
-      {/* Filters */}
+        {/* Filters */}
       <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
@@ -267,12 +267,12 @@ export default function OpportunitiesManagement() {
               <option value="rejected">Rejected</option>
             </select>
           </div>
+          </div>
         </div>
-      </div>
 
-      {/* Applications List */}
+        {/* Applications List */}
       <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
-        <h3 className="text-xl font-semibold mb-4">
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           {activeTab === 'jobs' ? 'Job Applications' :
            activeTab === 'ambassadors' ? 'Ambassador Applications' :
            activeTab === 'proposals' ? 'Proposals' : 'Content Creator Applications'}
@@ -281,18 +281,18 @@ export default function OpportunitiesManagement() {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mtaji-primary mx-auto mb-4"></div>
-            <p className="text-mtaji-light-gray">Loading applications...</p>
+            <p className="text-gray-800 dark:text-gray-300">Loading applications...</p>
           </div>
         ) : error ? (
           <div className="text-center py-12">
             <p className="text-red-400 text-lg mb-2">Error loading applications</p>
-            <p className="text-mtaji-light-gray text-sm">{error}</p>
+            <p className="text-gray-800 dark:text-gray-300 text-sm">{error}</p>
           </div>
         ) : filteredApplications.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-mtaji-light-gray text-lg">No applications found</p>
+            <p className="text-gray-800 dark:text-gray-300 text-lg">No applications found</p>
             {getTotalCount() === 0 && (
-              <p className="text-mtaji-light-gray text-sm mt-2">
+            <p className="text-gray-800 dark:text-gray-300 text-sm mt-2">
                 No {activeTab === 'jobs' ? 'job' :
                     activeTab === 'ambassadors' ? 'ambassador' :
                     activeTab === 'proposals' ? 'proposal' : 'content creator'} applications have been submitted yet.
@@ -309,8 +309,8 @@ export default function OpportunitiesManagement() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-4 mb-2">
-                      <h4 className="text-lg font-semibold">{app.full_name || app.name}</h4>
-                      <span className="text-sm text-mtaji-light-gray">{app.email}</span>
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{app.full_name || app.name}</h4>
+                      <span className="text-sm text-gray-800 dark:text-gray-300">{app.email}</span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(app.status)}`}>
                         {app.status}
                       </span>
@@ -321,39 +321,39 @@ export default function OpportunitiesManagement() {
                       </p>
                     )}
                     {app.job_title && (
-                      <p className="text-sm text-mtaji-light-gray mb-2">
+                      <p className="text-sm text-gray-800 dark:text-gray-300 mb-2">
                         💼 Job: {app.job_title}
                       </p>
                     )}
                     {app.phone && (
-                      <p className="text-sm text-mtaji-light-gray mb-2">📞 {app.phone}</p>
+                      <p className="text-sm text-gray-800 dark:text-gray-300 mb-2">📞 {app.phone}</p>
                     )}
                     {app.subject && (
-                      <p className="text-sm font-semibold text-mtaji-light-gray mb-2">Subject: {app.subject}</p>
+                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">Subject: {app.subject}</p>
                     )}
                     {app.reach && (
-                      <p className="text-sm text-mtaji-light-gray mb-2">Reach: {app.reach}</p>
+                      <p className="text-sm text-gray-800 dark:text-gray-300 mb-2">Reach: {app.reach}</p>
                     )}
                     {app.content_type && (
-                      <p className="text-sm text-mtaji-light-gray mb-2">Content Type: {app.content_type}</p>
+                      <p className="text-sm text-gray-800 dark:text-gray-300 mb-2">Content Type: {app.content_type}</p>
                     )}
                     {app.portfolio && (
-                      <p className="text-sm text-mtaji-light-gray mb-2">
+                      <p className="text-sm text-gray-800 dark:text-gray-300 mb-2">
                         Portfolio: <a href={app.portfolio} target="_blank" rel="noopener noreferrer" className="text-mtaji-primary hover:underline">{app.portfolio}</a>
                       </p>
                     )}
                     {app.links && (
-                      <p className="text-sm text-mtaji-light-gray mb-2">
+                      <p className="text-sm text-gray-800 dark:text-gray-300 mb-2">
                         Links: <a href={app.links} target="_blank" rel="noopener noreferrer" className="text-mtaji-primary hover:underline">{app.links}</a>
                       </p>
                     )}
                     {app.created_at && (
-                      <p className="text-sm text-mtaji-light-gray mb-2">
+                      <p className="text-sm text-gray-800 dark:text-gray-300 mb-2">
                         📅 Applied: {new Date(app.created_at).toLocaleDateString()}
                       </p>
                     )}
                     {(app.motivation || app.details) && (
-                      <p className="text-sm text-mtaji-light-gray mt-2 italic line-clamp-3">
+                      <p className="text-sm text-gray-800 dark:text-gray-300 mt-2 italic line-clamp-3">
                         {app.motivation || app.details}
                       </p>
                     )}
@@ -363,7 +363,7 @@ export default function OpportunitiesManagement() {
                       <>
                         <button
                           onClick={() => handleStatusUpdate(app.id, 'accepted')}
-                          className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
+                          className="px-4 py-2 bg-amber-600 hover:bg-amber-700 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
                         >
                           Accept
                         </button>
@@ -385,7 +385,7 @@ export default function OpportunitiesManagement() {
                       <>
                         <button
                           onClick={() => handleStatusUpdate(app.id, 'accepted')}
-                          className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
+                          className="px-4 py-2 bg-amber-600 hover:bg-amber-700 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
                         >
                           Accept
                         </button>

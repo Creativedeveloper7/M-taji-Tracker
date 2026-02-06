@@ -504,14 +504,14 @@ export const PoliticalFigureRegistration: React.FC<Props> = ({ onComplete, onCan
 
             {/* Analysis Results */}
             {showAnalysis && analysis && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-6 space-y-4">
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-green-800">
+                  <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-400">
                     ✓ Manifesto Analysis Complete
                   </h3>
                   <button
                     onClick={() => setShowAnalysis(false)}
-                    className="text-green-600 hover:text-green-800"
+                    className="text-amber-600 hover:text-amber-800 dark:text-amber-400"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -535,7 +535,7 @@ export const PoliticalFigureRegistration: React.FC<Props> = ({ onComplete, onCan
                       {analysis.main_themes.map((theme, idx) => (
                         <span
                           key={idx}
-                          className="px-3 py-1 bg-white border border-green-300 text-green-800 text-sm rounded-full"
+                          className="px-3 py-1 bg-white dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200 text-sm rounded-full"
                         >
                           {theme}
                         </span>
@@ -552,10 +552,10 @@ export const PoliticalFigureRegistration: React.FC<Props> = ({ onComplete, onCan
                       {analysis.focus_areas
                         .sort((a, b) => b.priority - a.priority)
                         .map((area, idx) => (
-                          <div key={idx} className="bg-white rounded-lg p-3 border border-green-200">
+                          <div key={idx} className="bg-white rounded-lg p-3 border border-amber-200 dark:border-amber-800">
                             <div className="flex items-center justify-between mb-1">
                               <span className="font-medium text-gray-700 capitalize">{area.category}</span>
-                              <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded">
+                              <span className="text-xs px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 rounded">
                                 Priority {area.priority}/5
                               </span>
                             </div>
@@ -580,7 +580,7 @@ export const PoliticalFigureRegistration: React.FC<Props> = ({ onComplete, onCan
                     </h4>
                     <div className="space-y-2 max-h-48 overflow-y-auto">
                       {matchedInitiatives.slice(0, 5).map((match, idx) => (
-                        <div key={idx} className="bg-white rounded-lg p-3 border border-green-200">
+                        <div key={idx} className="bg-white rounded-lg p-3 border border-amber-200 dark:border-amber-800">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <p className="font-medium text-sm text-gray-700">{match.initiative.title}</p>

@@ -121,20 +121,20 @@ export default function VolunteerManagement() {
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
-          <div className="text-sm text-mtaji-light-gray mb-2">Total Volunteers</div>
+          <div className="text-sm text-gray-800 dark:text-gray-400 mb-2">Total Volunteers</div>
           <div className="text-3xl font-bold text-mtaji-primary">{volunteers.length}</div>
         </div>
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
-          <div className="text-sm text-mtaji-light-gray mb-2">Total Hours</div>
+          <div className="text-sm text-gray-800 dark:text-gray-400 mb-2">Total Hours</div>
           <div className="text-3xl font-bold text-mtaji-primary">{totalHours}</div>
         </div>
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
-          <div className="text-sm text-mtaji-light-gray mb-2">Tasks Completed</div>
+          <div className="text-sm text-gray-800 dark:text-gray-400 mb-2">Tasks Completed</div>
           <div className="text-3xl font-bold text-mtaji-primary">{totalTasks}</div>
         </div>
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
-          <div className="text-sm text-mtaji-light-gray mb-2">Active This Month</div>
-          <div className="text-3xl font-bold text-green-400">
+          <div className="text-sm text-gray-800 dark:text-gray-400 mb-2">Active This Month</div>
+          <div className="text-3xl font-bold text-amber-500">
             {volunteers.filter(v => v.hoursContributed > 0).length}
           </div>
         </div>
@@ -194,18 +194,18 @@ export default function VolunteerManagement() {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mtaji-primary mx-auto mb-4"></div>
-            <p className="text-mtaji-light-gray">Loading volunteers...</p>
+            <p className="text-gray-800 dark:text-gray-400">Loading volunteers...</p>
           </div>
         ) : error ? (
           <div className="text-center py-12">
             <p className="text-red-400 text-lg mb-2">Error loading volunteers</p>
-            <p className="text-mtaji-light-gray text-sm">{error}</p>
+            <p className="text-gray-800 dark:text-gray-400 text-sm">{error}</p>
           </div>
         ) : filteredVolunteers.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-mtaji-light-gray text-lg">No volunteers found</p>
+            <p className="text-gray-800 dark:text-gray-400 text-lg">No volunteers found</p>
             {volunteers.length === 0 && (
-              <p className="text-mtaji-light-gray text-sm mt-2">No volunteer applications have been submitted yet.</p>
+              <p className="text-gray-800 dark:text-gray-400 text-sm mt-2">No volunteer applications have been submitted yet.</p>
             )}
           </div>
         ) : (
@@ -219,15 +219,15 @@ export default function VolunteerManagement() {
                   <div className="flex-1">
                     <div className="flex items-center gap-4 mb-2">
                       <h4 className="text-lg font-semibold">{volunteer.name}</h4>
-                      <span className="text-sm text-mtaji-light-gray">{volunteer.email}</span>
+                      <span className="text-sm text-gray-800 dark:text-gray-400">{volunteer.email}</span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         volunteer.status === 'approved' || volunteer.status === 'active' 
-                          ? 'bg-green-500/20 text-green-400'
+                          ? 'bg-amber-500/20 text-amber-500'
                           : volunteer.status === 'pending'
                           ? 'bg-yellow-500/20 text-yellow-400'
                           : volunteer.status === 'rejected'
                           ? 'bg-red-500/20 text-red-400'
-                          : 'bg-gray-500/20 text-gray-400'
+                          : 'bg-gray-500/20 text-gray-700 dark:text-gray-400'
                       }`}>
                         {volunteer.status}
                       </span>
@@ -235,7 +235,7 @@ export default function VolunteerManagement() {
                     {volunteer.initiativeTitle && (
                       <p className="text-sm text-mtaji-primary mb-2">📋 {volunteer.initiativeTitle}</p>
                     )}
-                    <div className="flex items-center gap-6 text-sm text-mtaji-light-gray mb-2">
+                    <div className="flex items-center gap-6 text-sm text-gray-800 dark:text-gray-400 mb-2">
                       {volunteer.phone && <span>📞 {volunteer.phone}</span>}
                       <span>⏱️ {volunteer.hoursContributed} hours</span>
                       <span>✅ {volunteer.tasksCompleted} tasks</span>
@@ -244,7 +244,7 @@ export default function VolunteerManagement() {
                       )}
                     </div>
                     {volunteer.availability && (
-                      <p className="text-sm text-mtaji-light-gray mb-2">Available: {volunteer.availability}</p>
+                      <p className="text-sm text-gray-800 dark:text-gray-400 mb-2">Available: {volunteer.availability}</p>
                     )}
                     {volunteer.skills && volunteer.skills.length > 0 && (
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -259,7 +259,7 @@ export default function VolunteerManagement() {
                       </div>
                     )}
                     {volunteer.motivation && (
-                      <p className="text-sm text-mtaji-light-gray mt-2 italic line-clamp-2">{volunteer.motivation}</p>
+                      <p className="text-sm text-gray-800 dark:text-gray-400 mt-2 italic line-clamp-2">{volunteer.motivation}</p>
                     )}
                   </div>
                   <div className="flex flex-col gap-2 ml-4">
@@ -267,7 +267,7 @@ export default function VolunteerManagement() {
                       <>
                         <button
                           onClick={() => handleStatusUpdate(volunteer.id, 'approved')}
-                          className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
+                          className="px-4 py-2 bg-amber-600 hover:bg-amber-700 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
                         >
                           Approve
                         </button>
@@ -301,7 +301,7 @@ export default function VolunteerManagement() {
       {/* Leaderboard */}
       <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
         <h3 className="text-xl font-semibold mb-4">Volunteer Leaderboard</h3>
-        <div className="text-center py-8 text-mtaji-light-gray">
+        <div className="text-center py-8 text-gray-800 dark:text-gray-400">
           Leaderboard will display top volunteers by hours contributed
         </div>
       </div>

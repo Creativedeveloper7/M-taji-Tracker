@@ -106,11 +106,11 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
     try {
       await signOut()
       setUserMenuOpen(false)
-      navigate('/')
+      navigate('/login')
     } catch (error) {
       console.error('Error signing out:', error)
-      // Still navigate even if there's an error
-      navigate('/')
+      // Still navigate even if there's an error so the user isn't stuck
+      navigate('/login')
     }
   }
 
@@ -132,9 +132,9 @@ const Header = ({ onCreateInitiative: _onCreateInitiative }: HeaderProps) => {
           {/* Logo - Left */}
           <Link to="/" className="flex items-center space-x-3">
             <img 
-              src="/Mtaji logo.png" 
-              alt="Mtaji Tracker Logo" 
-              className="h-10 w-auto object-contain"
+              src="/tracker logo.png" 
+              alt="M-taji Tracker Logo" 
+              className="h-14 w-auto object-contain"
             />
             <div className="hidden sm:block">
               <h1 className="text-xl font-heading font-bold text-primary transition-colors duration-300">M-taji Tracker</h1>

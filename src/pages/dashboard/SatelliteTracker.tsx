@@ -25,7 +25,7 @@ export default function SatelliteTracker() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Project Selector */}
           <div>
-            <label className="block text-sm text-mtaji-light-gray mb-2">Select Project</label>
+            <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">Select Project</label>
             <select
               value={selectedProject}
               onChange={(e) => setSelectedProject(e.target.value)}
@@ -40,7 +40,7 @@ export default function SatelliteTracker() {
 
           {/* Date Selector */}
           <div>
-            <label className="block text-sm text-mtaji-light-gray mb-2">View Date</label>
+            <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">View Date</label>
             <input
               type="date"
               value={selectedDate}
@@ -51,7 +51,7 @@ export default function SatelliteTracker() {
 
           {/* View Mode */}
           <div>
-            <label className="block text-sm text-mtaji-light-gray mb-2">View Mode</label>
+            <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">View Mode</label>
             <select
               value={comparisonMode}
               onChange={(e) => setComparisonMode(e.target.value as any)}
@@ -72,7 +72,7 @@ export default function SatelliteTracker() {
                 onChange={(e) => setShowOverlays(e.target.checked)}
                 className="w-4 h-4 rounded bg-white/5 border-white/20 text-mtaji-primary focus:ring-mtaji-primary"
               />
-              <span className="text-sm text-mtaji-light-gray">Show Overlays</span>
+              <span className="text-sm text-gray-800 dark:text-gray-400">Show Overlays</span>
             </label>
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function SatelliteTracker() {
         {satelliteImages.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🛰️</div>
-            <p className="text-mtaji-light-gray text-lg mb-2">No satellite imagery available</p>
+            <p className="text-gray-800 dark:text-gray-400 text-lg mb-2">No satellite imagery available</p>
             <p className="text-mtaji-medium-gray text-sm">
               Satellite imagery will be captured automatically when projects are registered
             </p>
@@ -95,7 +95,7 @@ export default function SatelliteTracker() {
             {/* Comparison View */}
             {comparisonMode === 'slider' && (
               <div className="relative h-96 bg-gray-900 rounded-lg overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center text-mtaji-light-gray">
+                <div className="absolute inset-0 flex items-center justify-center text-gray-800 dark:text-gray-400">
                   Slider Comparison View (Implementation needed)
                 </div>
               </div>
@@ -103,17 +103,17 @@ export default function SatelliteTracker() {
 
             {comparisonMode === 'side-by-side' && (
               <div className="grid grid-cols-2 gap-4">
-                <div className="h-96 bg-gray-900 rounded-lg flex items-center justify-center text-mtaji-light-gray">
+                <div className="h-96 bg-gray-900 rounded-lg flex items-center justify-center text-gray-800 dark:text-gray-400">
                   Before
                 </div>
-                <div className="h-96 bg-gray-900 rounded-lg flex items-center justify-center text-mtaji-light-gray">
+                <div className="h-96 bg-gray-900 rounded-lg flex items-center justify-center text-gray-800 dark:text-gray-400">
                   After
                 </div>
               </div>
             )}
 
             {comparisonMode === 'timelapse' && (
-              <div className="h-96 bg-gray-900 rounded-lg flex items-center justify-center text-mtaji-light-gray">
+              <div className="h-96 bg-gray-900 rounded-lg flex items-center justify-center text-gray-800 dark:text-gray-400">
                 Time-lapse Animation (Implementation needed)
               </div>
             )}
@@ -125,15 +125,15 @@ export default function SatelliteTracker() {
               </h3>
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
-                  <div className="text-mtaji-light-gray">Construction Progress</div>
-                  <div className="text-xl font-bold text-green-400">+15%</div>
+                  <div className="text-gray-800 dark:text-gray-400">Construction Progress</div>
+                  <div className="text-xl font-bold text-amber-500">+15%</div>
                 </div>
                 <div>
-                  <div className="text-mtaji-light-gray">Vegetation Changes</div>
+                  <div className="text-gray-800 dark:text-gray-400">Vegetation Changes</div>
                   <div className="text-xl font-bold text-yellow-400">+8%</div>
                 </div>
                 <div>
-                  <div className="text-mtaji-light-gray">Infrastructure</div>
+                  <div className="text-gray-800 dark:text-gray-400">Infrastructure</div>
                   <div className="text-xl font-bold text-blue-400">+22%</div>
                 </div>
               </div>
@@ -147,7 +147,7 @@ export default function SatelliteTracker() {
         <h3 className="text-xl font-semibold mb-4">Image Timeline</h3>
         <div className="space-y-2">
           {satelliteImages.length === 0 ? (
-            <p className="text-mtaji-light-gray text-center py-4">No images captured yet</p>
+            <p className="text-gray-800 dark:text-gray-400 text-center py-4">No images captured yet</p>
           ) : (
             satelliteImages.map((image) => (
               <div
@@ -158,7 +158,7 @@ export default function SatelliteTracker() {
                   <div className="w-16 h-16 bg-gray-800 rounded"></div>
                   <div>
                     <div className="font-semibold">{new Date(image.date).toLocaleDateString()}</div>
-                    <div className="text-sm text-mtaji-light-gray capitalize">{image.type}</div>
+                    <div className="text-sm text-gray-800 dark:text-gray-400 capitalize">{image.type}</div>
                   </div>
                 </div>
                 {image.changesDetected !== undefined && (

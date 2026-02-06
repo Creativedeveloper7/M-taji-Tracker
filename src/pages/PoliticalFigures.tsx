@@ -42,7 +42,7 @@ export default function PoliticalFigures() {
       case 'senator':
         return 'bg-indigo-100 text-indigo-800'
       case 'mca':
-        return 'bg-green-100 text-green-800'
+        return 'bg-amber-100 text-amber-800'
       default:
         return 'bg-gray-100 text-gray-800'
     }
@@ -218,7 +218,7 @@ export default function PoliticalFigures() {
                   <div className="flex items-center justify-between">
                     <span className={`text-xs px-2 py-1 rounded ${
                       figure.status === 'active' 
-                        ? 'bg-green-100 text-green-800'
+                        ? 'bg-amber-100 text-amber-800'
                         : figure.status === 'seeking_reelection'
                         ? 'bg-yellow-100 text-yellow-800'
                         : 'bg-gray-100 text-gray-800'

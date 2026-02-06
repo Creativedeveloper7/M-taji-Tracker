@@ -2,30 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Light theme (default) */
+/* Light theme (default) – dark text for strong contrast */
 :root {
   /* Background Colors */
   --bg-primary: #f8faf8;
   --bg-secondary: #ffffff;
   --bg-overlay: #f0f4f0;
 
-  /* Text Colors */
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --text-muted: #6b7280;
+  /* Text Colors – dark enough for WCAG contrast on light backgrounds */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #475569;
 
-  /* Accent Colors */
-  --accent-primary: #00A859;
-  --accent-secondary: #008C4A;
+  /* Accent Colors – golden/yellow */
+  --accent-primary: #D4A017;
+  --accent-secondary: #B8860B;
 
   /* Border Colors */
   --border-subtle: #e5e7eb;
   --divider: #d1d5db;
 
   /* Legacy colors for backward compatibility */
-  --color-primary: #00A859;
-  --color-primary-dark: #008C4A;
-  --color-primary-light: #E6F9F0;
+  --color-primary: #D4A017;
+  --color-primary-dark: #B8860B;
+  --color-primary-light: #FFFBEB;
   --color-accent: #FF6B2C;
   --color-purple: #1A0B2E;
   --color-navy: #0A1F44;
@@ -57,7 +57,7 @@
 
   --color-primary: #ffd500;
   --color-primary-dark: #ffd900;
-  --color-primary-light: #1a2e1a;
+  --color-primary-light: #2a261a;
   --color-accent: #FF6B2C;
   --color-off-white: #1a1a1a;
   --color-light-gray: #2a2a2a;

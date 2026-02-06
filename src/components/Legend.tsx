@@ -32,8 +32,8 @@ const Legend = () => {
         <div className="space-y-2">
           <div className="flex items-center space-x-2 text-sm">
             <div className="relative w-5 h-5">
-              <div className="absolute inset-0 rounded-full bg-green-500 opacity-40 animate-ping"></div>
-              <div className="relative w-5 h-5 rounded-full border-2 border-green-500 bg-green-500"></div>
+              <div className="absolute inset-0 rounded-full bg-amber-500 opacity-40 animate-ping"></div>
+              <div className="relative w-5 h-5 rounded-full border-2 border-amber-500 bg-amber-500"></div>
             </div>
             <span className="text-gray-700">Active Progress</span>
           </div>
@@ -46,7 +46,7 @@ const Legend = () => {
             <span className="text-gray-700">Baseline/Pending</span>
           </div>
           <div className="flex items-center space-x-2 text-sm">
-            <div className="w-5 h-5 rounded-full border-2 border-green-800 bg-green-800"></div>
+            <div className="w-5 h-5 rounded-full border-2 border-amber-700 bg-amber-700"></div>
             <span className="text-gray-700">Completed</span>
           </div>
         </div>

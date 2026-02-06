@@ -439,7 +439,7 @@ export default function BlogManagement() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-primary">Blog Management</h1>
-          <p className="text-secondary mt-1">Create and manage your blog posts</p>
+          <p className="text-gray-800 dark:text-secondary mt-1 font-medium">Create and manage your blog posts</p>
         </div>
         <button
           onClick={openCreateModal}
@@ -454,7 +454,7 @@ export default function BlogManagement() {
 
       {/* Success/Error Messages */}
       {success && (
-        <div className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-4 py-3 rounded-lg">
+        <div className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 px-4 py-3 rounded-lg">
           {success}
         </div>
       )}
@@ -504,11 +504,11 @@ export default function BlogManagement() {
         </div>
       ) : blogs.length === 0 ? (
         <div className="bg-secondary rounded-xl p-12 text-center">
-          <svg className="w-16 h-16 mx-auto text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-16 h-16 mx-auto text-gray-700 dark:text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
           </svg>
           <h3 className="text-xl font-semibold text-primary mb-2">No Blog Posts Yet</h3>
-          <p className="text-secondary mb-6">Start sharing your stories and insights with the community.</p>
+          <p className="text-gray-800 dark:text-secondary mb-6 font-medium">Start sharing your stories and insights with the community.</p>
           <button
             onClick={openCreateModal}
             className="px-6 py-3 bg-mtaji-accent text-white rounded-lg font-semibold hover:bg-mtaji-accent/90 transition-colors"
@@ -545,7 +545,7 @@ export default function BlogManagement() {
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                     blog.status === 'published' 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                       : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
                   }`}>
                     {blog.status === 'published' ? 'Published' : 'Draft'}
@@ -555,7 +555,7 @@ export default function BlogManagement() {
                   </span>
                 </div>
                 <h3 className="text-lg font-bold text-primary line-clamp-1">{blog.title}</h3>
-                <p className="text-secondary text-sm line-clamp-2 mt-1">{blog.excerpt}</p>
+                <p className="text-gray-800 dark:text-secondary text-sm line-clamp-2 mt-1">{blog.excerpt}</p>
                 {blog.initiative_name && (
                   <p className="text-xs text-mtaji-accent mt-2 flex items-center gap-1">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -585,7 +585,7 @@ export default function BlogManagement() {
                   className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     blog.status === 'published'
                       ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-900/50'
-                      : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
+                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50'
                   }`}
                 >
                   {blog.status === 'published' ? 'Unpublish' : 'Publish'}
@@ -611,11 +611,11 @@ export default function BlogManagement() {
             </div>
           ) : comments.length === 0 ? (
             <div className="bg-secondary rounded-xl p-12 text-center">
-              <svg className="w-16 h-16 mx-auto text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-16 h-16 mx-auto text-gray-700 dark:text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
               <h3 className="text-xl font-semibold text-primary mb-2">No Comments Yet</h3>
-              <p className="text-secondary">Comments on your published blogs will appear here.</p>
+              <p className="text-gray-800 dark:text-secondary font-medium">Comments on your published blogs will appear here.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -636,7 +636,7 @@ export default function BlogManagement() {
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         <span className="font-semibold text-primary">{comment.commenter_name}</span>
-                        <span className="text-xs text-secondary">
+                        <span className="text-xs text-gray-700 dark:text-secondary">
                           {new Date(comment.created_at).toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',
@@ -646,7 +646,7 @@ export default function BlogManagement() {
                           })}
                         </span>
                       </div>
-                      <p className="text-sm text-secondary mb-2 whitespace-pre-wrap">{comment.comment}</p>
+                      <p className="text-sm text-gray-800 dark:text-secondary mb-2 whitespace-pre-wrap">{comment.comment}</p>
                       <p className="text-xs text-mtaji-accent">
                         On: <span className="font-medium">{comment.blog_title}</span>
                       </p>
@@ -738,7 +738,7 @@ export default function BlogManagement() {
                       >
                         {uploadingImage ? 'Uploading...' : 'Upload Image'}
                       </button>
-                      <p className="text-xs text-secondary">Or paste image URL:</p>
+                      <p className="text-xs text-gray-700 dark:text-secondary">Or paste image URL:</p>
                       <input
                         type="url"
                         value={formData.image_url}
@@ -785,7 +785,7 @@ export default function BlogManagement() {
                 <div>
                   <label className="block text-sm font-semibold text-primary mb-2">
                     Link to Initiative
-                    <span className="text-secondary font-normal ml-2">(Optional)</span>
+                    <span className="text-gray-700 dark:text-secondary font-normal ml-2">(Optional)</span>
                   </label>
                   <select
                     value={formData.initiative_id || ''}
@@ -822,7 +822,7 @@ export default function BlogManagement() {
                     className="w-full px-4 py-3 bg-secondary border border-subtle rounded-lg text-primary focus:outline-none focus:ring-2 focus:ring-mtaji-accent resize-none"
                     required
                   />
-                  <p className="text-xs text-secondary mt-1">{formData.excerpt.length}/300 characters recommended</p>
+                  <p className="text-xs text-gray-700 dark:text-secondary mt-1">{formData.excerpt.length}/300 characters recommended</p>
                 </div>
 
                 {/* Content */}

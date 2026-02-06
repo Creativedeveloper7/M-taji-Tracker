@@ -543,7 +543,7 @@ const sampleKenyanBlogs: BlogPost[] = [
 
 // Category colors
 const categoryColors: Record<string, string> = {
-  'Impact Stories': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  'Impact Stories': 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
   'Transparency': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   'Technology': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
   'Youth': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
@@ -976,7 +976,7 @@ const BlogDetail = () => {
                 <h4 className="font-semibold text-primary mb-4">Leave a Comment</h4>
                 
                 {commentSuccess && (
-                  <div className="mb-4 p-3 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-lg text-sm">
+                  <div className="mb-4 p-3 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 rounded-lg text-sm">
                     Comment posted successfully!
                   </div>
                 )}

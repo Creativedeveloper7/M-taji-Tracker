@@ -172,7 +172,7 @@ export default function InitiativeDetail() {
     draft: 'bg-gray-400',
     published: 'bg-blue-500',
     active: 'bg-mtaji-accent',
-    completed: 'bg-green-500',
+    completed: 'bg-amber-500',
     stalled: 'bg-gray-400',
   };
 
@@ -237,9 +237,9 @@ export default function InitiativeDetail() {
               <h1 className="text-3xl md:text-4xl font-heading font-bold text-mtaji-primary mb-3">
                 {initiative.title}
               </h1>
-              <div className="flex flex-wrap items-center gap-4 text-gray-600">
+              <div className="flex flex-wrap items-center gap-4 text-gray-600 dark:text-gray-400">
                 <span className="flex items-center gap-1">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
@@ -251,6 +251,39 @@ export default function InitiativeDetail() {
                 {initiative.location.specific_area && (
                   <span>{initiative.location.specific_area}</span>
                 )}
+              </div>
+              {/* Compact project information beside location */}
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">Ministry/Dept:</span>
+                  <span>Ministry of Community Development &amp; Social Services</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">Account Holder Location:</span>
+                  <span>Nairobi, Kenya</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">Lives Impacted:</span>
+                  <span>Approx. 5,000</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">People Employed:</span>
+                  <span>500</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">Duration:</span>
+                  <span>{initiative.project_duration || 'Not specified'}</span>
+                </div>
+                {initiative.expected_completion && (
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">Expected Completion:</span>
+                    <span>{new Date(initiative.expected_completion).toLocaleDateString()}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">Created:</span>
+                  <span>{new Date(initiative.created_at).toLocaleDateString()}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -310,7 +343,7 @@ export default function InitiativeDetail() {
                       key={milestone.id || index}
                       className={`p-4 rounded-lg border-2 ${
                         milestone.status === 'completed'
-                          ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+                          ? 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800'
                           : milestone.status === 'in_progress'
                           ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
                           : 'bg-gray-50 border-gray-200 dark:bg-gray-700 dark:border-gray-600'
@@ -327,7 +360,7 @@ export default function InitiativeDetail() {
                         </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           milestone.status === 'completed'
-                            ? 'bg-green-500 text-white'
+                            ? 'bg-amber-500 text-white'
                             : milestone.status === 'in_progress'
                             ? 'bg-blue-500 text-white'
                             : 'bg-gray-400 text-white'
@@ -470,7 +503,7 @@ export default function InitiativeDetail() {
               </button>
               <button
                 onClick={() => navigate(`/initiatives/${initiative.id}/opportunities`)}
-                className="w-full bg-indigo-600 text-white font-heading font-semibold py-3 rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                className="w-full bg-amber-700 text-white font-heading font-semibold py-3 rounded-xl hover:bg-amber-800 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
@@ -500,7 +533,7 @@ export default function InitiativeDetail() {
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(initiative.title)}&url=${encodeURIComponent(window.location.href)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-black transition-colors"
+                  className="text-gray-700 dark:text-gray-500 hover:text-black dark:hover:text-white transition-colors"
                   aria-label="Share on X (Twitter)"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -512,7 +545,7 @@ export default function InitiativeDetail() {
                   href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-[#1877F2] transition-colors"
+                  className="text-gray-700 dark:text-gray-500 hover:text-[#1877F2] transition-colors"
                   aria-label="Share on Facebook"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -524,7 +557,7 @@ export default function InitiativeDetail() {
                   href={`https://api.whatsapp.com/send?text=${encodeURIComponent(initiative.title + ' - ' + window.location.href)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-[#25D366] transition-colors"
+                  className="text-gray-700 dark:text-gray-500 hover:text-[#25D366] transition-colors"
                   aria-label="Share on WhatsApp"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -559,7 +592,7 @@ export default function InitiativeDetail() {
                       console.error('Failed to copy link:', e);
                     }
                   }}
-                  className="text-gray-500 hover:text-mtaji-primary transition-colors"
+                  className="text-gray-700 dark:text-gray-500 hover:text-mtaji-primary transition-colors"
                   aria-label="Copy initiative link"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -570,56 +603,6 @@ export default function InitiativeDetail() {
               </div>
             </div>
 
-        {/* Project Info */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-heading font-bold text-mtaji-primary mb-4">Project Information</h3>
-          <div className="space-y-3 text-sm">
-            <div>
-              <span className="text-gray-600 dark:text-gray-400">Ministry / Department:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                Ministry of Community Development &amp; Social Services
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-600 dark:text-gray-400">Account Holder Location:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                Nairobi, Kenya
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-600 dark:text-gray-400">Lives Impacted:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                Approx. 5,000 community members
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-600 dark:text-gray-400">People Employed on Initiative:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                500
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-600 dark:text-gray-400">Duration:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                {initiative.project_duration || 'Not specified'}
-              </span>
-            </div>
-            {initiative.expected_completion && (
-              <div>
-                <span className="text-gray-600 dark:text-gray-400">Expected Completion:</span>
-                <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                  {new Date(initiative.expected_completion).toLocaleDateString()}
-                </span>
-              </div>
-            )}
-            <div>
-              <span className="text-gray-600 dark:text-gray-400">Created:</span>
-              <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
-                {new Date(initiative.created_at).toLocaleDateString()}
-              </span>
-            </div>
-          </div>
-        </div>
           </div>
         </div>
       </div>

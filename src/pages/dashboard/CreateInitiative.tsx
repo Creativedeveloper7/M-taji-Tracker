@@ -273,7 +273,7 @@ export default function CreateInitiative() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary text-sm"
+              className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary text-sm"
               placeholder="Search for a place..."
             />
             {isSearching && (
@@ -290,7 +290,7 @@ export default function CreateInitiative() {
                     onClick={() => handlePlaceSelect(feature)}
                     className="w-full text-left px-4 py-2 hover:bg-white/10 border-b border-white/10 last:border-b-0 transition-colors text-sm"
                   >
-                    <div className="text-white">{feature.place_name || feature.text}</div>
+                    <div className="text-gray-900 dark:text-white">{feature.place_name || feature.text}</div>
                   </button>
                 ))}
               </div>
@@ -342,11 +342,11 @@ export default function CreateInitiative() {
         {/* Coordinate Display */}
         {coordinates && (
           <div className="p-3 bg-white/5 border border-white/10 rounded-lg">
-            <p className="text-xs text-mtaji-light-gray mb-1">Selected Coordinates:</p>
-            <p className="text-sm text-white font-mono">
+            <p className="text-xs text-gray-800 dark:text-gray-400 mb-1">Selected Coordinates:</p>
+            <p className="text-sm text-gray-900 dark:text-white font-mono">
               {coordinates.lat.toFixed(8)}, {coordinates.lng.toFixed(8)}
             </p>
-            <p className="text-xs text-mtaji-medium-gray mt-1">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
               💡 Click on map to set location, or drag the marker for precise positioning
             </p>
           </div>
@@ -411,8 +411,8 @@ export default function CreateInitiative() {
           </button>
         </div>
         <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2">
-          <p className="text-xs text-white truncate">{image.name}</p>
-          <p className="text-xs text-mtaji-light-gray">
+          <p className="text-xs text-gray-900 dark:text-white truncate">{image.name}</p>
+          <p className="text-xs text-gray-800 dark:text-gray-400">
             {(image.size / 1024 / 1024).toFixed(2)} MB
           </p>
         </div>
@@ -755,10 +755,10 @@ export default function CreateInitiative() {
         console.error('Job error details:', jobError?.message, jobError?.stack);
       }
 
-      localStorage.removeItem('draft_initiative');
+        localStorage.removeItem('draft_initiative');
       
-      // Trigger refresh event for ProjectOverview
-      window.dispatchEvent(new Event('initiatives-refresh'));
+        // Trigger refresh event for ProjectOverview
+        window.dispatchEvent(new Event('initiatives-refresh'));
       
       // Clear timeout since we succeeded
       if (timeoutId) clearTimeout(timeoutId);
@@ -818,14 +818,14 @@ export default function CreateInitiative() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-heading font-black mb-2">Create Initiative</h2>
-          <p className="text-mtaji-light-gray">Publish a new community development project</p>
+          <p className="text-gray-800 dark:text-gray-400">Publish a new community development project</p>
         </div>
       </div>
 
       {/* Input Method Selection */}
       {!uploadedDocument && !extractedData && (
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
-          <h3 className="text-xl font-semibold mb-4">Choose Input Method</h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Choose Input Method</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
               onClick={() => setInputMethod('automated')}
@@ -837,7 +837,7 @@ export default function CreateInitiative() {
             >
               <div className="text-4xl mb-3">🤖</div>
               <h4 className="text-lg font-semibold mb-2">Automated Document Upload</h4>
-              <p className="text-sm text-mtaji-light-gray">
+              <p className="text-sm text-gray-800 dark:text-gray-400">
                 Upload PDF, DOCX, or images. AI will extract project details automatically.
               </p>
             </button>
@@ -851,8 +851,8 @@ export default function CreateInitiative() {
               }`}
             >
               <div className="text-4xl mb-3">✍️</div>
-              <h4 className="text-lg font-semibold mb-2">Manual Form Entry</h4>
-              <p className="text-sm text-mtaji-light-gray">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Manual Form Entry</h4>
+              <p className="text-sm text-gray-800 dark:text-gray-400">
                 Fill out a structured multi-step form with validation.
               </p>
             </button>
@@ -867,12 +867,12 @@ export default function CreateInitiative() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
         >
-          <h3 className="text-xl font-semibold mb-4">Upload Project Document</h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Upload Project Document</h3>
           
           {!uploadedDocument ? (
             <div className="border-2 border-dashed border-white/20 rounded-lg p-12 text-center">
               <div className="text-6xl mb-4">📄</div>
-              <p className="text-mtaji-light-gray mb-4">
+              <p className="text-gray-800 dark:text-gray-400 mb-4">
                 Upload PDF, DOCX, or image files containing project information
               </p>
               <label className="cursor-pointer inline-block">
@@ -890,7 +890,7 @@ export default function CreateInitiative() {
                   className="hidden"
                 />
               </label>
-              <p className="text-xs text-mtaji-medium-gray mt-4">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-4">
                 Supported formats: PDF, DOCX, DOC, PNG, JPG (Max 10MB)
               </p>
             </div>
@@ -900,8 +900,8 @@ export default function CreateInitiative() {
                 <div className="flex items-center gap-4">
                   <div className="text-3xl">📄</div>
                   <div>
-                    <div className="font-semibold">{uploadedDocument.name}</div>
-                    <div className="text-sm text-mtaji-light-gray">
+                    <div className="font-semibold text-gray-900 dark:text-white">{uploadedDocument.name}</div>
+                    <div className="text-sm text-gray-800 dark:text-gray-400">
                       {(uploadedDocument.size / 1024 / 1024).toFixed(2)} MB
                     </div>
                   </div>
@@ -920,8 +920,8 @@ export default function CreateInitiative() {
               {isExtracting && (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mtaji-primary mx-auto mb-4"></div>
-                  <p className="text-mtaji-light-gray">AI is extracting project information...</p>
-                  <p className="text-sm text-mtaji-medium-gray mt-2">
+                  <p className="text-gray-800 dark:text-gray-400">AI is extracting project information...</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                     This may take a few moments
                   </p>
                 </div>
@@ -932,7 +932,7 @@ export default function CreateInitiative() {
                   <h4 className="font-semibold mb-4 flex items-center gap-2">
                     ✅ Data Extracted Successfully
                   </h4>
-                  <p className="text-sm text-mtaji-light-gray mb-4">
+                  <p className="text-sm text-gray-800 dark:text-gray-400 mb-4">
                     Review and edit the extracted information below, then proceed to publish.
                   </p>
                   <button
@@ -980,12 +980,12 @@ export default function CreateInitiative() {
             </div>
           )}
           {submitSuccess && (
-            <div className="bg-emerald-500/20 border border-emerald-500 rounded-lg p-4">
+            <div className="bg-amber-500/20 border border-amber-500 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <span className="text-emerald-400 text-xl">✅</span>
+                <span className="text-amber-500 text-xl">✅</span>
                 <div className="flex-1">
-                  <p className="text-emerald-400 font-semibold mb-1">Initiative Published</p>
-                  <p className="text-emerald-300 text-sm">{submitSuccess}</p>
+                  <p className="text-amber-600 dark:text-amber-400 font-semibold mb-1">Initiative Published</p>
+                  <p className="text-amber-700 dark:text-amber-300 text-sm">{submitSuccess}</p>
                 </div>
               </div>
             </div>
@@ -993,7 +993,7 @@ export default function CreateInitiative() {
           {/* Progress Steps */}
           <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-mtaji-light-gray">
+              <span className="text-sm text-gray-800 dark:text-gray-400">
                 Step {currentStep} of {TOTAL_STEPS}
               </span>
               <div className="flex gap-2">
@@ -1021,17 +1021,17 @@ export default function CreateInitiative() {
                 exit={{ opacity: 0, x: -20 }}
                 className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
               >
-                <h3 className="text-2xl font-semibold mb-6">Basic Information</h3>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Basic Information</h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                       Initiative Title <span className="text-red-400">*</span>
                     </label>
                     <input
                       {...register('title', { required: 'Title is required' })}
                       type="text"
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                      className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                       placeholder="Enter project title"
                       onChange={autoSave}
                     />
@@ -1041,12 +1041,12 @@ export default function CreateInitiative() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                       Category/Sector <span className="text-red-400">*</span>
                     </label>
                     <select
                       {...register('category', { required: 'Category is required' })}
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-mtaji-primary bg-gray-800"
+                      className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-mtaji-primary dark:bg-gray-800"
                       onChange={autoSave}
                     >
                       <option value="">Select category</option>
@@ -1067,13 +1067,13 @@ export default function CreateInitiative() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                       Description <span className="text-red-400">*</span>
                     </label>
                     <textarea
                       {...register('description', { required: 'Description is required' })}
                       rows={6}
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary resize-none"
+                      className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary resize-none"
                       placeholder="Provide a detailed description of your initiative..."
                       onChange={autoSave}
                     />
@@ -1094,17 +1094,17 @@ export default function CreateInitiative() {
                 exit={{ opacity: 0, x: -20 }}
                 className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
               >
-                <h3 className="text-2xl font-semibold mb-6">Geographic Location</h3>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Geographic Location</h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                       Address <span className="text-red-400">*</span>
                     </label>
                     <input
                       {...register('location.address', { required: 'Address is required' })}
                       type="text"
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                      className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                       placeholder="Enter address or location"
                       onChange={autoSave}
                     />
@@ -1114,14 +1114,14 @@ export default function CreateInitiative() {
                   </div>
 
                   {/* Coordinate Input - Single Field */}
-                  <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">
+                    <div>
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                       Coordinates (Latitude, Longitude)
-                      <span className="text-xs text-mtaji-medium-gray ml-2">
+                      <span className="text-xs text-gray-600 dark:text-gray-400 ml-2">
                         (Paste coordinates like: -1.2921, 36.8219 or click on map)
                       </span>
                     </label>
-                    <input
+                      <input
                       type="text"
                       value={coordinateInput}
                       onChange={(e) => {
@@ -1165,13 +1165,13 @@ export default function CreateInitiative() {
                           }
                         }
                       }}
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                        className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                       placeholder='e.g., -1.2921, 36.8219 or "1.24960° S, 36.65751° E"'
-                    />
-                    <p className="text-xs text-mtaji-medium-gray mt-1">
+                      />
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                       💡 Tip: Copy coordinates from Google Maps (right-click → coordinates) or use the map below
                     </p>
-                  </div>
+                    </div>
 
                   {/* Map Picker */}
                   <LocationMapPicker
@@ -1201,49 +1201,49 @@ export default function CreateInitiative() {
                 exit={{ opacity: 0, x: -20 }}
                 className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
               >
-                <h3 className="text-2xl font-semibold mb-6">Project Timeline</h3>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Project Timeline</h3>
                 
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-mtaji-light-gray mb-2">
+                      <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                         Start Date <span className="text-red-400">*</span>
                       </label>
                       <input
                         {...register('timeline.startDate', { required: 'Start date is required' })}
                         type="date"
-                        className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-mtaji-primary bg-gray-800"
+                        className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-mtaji-primary dark:bg-gray-800"
                         onChange={autoSave}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm text-mtaji-light-gray mb-2">
+                      <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                         End Date <span className="text-red-400">*</span>
                       </label>
                       <input
                         {...register('timeline.endDate', { required: 'End date is required' })}
                         type="date"
-                        className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-mtaji-primary bg-gray-800"
+                        className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-mtaji-primary dark:bg-gray-800"
                         onChange={autoSave}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">Milestones</label>
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">Milestones</label>
                     {watch('timeline.milestones')?.map((_milestone, index) => (
                       <div key={index} className="flex gap-2 mb-2">
                         <input
                           {...register(`timeline.milestones.${index}.name`)}
                           type="text"
                           placeholder="Milestone name"
-                          className="flex-1 bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                          className="flex-1 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                           onChange={autoSave}
                         />
                         <input
                           {...register(`timeline.milestones.${index}.date`)}
                           type="date"
-                          className="bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-mtaji-primary bg-gray-800"
+                          className="bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-mtaji-primary dark:bg-gray-800"
                           onChange={autoSave}
                         />
                         {index > 0 && (
@@ -1286,38 +1286,38 @@ export default function CreateInitiative() {
                 exit={{ opacity: 0, x: -20 }}
                 className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
               >
-                <h3 className="text-2xl font-semibold mb-6">Budget & Funding</h3>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Budget & Funding</h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                       Total Budget <span className="text-red-400">*</span>
                     </label>
                     <input
                       {...register('budget.total', { required: 'Total budget is required', valueAsNumber: true })}
                       type="number"
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                      className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                       placeholder="Enter total budget amount"
                       onChange={autoSave}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">Budget Breakdown</label>
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">Budget Breakdown</label>
                     {watch('budget.breakdown')?.map((_item, index) => (
                       <div key={index} className="flex gap-2 mb-2">
                         <input
                           {...register(`budget.breakdown.${index}.category`)}
                           type="text"
                           placeholder="Category"
-                          className="flex-1 bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                          className="flex-1 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                           onChange={autoSave}
                         />
                         <input
                           {...register(`budget.breakdown.${index}.amount`, { valueAsNumber: true })}
                           type="number"
                           placeholder="Amount"
-                          className="w-32 bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                          className="w-32 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                           onChange={autoSave}
                         />
                         {index > 0 && (
@@ -1349,11 +1349,11 @@ export default function CreateInitiative() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">Funding Sources</label>
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">Funding Sources</label>
                     <input
                       type="text"
                       placeholder="Enter funding sources (comma-separated)"
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                      className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                       onChange={(e) => {
                         const sources = e.target.value.split(',').map(s => s.trim()).filter(s => s);
                         setValue('budget.fundingSources', sources);
@@ -1374,28 +1374,28 @@ export default function CreateInitiative() {
                 exit={{ opacity: 0, x: -20 }}
                 className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
               >
-                <h3 className="text-2xl font-semibold mb-6">Success Metrics, Team & Opportunities</h3>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Success Metrics, Team & Opportunities</h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                       Expected Beneficiaries
                     </label>
                     <input
                       {...register('beneficiaries', { valueAsNumber: true })}
                       type="number"
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                      className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                       placeholder="Number of people who will benefit"
                       onChange={autoSave}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">Success Metrics/KPIs</label>
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">Success Metrics/KPIs</label>
                     <input
                       type="text"
                       placeholder="Enter metrics (comma-separated)"
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                      className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                       onChange={(e) => {
                         const metrics = e.target.value.split(',').map(m => m.trim()).filter(m => m);
                         setValue('successMetrics', metrics);
@@ -1405,21 +1405,21 @@ export default function CreateInitiative() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">Team Members</label>
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">Team Members</label>
                     {watch('teamMembers')?.map((_member, index) => (
                       <div key={index} className="grid grid-cols-3 gap-2 mb-2">
                         <input
                           {...register(`teamMembers.${index}.name`)}
                           type="text"
                           placeholder="Name"
-                          className="bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                          className="bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                           onChange={autoSave}
                         />
                         <input
                           {...register(`teamMembers.${index}.role`)}
                           type="text"
                           placeholder="Role"
-                          className="bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                          className="bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                           onChange={autoSave}
                         />
                         <div className="flex gap-2">
@@ -1427,7 +1427,7 @@ export default function CreateInitiative() {
                             {...register(`teamMembers.${index}.email`)}
                             type="email"
                             placeholder="Email"
-                            className="flex-1 bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                            className="flex-1 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                             onChange={autoSave}
                           />
                           {index > 0 && (
@@ -1461,8 +1461,8 @@ export default function CreateInitiative() {
 
                   {/* Opportunities: Preferences */}
                   <div className="mt-6 border-t border-white/10 pt-4">
-                    <h4 className="text-lg font-semibold mb-2">Opportunities Preferences</h4>
-                    <p className="text-xs text-mtaji-medium-gray mb-3">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Opportunities Preferences</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
                       Select which types of opportunities you want to receive for this initiative.
                     </p>
                     <div className="space-y-2 mb-4">
@@ -1476,7 +1476,7 @@ export default function CreateInitiative() {
                           }}
                           className="w-4 h-4 rounded border-white/20 bg-white/5 text-mtaji-primary focus:ring-mtaji-primary"
                         />
-                        <span className="text-sm text-white">Accept Proposals</span>
+                        <span className="text-sm text-gray-900 dark:text-white">Accept Proposals</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -1488,7 +1488,7 @@ export default function CreateInitiative() {
                           }}
                           className="w-4 h-4 rounded border-white/20 bg-white/5 text-mtaji-primary focus:ring-mtaji-primary"
                         />
-                        <span className="text-sm text-white">Accept Content Creator Applications</span>
+                        <span className="text-sm text-gray-900 dark:text-white">Accept Content Creator Applications</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -1500,21 +1500,21 @@ export default function CreateInitiative() {
                           }}
                           className="w-4 h-4 rounded border-white/20 bg-white/5 text-mtaji-primary focus:ring-mtaji-primary"
                         />
-                        <span className="text-sm text-white">Accept Project Ambassador Applications</span>
+                        <span className="text-sm text-gray-900 dark:text-white">Accept Project Ambassador Applications</span>
                       </label>
                     </div>
                   </div>
 
                   {/* Opportunities: Jobs */}
                   <div className="mt-6 border-t border-white/10 pt-4">
-                    <h4 className="text-lg font-semibold mb-2">Opportunities – Jobs</h4>
-                    <p className="text-xs text-mtaji-medium-gray mb-3">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Opportunities – Jobs</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
                       Add any roles or jobs you want to advertise for this initiative. These will appear on the Opportunities tab for guests.
                     </p>
                     {(watch('opportunities.jobs') || []).map((job: any, index: number) => (
                       <div key={index} className="mb-3 border border-white/15 rounded-lg p-3 space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-xs text-mtaji-medium-gray">Job #{index + 1}</span>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Job #{index + 1}</span>
                           {index > 0 && (
                             <button
                               type="button"
@@ -1531,7 +1531,7 @@ export default function CreateInitiative() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           <div>
-                            <label className="block text-xs text-mtaji-light-gray mb-1">Job Title</label>
+                            <label className="block text-xs text-gray-800 dark:text-gray-400 mb-1">Job Title</label>
                             <input
                               type="text"
                               value={job?.title || ''}
@@ -1541,12 +1541,12 @@ export default function CreateInitiative() {
                                 setValue('opportunities.jobs', jobs);
                                 autoSave();
                               }}
-                              className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                              className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                               placeholder="e.g., Site Supervisor"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-mtaji-light-gray mb-1">Type</label>
+                            <label className="block text-xs text-gray-800 dark:text-gray-400 mb-1">Type</label>
                             <input
                               type="text"
                               value={job?.jobType || ''}
@@ -1556,13 +1556,13 @@ export default function CreateInitiative() {
                                 setValue('opportunities.jobs', jobs);
                                 autoSave();
                               }}
-                              className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary"
+                              className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary"
                               placeholder="e.g., Full-time, Part-time, Contract"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="block text-xs text-mtaji-light-gray mb-1">Short Description</label>
+                          <label className="block text-xs text-gray-800 dark:text-gray-400 mb-1">Short Description</label>
                           <textarea
                             value={job?.description || ''}
                             onChange={(e) => {
@@ -1572,7 +1572,7 @@ export default function CreateInitiative() {
                               autoSave();
                             }}
                             rows={2}
-                            className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-mtaji-light-gray focus:outline-none focus:border-mtaji-primary resize-none"
+                            className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-mtaji-primary resize-none"
                             placeholder="Briefly describe what this role involves..."
                           />
                         </div>
@@ -1603,11 +1603,11 @@ export default function CreateInitiative() {
                 exit={{ opacity: 0, x: -20 }}
                 className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6"
               >
-                <h3 className="text-2xl font-semibold mb-6">Documents & Media</h3>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Documents & Media</h3>
                 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                       Supporting Documents
                     </label>
                     {watch('documents') && watch('documents').length > 0 ? (
@@ -1626,8 +1626,8 @@ export default function CreateInitiative() {
                                    doc.type.includes('image') ? '🖼️' : '📎'}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-white truncate">{doc.name}</p>
-                                  <p className="text-xs text-mtaji-light-gray">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{doc.name}</p>
+                                  <p className="text-xs text-gray-800 dark:text-gray-400">
                                     {(doc.size / 1024 / 1024).toFixed(2)} MB • {doc.type || 'Unknown type'}
                                   </p>
                                 </div>
@@ -1686,7 +1686,7 @@ export default function CreateInitiative() {
                             }}
                           />
                         </label>
-                        <p className="text-xs text-mtaji-medium-gray mt-2">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                           PDF, DOCX, DOC, or images (Max 10MB each)
                         </p>
                       </div>
@@ -1694,7 +1694,7 @@ export default function CreateInitiative() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-mtaji-light-gray mb-2">
+                    <label className="block text-sm text-gray-800 dark:text-gray-400 mb-2">
                       Project Images
                     </label>
                     {watch('images') && Array.isArray(watch('images')) && watch('images').length > 0 ? (
@@ -1716,17 +1716,17 @@ export default function CreateInitiative() {
                         </div>
                         {/* Add More Images Button */}
                         {((watch('images') as File[]) || []).length < 10 && (
-                          <label className="block border-2 border-dashed border-white/20 rounded-lg p-4 text-center cursor-pointer hover:border-mtaji-primary transition-colors">
-                            <span className="text-mtaji-primary hover:underline">Add More Images</span>
-                            <input
-                              type="file"
-                              multiple
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                if (e.target.files) {
-                                  const newFiles = Array.from(e.target.files);
-                                  const currentImages = (watch('images') as File[]) || [];
+                        <label className="block border-2 border-dashed border-white/20 rounded-lg p-4 text-center cursor-pointer hover:border-mtaji-primary transition-colors">
+                          <span className="text-mtaji-primary hover:underline">Add More Images</span>
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files) {
+                                const newFiles = Array.from(e.target.files);
+                                const currentImages = (watch('images') as File[]) || [];
                                   
                                   // Validate file sizes
                                   const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -1751,15 +1751,15 @@ export default function CreateInitiative() {
                                     alert('Maximum 10 images allowed. Some images were not added.');
                                   }
                                   
-                                  setValue('images', allImages);
-                                  autoSave();
-                                }
-                              }}
-                            />
-                          </label>
+                                setValue('images', allImages);
+                                autoSave();
+                              }
+                            }}
+                          />
+                        </label>
                         )}
                         {/* Image count and size info */}
-                        <p className="text-xs text-mtaji-medium-gray mt-2">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                           {((watch('images') as File[]) || []).length}/10 images • Max 5MB each
                         </p>
                       </div>
@@ -1806,7 +1806,7 @@ export default function CreateInitiative() {
                             }}
                           />
                         </label>
-                        <p className="text-xs text-mtaji-medium-gray mt-2">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                           PNG, JPG, JPEG • Max 5MB each • Up to 10 images
                         </p>
                       </div>
@@ -1878,7 +1878,7 @@ export default function CreateInitiative() {
               <h3 className="text-2xl font-semibold">Preview Initiative</h3>
               <button
                 onClick={() => setShowPreview(false)}
-                className="text-mtaji-light-gray hover:text-white"
+                className="text-gray-800 dark:text-gray-400 hover:text-white"
               >
                 ✕
               </button>
@@ -1886,23 +1886,23 @@ export default function CreateInitiative() {
             
             <div className="space-y-4 text-sm">
               <div>
-                <span className="text-mtaji-light-gray">Title:</span>
+                <span className="text-gray-800 dark:text-gray-400">Title:</span>
                 <span className="ml-2 font-semibold">{watch('title') || 'Not set'}</span>
               </div>
               <div>
-                <span className="text-mtaji-light-gray">Category:</span>
+                <span className="text-gray-800 dark:text-gray-400">Category:</span>
                 <span className="ml-2 capitalize">{watch('category') || 'Not set'}</span>
               </div>
               <div>
-                <span className="text-mtaji-light-gray">Description:</span>
-                <p className="mt-1 text-mtaji-light-gray">{watch('description') || 'Not set'}</p>
+                <span className="text-gray-800 dark:text-gray-400">Description:</span>
+                <p className="mt-1 text-gray-800 dark:text-gray-400">{watch('description') || 'Not set'}</p>
               </div>
               <div>
-                <span className="text-mtaji-light-gray">Location:</span>
+                <span className="text-gray-800 dark:text-gray-400">Location:</span>
                 <span className="ml-2">{watch('location.address') || 'Not set'}</span>
               </div>
               <div>
-                <span className="text-mtaji-light-gray">Timeline:</span>
+                <span className="text-gray-800 dark:text-gray-400">Timeline:</span>
                 <span className="ml-2">
                   {watch('timeline.startDate') && watch('timeline.endDate')
                     ? `${new Date(watch('timeline.startDate')!).toLocaleDateString()} - ${new Date(watch('timeline.endDate')!).toLocaleDateString()}`
@@ -1910,21 +1910,21 @@ export default function CreateInitiative() {
                 </span>
               </div>
               <div>
-                <span className="text-mtaji-light-gray">Total Budget:</span>
+                <span className="text-gray-800 dark:text-gray-400">Total Budget:</span>
                 <span className="ml-2">
                   {watch('budget.total') ? `KES ${watch('budget.total')!.toLocaleString()}` : 'Not set'}
                 </span>
               </div>
               <div>
-                <span className="text-mtaji-light-gray">Expected Beneficiaries:</span>
+                <span className="text-gray-800 dark:text-gray-400">Expected Beneficiaries:</span>
                 <span className="ml-2">{watch('beneficiaries') || 'Not set'}</span>
               </div>
               {watch('timeline.milestones') && watch('timeline.milestones')!.length > 0 && (
                 <div>
-                  <span className="text-mtaji-light-gray">Milestones:</span>
+                  <span className="text-gray-800 dark:text-gray-400">Milestones:</span>
                   <ul className="mt-2 space-y-1">
                     {watch('timeline.milestones')!.map((m, idx) => (
-                      <li key={idx} className="text-mtaji-light-gray">
+                      <li key={idx} className="text-gray-800 dark:text-gray-400">
                         • {m.name} - {m.date ? new Date(m.date).toLocaleDateString() : 'No date'}
                       </li>
                     ))}
